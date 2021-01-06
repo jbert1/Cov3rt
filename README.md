@@ -12,18 +12,18 @@ Daniel Munger
 Christopher Rice
 
 # Contents
-* [Cloaks] (#cloak)
-  * [What is a Cloak] (#what-is-a-cloak)
-  * [Cloak Classifications] (#cloak-classifications)
-  * [Create Your Own Cloak] (#create-your-own-cloak)
-* [Features] (#features)
-  * [Plug-and-Play Covert Channels] (#plug-and-play-covert-channels)
-  * [Dynamic and Static Analysis] (#dynamic-and-static-analysis)
-  * [Application] (#application)
-  * [Module] (#module)
-* [Future] (#future)
-  * [Network Analyzer] (#network-analyzer)
-  * [Interpreter] (#interpreter)
+* [Cloaks](#cloak)
+  * [What is a Cloak](#what-is-a-cloak)
+  * [Cloak Classifications](#cloak-classifications)
+  * [Create Your Own Cloak](#create-your-own-cloak)
+* [Features](#features)
+  * [Plug-and-Play Covert Channels](#plug-and-play-covert-channels)
+  * [Dynamic and Static Analysis](#dynamic-and-static-analysis)
+  * [Application](#application)
+  * [Module](#module)
+* [Future](#future)
+  * [Network Analyzer](#network-analyzer)
+  * [Interpreter](#interpreter)
 
 
 ## Cloaks
