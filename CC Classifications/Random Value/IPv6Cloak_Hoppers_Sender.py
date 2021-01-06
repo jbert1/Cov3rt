@@ -8,5 +8,4 @@ secret_phrase = input("Enter your Secret Phrase:")
 secret_phrase_bin = ''.join((format(ord(i), 'b').zfill(8) for i in secret_phrase))
 
 
-p = IPv6()
-p
+ls(IPv6)
