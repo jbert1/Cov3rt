@@ -3,10 +3,13 @@
 
 ## Authors
 
-> Justin Berthelot
-> Samuel Dominguez
-> Daniel Munger
-> Christopher Rice
+Justin Berthelot
+
+Samuel Dominguez
+
+Daniel Munger
+
+Christopher Rice
 
 # Contents
 * [Cloaks] (#cloak)
