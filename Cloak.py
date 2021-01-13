@@ -4,21 +4,12 @@ from logging import critical, error, info, warning, debug
 # Cloak superclass
 class Cloak(object):
 
-    # Constants
-    STREAM_CLOAK = 0
-    MODULATE_CLOAK = 1
-
     # Constructor
-    def __init__(self, description = "An example cloak for the cov3rt framework.", cloak_type = 0):
+    def __init__(self, description = "An example cloak for the cov3rt framework."):
         # Description for this cloak
         self.desc = description
-        # Type of cloak (Stream or Modulation)
-        self.cloak_type = cloak_type
-        # Data pointer
-        self.data_pointer = -1
         # Initialize data
         self.data = []
-        # self.packet = IP(dst=self.ip_dst)/UDP(sport=self.d_port, dport=self.s_port)/Raw()
     
     def ingest(self, data):
         """Ingests and formats data for the cloak to communicate."""
@@ -32,18 +23,13 @@ class Cloak(object):
         """Sends a delimiter to signal the end of a specified data stream."""
         pass
 
-    # def send_next_packet(self):
-    #     pass
+    def send_packets(self):
+        """Sends the entire ingested data via the send_packet method."""
+        pass
 
-    # # Update data
-    # def update(self, data):
-    #     # Create random string
-    #     s = ""
-    #     for i in range(data):
-    #         s += choice(printable)
-    #     # Update packet data
-    #     self.packet = IP(dst=self.ip_dst)/UDP(sport=self.d_port, dport=self.s_port)/Raw(s)
-    
+    def send_packet(self):
+        """Sends packet(s) via a defined covert channel."""
+        pass
     
     ## Getters and Setters ##
     # Getter for 'description'
