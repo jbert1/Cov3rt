@@ -1,6 +1,10 @@
-from scapy.all import send
-from logging import critical, error, info, warning, debug
 from abc import ABC, abstractmethod
+from logging import error, warning
+from os import geteuid
+
+# Check to make sure we have the correct privileges
+if geteuid() != 0:
+    warning("You must be root to send packets with cov3rt!")
 
 # Cloak superclass
 class Cloak(ABC):
@@ -27,6 +31,24 @@ class Cloak(ABC):
     def send_packet(self, data):
         """Sends packet(s) via a defined covert channel."""
         pass
+
+    @abstractmethod
+    def packet_handler(self, pkt):
+        """Specifies the packet handler for receiving information via the defined covert channel."""
+        pass
+
+    def recv_packets(self):
+        """Receives packets which use the Case Modulated DNS Cloak."""
+        pass
+
+    def recv_EOT(self, pkt):
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
+        pass
+
+    def recv_delimiter(self, pkt):
+        """Specifies the delimiter packet that signals the end of a specified data stream."""
+        pass
+
     
     ## Getters and Setters ##
     # Getter for 'description'
@@ -58,29 +80,3 @@ class Cloak(ABC):
             self._name = d
         else:
             error("'name' must be of type 'str'")
-
-class TestCloak(Cloak):
-
-    def __init__(self, description = "An example cloak for the cov3rt framework.", name = "Test Cloak"):
-        self.description = description
-        self.name = name
-    
-    def ingest(self, data):
-        """Ingests and formats data for the cloak to communicate."""
-        pass
-    
-    def send_EOT(self):
-        """Sends an end-of-transmission packet to signal the end of transmission."""
-        pass
-
-    def send_delimiter(self):
-        """Sends a delimiter to signal the end of a specified data stream."""
-        pass
-
-    def send_packets(self):
-        """Sends the entire ingested data via the send_packet method."""
-        pass
-
-    def send_packet(self, data):
-        """Sends packet(s) via a defined covert channel."""
-        pass
