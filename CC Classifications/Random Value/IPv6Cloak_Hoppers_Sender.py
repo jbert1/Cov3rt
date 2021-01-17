@@ -1,5 +1,6 @@
 from scapy.all import *
 
+#Starting Hop Limit (Recommended to be between 64 and 128)
 starting_hl = 68
 
 # Collects user input to determine content of message to send over the covert channel
@@ -18,7 +19,7 @@ p.hlim = starting_hl
 
 # ls(p) DEBUG
 
-# Sends packet
+# Send the packet
 send(p)
 
 # For each character ...
@@ -38,4 +39,5 @@ p.hlim = starting_hl
 
 # ls(p) DEBUG
 
+# Send the packet
 send(p)
