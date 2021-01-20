@@ -2,29 +2,36 @@
 # encoding: utf-8
 
 import npyscreen
-class TestApp(npyscreen.NPSApp):
+
+
+class cov3rtApp(npyscreen.NPSAppManaged):
+
     def main(self):
-        # These lines create the form and populate it with widgets.
-        # A fairly complex screen in only 8 or so lines of code - a line for each control.
-        F  = npyscreen.Form(name = "Welcome to cov3rt",)
-        t  = F.add(npyscreen.TitleText, name = "Insert your Cloak",)
-        fn = F.add(npyscreen.TitleFilename, name = "Filename:")
-        fn2 = F.add(npyscreen.TitleFilenameCombo, name="Filename2:")
-        dt = F.add(npyscreen.TitleDateCombo, name = "Date:")
-        s  = F.add(npyscreen.TitleSlider, out_of=12, name = "Slider")
-        ml = F.add(npyscreen.MultiLineEdit,
-               value = """try typing here!\nMutiline text, press ^R to reformat.\n""",
-               max_height=5, rely=9)
-        ms = F.add(npyscreen.TitleSelectOne, max_height=4, value = [1,], name="Pick One",
-                values = ["Option1","Option2","Option3"], scroll_exit=True)
-        ms2= F.add(npyscreen.TitleMultiSelect, max_height =-2, value = [1,], name="Pick Several",
-                values = ["Option1","Option2","Option3"], scroll_exit=True)
+        self.registerForm("Initial", Start_TUI)
+        self.registerForm("Secondary", Second_TUI)
 
-        # This lets the user interact with the Form.
-        F.edit()
+class Start_TUI(npyscreen.ActionForm):
 
-        print(ms.get_selected_objects())
+    def activate(self):
+        self.edit()
+        self.parentApp.setNextForm("Secondary")
+
+    def create(self):
+        self.pick_cloak = self.add(npyscreen.TitleSelectOne, values = ["Inter-Packet Timing", "Random Value", "Reserved or Unreserved", "Size Modulation", "Value Modulation"], name = "Pick a category of Cloak")
+    
+    def on_ok(self):
+        carryover = self.parentApp.getForm("Secondary")
+        carryover.pick_cloak.value = self.pick_cloak.values[self.pick_cloak.value[0]]
+        self.parentApp.switchForm("Secondary")
+
+class Second_TUI(npyscreen.Form):
+    def activate(self):
+        self.edit()
+    
+    def create(self):
+        self.pick_cloak = self.add(npyscreen.TitleFixedText, name = "You chose")
+
 
 if __name__ == "__main__":
-    App = TestApp()
-    App.run()
+    cov3rt = cov3rtApp()
+    cov3rt.run()
