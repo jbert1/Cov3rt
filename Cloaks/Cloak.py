@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from logging import error, warning
-from os import geteuid
+#from os import geteuid
 
 # Check to make sure we have the correct privileges
-if geteuid() != 0:
-    warning("You must be root to send packets with cov3rt!")
+#if geteuid() != 0:
+#   warning("You must be root to send packets with cov3rt!")
 
 # Cloak superclass
 class Cloak(ABC):
