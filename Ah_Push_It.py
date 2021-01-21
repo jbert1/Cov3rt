@@ -6,9 +6,9 @@ import npyscreen
 
 class cov3rtApp(npyscreen.NPSAppManaged):
 
-    def main(self):
-        self.registerForm("Initial", Start_TUI)
-        self.registerForm("Secondary", Second_TUI)
+    def onStart(self):
+        self.addForm("Initial", Start_TUI, name = "Welcome to cov3rt")
+        self.addForm("Secondary", Second_TUI, name = "Welcome to cov3rt")
 
 class Start_TUI(npyscreen.ActionForm):
 
@@ -20,8 +20,8 @@ class Start_TUI(npyscreen.ActionForm):
         self.pick_cloak = self.add(npyscreen.TitleSelectOne, values = ["Inter-Packet Timing", "Random Value", "Reserved or Unreserved", "Size Modulation", "Value Modulation"], name = "Pick a category of Cloak")
     
     def on_ok(self):
-        carryover = self.parentApp.getForm("Secondary")
-        carryover.pick_cloak.value = self.pick_cloak.values[self.pick_cloak.value[0]]
+        toSecond = self.parentApp.getForm("Secondary")
+        toSecond.pick_cloak.value = self.pick_cloak.values[self.pick_cloak.value[0]]
         self.parentApp.switchForm("Secondary")
 
 class Second_TUI(npyscreen.Form):
@@ -33,5 +33,4 @@ class Second_TUI(npyscreen.Form):
 
 
 if __name__ == "__main__":
-    cov3rt = cov3rtApp()
-    cov3rt.run()
+    npyscreen.warpper(cov3rtApp().run())
