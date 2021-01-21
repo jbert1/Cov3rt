@@ -66,7 +66,8 @@ class DNSTiming(Cloak):
         '''Specifies the packet handler for receiving info via the DNS Timing Cloak.'''
         if (pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR)):
             if (pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domain.lower().encode()):
-                pass
+                pass # Not sure what I really need for this function, as my data processing
+                # for the packets is entirely handled in recv_packets()
 
     def recv_EOT(self, pkt):
         '''Specifies the EOT packet, singaling the end of transmission.'''
