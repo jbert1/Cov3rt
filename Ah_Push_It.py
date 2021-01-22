@@ -7,7 +7,7 @@ import npyscreen
 class cov3rtApp(npyscreen.NPSAppManaged):
 
     def onStart(self):
-        self.addForm("Initial", Start_TUI, name = "Welcome to cov3rt")
+        self.addForm("MAIN", Start_TUI, name = "Welcome to cov3rt")
         self.addForm("Secondary", Second_TUI, name = "Welcome to cov3rt")
 
 class Start_TUI(npyscreen.ActionForm):
@@ -17,7 +17,7 @@ class Start_TUI(npyscreen.ActionForm):
         self.parentApp.setNextForm("Secondary")
 
     def create(self):
-        self.pick_cloak = self.add(npyscreen.TitleSelectOne, values = ["Inter-Packet Timing", "Random Value", "Reserved or Unreserved", "Size Modulation", "Value Modulation"], name = "Pick a category of Cloak")
+        self.pick_cloak = self.add(npyscreen.TitleSelectOne, values = ["Inter-Packet Timing", "Random Value", "Reserved or Unreserved", "Size Modulation", "Value Modulation"], name = "Pick a category of Cloak", scroll_exit = True)
     
     def on_ok(self):
         toSecond = self.parentApp.getForm("Secondary")
@@ -27,10 +27,15 @@ class Start_TUI(npyscreen.ActionForm):
 class Second_TUI(npyscreen.Form):
     def activate(self):
         self.edit()
+        self.parentApp.setNextForm(None)
+
     
     def create(self):
         self.pick_cloak = self.add(npyscreen.TitleFixedText, name = "You chose")
+    
+    
 
 
-if __name__ == "__main__":
-    npyscreen.warpper(cov3rtApp().run())
+
+if __name__ == '__main__':
+    npyscreen.wrapper(cov3rtApp().run())
