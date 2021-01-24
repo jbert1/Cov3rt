@@ -93,11 +93,15 @@ class DNSTiming(Cloak):
                 return True
         return False
 
-    def recv_packets(self, timeout = None, max_count = None, iface = None):
+    def recv_packets(self, timeout = None, max_count = None, iface = None, in_file = None, out_file = None):
         '''Receives packets which use the DNS Timing Cloak.'''
         self.read_data = []
         print("Sniffing beginning...")
-        sniff(timeout = timeout, stop_filter = self.recv_EOT, prn = self.packet_handler)
+        self.read_data = ''
+        if max_count:
+            sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+        else:
+            sniff(timeout = timeout, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         # Decode the data collected, based on timings between packets
         print("Sniffing has ended, EOT received")
         string = ''
