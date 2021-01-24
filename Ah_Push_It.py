@@ -32,7 +32,7 @@ class Second_TUI(npyscreen.Form):
 
     
     def create(self):
-        self.pick_cloak = self.add(npyscreen.TitleFixedText, name = "Pick a Cloak in the category of")
+        self.pick_cloak = self.add(npyscreen.TitleFixedText, name = "You Chose")
     
     
 
