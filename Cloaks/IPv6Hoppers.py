@@ -7,3 +7,7 @@ from re import search
 from time import sleep
 
 from Cloak import Cloak
+
+
+class IPv6Hoppers(Cloak):
+    pass
