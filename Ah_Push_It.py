@@ -23,6 +23,10 @@ class Start_TUI(npyscreen.ActionForm):
         toSecond = self.parentApp.getForm("Secondary")
         toSecond.pick_cloak.value = self.pick_cloak.values[self.pick_cloak.value[0]]
         self.parentApp.switchForm("Secondary")
+    
+    def on_cancel(self):
+        self.editing = True
+
 
 class Second_TUI(npyscreen.Form):
     def activate(self):
