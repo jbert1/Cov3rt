@@ -26,7 +26,7 @@ class Cloak(ABC):
         pass
 
     @abstractmethod
-    def send_packets(self, startDelay = None, packetDelay = None, endDelay = None):
+    def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""
         pass
 

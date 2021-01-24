@@ -54,11 +54,8 @@ class DNSTiming(Cloak):
             pkt = IP(dst=self.ip_dst)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname = self.domaincont.capitalize()))
             send(pkt, verbose = False)
 
-    def send_packets(self, startDelay = None, packetDelay = None, endDelay = None):
+    def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""
-        # Start delay
-        if (isinstance(startDelay, int) or isinstance(startDelay, float)):
-            sleep(startDelay)
         print("Sending data:")
         print(self.data)
 
