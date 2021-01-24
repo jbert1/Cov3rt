@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 from logging import error, warning
-#from os import geteuid
+try:
+    from os import geteuid
+    # Check to make sure we have the correct privileges
+    if geteuid() != 0:
+        warning("You must be root to send packets with cov3rt!")
+except ImportError:
+    pass
 
-# Check to make sure we have the correct privileges
-#if geteuid() != 0:
-#   warning("You must be root to send packets with cov3rt!")
 
 # Cloak superclass
 class Cloak(ABC):
@@ -23,7 +26,7 @@ class Cloak(ABC):
         pass
 
     @abstractmethod
-    def send_packets(self):
+    def send_packets(self, startDelay = None, packetDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""
         pass
 

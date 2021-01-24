@@ -13,12 +13,12 @@ class DNSCaseModulation(Cloak):
     # Regular expression to verify IP
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9 \][0-9]?)$"
 
-    def __init__(self, ip_dst = "8.8.8.8", domain = "www.google.com", description = "A cloak based on case modulation of a specified domain.", name = "DNS Case Modulation"):
-        self.description = description
-        self.name = name
+    def __init__(self, ip_dst = "8.8.8.8", domain = "www.google.com"):
+        self.description = "A cloak based on case modulation of a specified domain."
+        self.name = "DNS Case Modulation"
         self.ip_dst = ip_dst
-        self.domain = domain + "."
-        self.read_data = ""
+        self.domain = domain + '.'
+        self.read_data = ''
     
     def ingest(self, data):
         """Ingests and formats data as a binary stream."""
@@ -32,22 +32,32 @@ class DNSCaseModulation(Cloak):
         pkt = IP(dst=self.ip_dst)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname = self.domain.capitalize()))
         send(pkt, verbose=False)
 
-    def send_packets(self, delay = None):
+    def send_packets(self, startDelay = None, packetDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""
-        for c in self.data:
-            if delay:
-                sleep(delay)
-            self.send_packet(c)
+        # Start delay
+        if (isinstance(startDelay, int) or isinstance(startDelay, float)):
+            sleep(startDelay)
+        
+        # Loop over the data 
+        for item in self.data:
+            self.send_packet(item)
+            # Packet delay
+            if (isinstance(packetDelay, int) or isinstance(packetDelay, float)):
+                sleep(packetDelay)
+
+        # End delay
+        if (isinstance(endDelay, int) or isinstance(endDelay, float)):
+            sleep(endDelay)
         self.send_EOT()
         return True
 
-    def send_packet(self, c):
+    def send_packet(self, databit):
         """Sends packets based on case modulation encoding."""
-        if c == '0':
+        if databit == '0':
             # Binary zero sends a lowercase domain name
             pkt = IP(dst=self.ip_dst)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname = self.domain.lower()))
             send(pkt, verbose=False)
-        elif c == '1':
+        elif databit == '1':
             # Binary one sends an uppercase domain name
             pkt = IP(dst=self.ip_dst)/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname = self.domain.upper()))
             send(pkt, verbose=False)
@@ -73,16 +83,16 @@ class DNSCaseModulation(Cloak):
     def recv_packets(self, timeout = None, max_count = None, iface = None, in_file = None, out_file = None):
         """Receives packets which use the Case Modulated DNS Cloak."""
         # sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
-        self.read_data = ""
+        self.read_data = ''
         sniff(timeout = timeout, stop_filter = self.recv_EOT, prn = self.packet_handler)
         # Decode read data
         string = ''
         # Loop over the data
         for i in range(0, len(self.read_data), 8):
             # Get the ascii character
-            c = "0b{}".format(self.read_data[i:i + 8])
+            char = "0b{}".format(self.read_data[i:i + 8])
             # Add it to our string
-            string = string + chr(int(c, 2))
+            string = string + chr(int(char, 2))
         return string
 
     ## Getters and Setters ##
