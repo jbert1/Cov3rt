@@ -78,9 +78,11 @@ class DNSCaseModulation(Cloak):
 
     def recv_packets(self, timeout = None, max_count = None, iface = None, in_file = None, out_file = None):
         """Receives packets which use the Case Modulated DNS Cloak."""
-        # sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         self.read_data = ''
-        sniff(timeout = timeout, stop_filter = self.recv_EOT, prn = self.packet_handler)
+        if max_count:
+            sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+        else:
+            sniff(timeout = timeout, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         # Decode read data
         string = ''
         # Loop over the data
