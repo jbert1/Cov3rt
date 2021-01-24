@@ -1,4 +1,5 @@
-# from scapy.all import *
+from socket import getaddrinfo
+from scapy.all import *
 from sys import argv, stdin
 from logging import error, warning
 
@@ -27,39 +28,15 @@ Delays:
 """
 
 
-# Argument parser
-# parser = argparse.ArgumentParser()
-
-# # Optional Arguments
-# parser.add_argument("-i", "--interactive", action="store_true", help="launch an interactive application")
-# parser.add_argument("-l", "--list", action="store_true", help="list available cloaks")
-
-# # Primary Arguments
-# required = parser.add_argument_group("Primary Arguments")
-
-# # Send and Receive
-# send_receive = required.add_mutually_exclusive_group(required = True)
-# send_receive.add_argument("-s", "--send", action="store_true", help="send information via the selected cloak")
-# send_receive.add_argument("-r", "--receive", action="store_true", help="receive information via the selected cloak")
-# # Message types
-# message_type = required.add_mutually_exclusive_group(required = True)
-# message_type.add_argument("-m", metavar='', action="store", type=str, help="read from or print to command-line")
-# message_type.add_argument("-f", metavar='', action="store", type=str, help="read from or print to file")
-# # Cloak type
-# required.add_argument("-c", type=int, action="store", help="__selected covert channel implementation", required=True, metavar='\b') 
-# # Delays
-# delay_type = parser.add_argument_group("Delays")
-# delay_type.add_argument("-sd", "--startDelay", metavar='', type=float, action="store", help="delay before communication")
-# delay_type.add_argument("-ed", "--endDelay", metavar='', type=float, action="store", help="delay before end-of-transmission")
-# delay_type.add_argument("-dd", "--delimDelay", metavar='', type=float, action="store", help="delay between delimiters")
-# delay_type.add_argument("-pd", "--packetDelay", metavar='', type=float, action="store", help="delay between packets in seconds")
-
-# args = parser.parse_args()
-
-START_DELAY = None
-END_DELAY = None
-DELIMITER_DELAY = None
 PACKET_DELAY = None
+DELIMITER_DELAY = None
+END_DELAY = None
+OUTPUT_TO_FILE = False
+TIMEOUT = None
+MAX_COUNT = None
+INTERFACE = None
+INPUT_FILE = None
+
 
 def print_help():
     print("Usage: xxx")
@@ -104,9 +81,45 @@ if __name__ == "__main__":
             exit()
         
         # Optional arguments
-        # Start delay
-        if "-sd" in argv:
-            pass
+        # Packet delay
+        if "-pd" in argv:
+            index = argv.index("-pd")
+            # Ensure the next positional argument is correct
+            try:
+                if argv[index + 1].replace('.', '', 1).isdigit():
+                    PACKET_DELAY = float(argv[index + 1])
+                else:
+                    error("Packet delay must be of type 'float'!")
+            # Missing following positional argument
+            except IndexError:
+                error("Missing packet delay value!")
+                exit()
+        # Delimiter delay
+        if "-dd" in argv:
+            index = argv.index("-dd")
+            # Ensure the next positional argument is correct
+            try:
+                if argv[index + 1].replace('.', '', 1).isdigit():
+                    DELIMITER_DELAY = float(argv[index + 1])
+                else:
+                    error("Delimiter delay must be of type 'float'!")
+            # Missing following positional argument
+            except IndexError:
+                error("Missing delimiter delay value!")
+                exit()
+        # End delay
+        if "-ed" in argv:
+            index = argv.index("-ed")
+            # Ensure the next positional argument is correct
+            try:
+                if argv[index + 1].replace('.', '', 1).isdigit():
+                    END_DELAY = float(argv[index + 1])
+                else:
+                    error("End delay must be of type 'float'!")
+            # Missing following positional argument
+            except IndexError:
+                error("Missing end delay value!")
+                exit()
 
         # Send message
         if "-s" in argv:
@@ -141,20 +154,97 @@ if __name__ == "__main__":
                         exit()
                 # Missing following positional argument
                 except IndexError:
-                    error("Missing message!")
+                    error("Missing filename!")
                     exit()
             # Standard input
             else:
+                # Build a string based on stdin
                 message = ''
-                # Loop over the lines of stdin
                 for line in stdin:
                     message += line
+            
+            # Send logic
             
         # Receive message
         elif "-r" in argv:
             # Output to file
             if "-o" in argv:
-                pass
+                OUTPUT_TO_FILE = True
+                index = argv.index("-o")
+                # Ensure the next positional argument is correct
+                try:
+                    filename = argv[index + 1]
+                    # Ensure we can write to the file
+                    try:
+                        f = open(filename, "w")
+                        f.write('')
+                        f.close()
+                    # Other file error
+                    except FileExistsError:
+                        error("Error in writing to {}!".format(filename))
+                        exit()
+                # Missing following positional argument
+                except IndexError:
+                    error("Missing output filename!")
+                    exit()
+            # Timeout
+            if "-t" in argv:
+                index = argv.index("-t")
+                # Ensure the next positional argument is correct
+                try:
+                    if argv[index + 1].replace('.', '', 1).isdigit():
+                        TIMEOUT = float(argv[index + 1])
+                    else:
+                        error("Timeout must be of type 'float'!")
+                # Missing following positional argument
+                except IndexError:
+                    error("Missing timeout value!")
+                    exit()
+            # Max packet count
+            if "-mc" in argv:
+                index = argv.index("-mc")
+                # Ensure the next positional argument is correct
+                try:
+                    if argv[index + 1].isdigit():
+                        MAX_COUNT = float(argv[index + 1])
+                    else:
+                        error("Max packet count must be of type 'int'!")
+                # Missing following positional argument
+                except IndexError:
+                    error("Missing max packet count value!")
+                    exit()
+            # Interface
+            if "-iface" in argv:
+                index = argv.index("-iface")
+                # Ensure the next positional argument is correct
+                try:
+                    INTERFACE = float(argv[index + 1])
+                # Missing following positional argument
+                except IndexError:
+                    error("Missing interface value!")
+                    exit()
+            # Input file
+            if "-in" in argv:
+                index = argv.index("-in")
+                # Ensure the next positional argument is correct
+                try:
+                    INPUT_FILE = argv[index + 1]
+                    # Ensure we can read the file
+                    try:
+                        f = open(INPUT_FILE, "r")
+                        f.close()
+                    # Other file error
+                    except FileExistsError:
+                        error("Error in reading {}!".format(INPUT_FILE))
+                        exit()
+                # Missing following positional argument
+                except IndexError:
+                    error("Missing input filename!")
+                    exit()
+
+            # Receive logic
+
+
         else:
             error("Please specify send/receive!")
             exit()
