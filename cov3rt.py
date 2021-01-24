@@ -1,33 +1,44 @@
-from socket import getaddrinfo
 from scapy.all import *
 from sys import argv, stdin
-from logging import error, warning
+from logging import error
 
-
-"""
-usage: cov3rt.py [-h] [-i] [-l] (-s | -r) (-m  | -f ) -c [-sd] [-ed] [-dd]
-                 [-pd]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -i, --interactive     launch an interactive application
-  -l, --list            list available cloaks
+# Prints a typical help screen for usage information
+def print_help():
+    print(
+"""Usage: cov3rt.py [-h] [-l] [-i] (-s | -r) -c cloak_id [Options]
 
 Primary Arguments:
-  -s, --send            send information via the selected cloak
-  -r, --receive         receive information via the selected cloak
-  -m                    read from or print to command-line
-  -f                    read from or print to file
-  -c                  __selected covert channel implementation
+  -c, --cloak           Selected covert channel implementation
+  -s, --send            Send information via the selected cloak
+  -r, --receive         Receive information via the selected cloak
 
-Delays:
-  -sd , --startDelay    delay before communication
-  -ed , --endDelay      delay before end-of-transmission
-  -dd , --delimDelay    delay between delimiters
-  -pd , --packetDelay   delay between packets in seconds
-"""
+Send Options:
+  -m, --message         Send message within the command-line
+  -f, --filename        Send the contents of a file
 
+Receive Options:
+  -t, --timeout         Timeout (in seconds) for the packet handler
+  -mc, --maxCount       Max number of packets for the packet handler
+  -if, --iface          Interface for the packet handler
+  -in, --inFile         Use a .cap or .pcap rather than live analysis
+  -o, --outFile         Output packets from packet handler to a file
 
+Delay Options:
+  -pd, --packetDelay    Delay between packets
+  -dd, --delimitDelay   Delay before each packet delimiter
+  -ed, --endDelay       Delay before EOT packet"""
+)
+    
+# Prints a list of available cloaks for the user to choose from
+def print_list():
+    print(
+"""Here we will list enumerated cloaks (similar to hashcat's hash modes)"""
+)
+
+def interactive():
+    print("npyscreen for the win")
+
+# OPTIONS
 PACKET_DELAY = None
 DELIMITER_DELAY = None
 END_DELAY = None
@@ -37,32 +48,25 @@ MAX_COUNT = None
 INTERFACE = None
 INPUT_FILE = None
 
-
-def print_help():
-    print("Usage: xxx")
-
-def print_list():
-    print("list")
-
-def interactive():
-    print("interactive")
-
 if __name__ == "__main__":
     # Hand written parser because argparse sucks
-    if "-h" in argv:
+    if ("-h" in argv or "--help" in argv or "?" in argv):
         print_help()
     # List cloaks
-    elif "-l" in argv:
+    elif ("-l" in argv or "--listCloaks" in argv):
         print_list()
     # Interactive application
-    elif "-i" in argv:
+    elif ("-i" in argv or "--interactive" in argv):
         interactive()
     # Other arguments
     else:
         # Cloak type
-        if "-c" in argv:
+        if ("-c" in argv or "--cloak" in argv):
             # Get the index in the arglist
-            index = argv.index("-c")
+            try:
+                index = argv.index("-c")
+            except:
+                index = argv.index("--cloak")
             # Ensure the next positional argument is correct
             try:
                 # Check encoding
@@ -82,8 +86,11 @@ if __name__ == "__main__":
         
         # Optional arguments
         # Packet delay
-        if "-pd" in argv:
-            index = argv.index("-pd")
+        if ("-pd" in argv or "--packetDelay" in argv):
+            try:
+                index = argv.index("-pd")
+            except:
+                index = argv.index("--packetDelay")
             # Ensure the next positional argument is correct
             try:
                 if argv[index + 1].replace('.', '', 1).isdigit():
@@ -95,8 +102,11 @@ if __name__ == "__main__":
                 error("Missing packet delay value!")
                 exit()
         # Delimiter delay
-        if "-dd" in argv:
-            index = argv.index("-dd")
+        if ("-dd" in argv or "--delimitDelay" in argv):
+            try:
+                index = argv.index("-dd")
+            except:
+                index = argv.index("--delimitDelay")
             # Ensure the next positional argument is correct
             try:
                 if argv[index + 1].replace('.', '', 1).isdigit():
@@ -109,7 +119,10 @@ if __name__ == "__main__":
                 exit()
         # End delay
         if "-ed" in argv:
-            index = argv.index("-ed")
+            try:
+                index = argv.index("-ed")
+            except:
+                index = argv.index("--endDelay")
             # Ensure the next positional argument is correct
             try:
                 if argv[index + 1].replace('.', '', 1).isdigit():
@@ -122,10 +135,13 @@ if __name__ == "__main__":
                 exit()
 
         # Send message
-        if "-s" in argv:
+        if ("-s" in argv or "--send" in argv):
             # Console Message
-            if "-m" in argv:
-                index = argv.index("-m")
+            if ("-m" in argv or "--message" in argv):
+                try:
+                    index = argv.index("-m")
+                except:
+                    index = argv.index("--message")
                 # Ensure the next positional argument is correct
                 try:
                     message = argv[index + 1]
@@ -134,8 +150,11 @@ if __name__ == "__main__":
                     error("Missing message!")
                     exit()
             # Filename
-            elif "-f" in argv:
-                index = argv.index("-f")
+            elif ("-f" in argv or "--filename" in argv):
+                try:
+                    index = argv.index("-f")
+                except:
+                    index = argv.index("--filename")
                 # Ensure the next positional argument is correct
                 try:
                     filename = argv[index + 1]
@@ -163,14 +182,17 @@ if __name__ == "__main__":
                 for line in stdin:
                     message += line
             
-            # Send logic
+            ### SEND LOGIC ###
             
         # Receive message
-        elif "-r" in argv:
+        elif ("-r" in argv or "--receive" in argv):
             # Output to file
-            if "-o" in argv:
+            if ("-o" in argv or "--outFile" in argv):
                 OUTPUT_TO_FILE = True
-                index = argv.index("-o")
+                try:
+                    index = argv.index("-o")
+                except:
+                    index = argv.index("--outFile")
                 # Ensure the next positional argument is correct
                 try:
                     filename = argv[index + 1]
@@ -188,8 +210,11 @@ if __name__ == "__main__":
                     error("Missing output filename!")
                     exit()
             # Timeout
-            if "-t" in argv:
-                index = argv.index("-t")
+            if ("-t" in argv or "--timeout" in argv):
+                try:
+                    index = argv.index("-t")
+                except:
+                    index = argv.index("--timeout")
                 # Ensure the next positional argument is correct
                 try:
                     if argv[index + 1].replace('.', '', 1).isdigit():
@@ -201,8 +226,11 @@ if __name__ == "__main__":
                     error("Missing timeout value!")
                     exit()
             # Max packet count
-            if "-mc" in argv:
-                index = argv.index("-mc")
+            if ("-mc" in argv or "--maxCount" in argv):
+                try:
+                    index = argv.index("-mc")
+                except:
+                    index = argv.index("--maxCount")
                 # Ensure the next positional argument is correct
                 try:
                     if argv[index + 1].isdigit():
@@ -214,8 +242,11 @@ if __name__ == "__main__":
                     error("Missing max packet count value!")
                     exit()
             # Interface
-            if "-iface" in argv:
-                index = argv.index("-iface")
+            if ("-if" in argv or "--iface" in argv):
+                try:
+                    index = argv.index("-if")
+                except:
+                    index = argv.index("--iface")
                 # Ensure the next positional argument is correct
                 try:
                     INTERFACE = float(argv[index + 1])
@@ -224,8 +255,11 @@ if __name__ == "__main__":
                     error("Missing interface value!")
                     exit()
             # Input file
-            if "-in" in argv:
-                index = argv.index("-in")
+            if ("-in" in argv or "--inFile" in argv):
+                try:
+                    index = argv.index("-in")
+                except:
+                    index = argv.index("--inFile")
                 # Ensure the next positional argument is correct
                 try:
                     INPUT_FILE = argv[index + 1]
@@ -242,7 +276,7 @@ if __name__ == "__main__":
                     error("Missing input filename!")
                     exit()
 
-            # Receive logic
+            ### RECEIVE LOGIC ###
 
 
         else:
