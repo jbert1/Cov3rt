@@ -9,6 +9,7 @@ class cov3rtApp(npyscreen.NPSAppManaged):
     def onStart(self):
         self.addForm("MAIN", Start_TUI, name = "Welcome to cov3rt")
         self.addForm("Secondary", Second_TUI, name = "Welcome to cov3rt")
+        self.addForm("Third", Third_TUI, name = "Welcome to cov3rt")
 
 class Start_TUI(npyscreen.ActionForm):
 
@@ -23,19 +24,15 @@ class Start_TUI(npyscreen.ActionForm):
         toSecond = self.parentApp.getForm("Secondary")
         toSecond.pick_cloak.value = self.pick_cloak.values[self.pick_cloak.value[0]]
         self.parentApp.switchForm("Secondary")
-    
-    def on_cancel(self):
-        self.editing = True
-
 
 class Second_TUI(npyscreen.Form):
     def activate(self):
         self.edit()
-        self.parentApp.setNextForm(None)
+        self.parentApp.setNextForm("Third")
 
     
     def create(self):
-        self.pick_cloak = self.add(npyscreen.TitleFixedText, name = "You chose")
+        self.pick_cloak = self.add(npyscreen.TitleFixedText, name = "Pick a Cloak in the category of")
     
     
 
