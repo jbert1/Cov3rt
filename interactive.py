@@ -85,41 +85,83 @@ import npyscreen
 # if __name__ == "__main__":
 #     app = App().run()
 
+
+# This is my idea for storing cloak classifications
+cloaks = {
+    "Inter-Packet Timing" : [
+        "DNSTiming"
+    ], 
+    "Random Value" : [
+        "IPv6Hoppers",
+        "TCP"
+    ], 
+    "Reserved or Unreserved" : [
+        "IP"
+    ], 
+    "Size Modulation" : [
+        "UDPRaw"
+    ], 
+    "Value Modulation" : [
+        "DNSCaseModulation"
+    ]
+}
+
+
 # Main application
 class App(npyscreen.NPSAppManaged):
 
     def onStart(self):
-        self.addForm("MAIN", HomePage, name = "Welcome to cov3rt")
-        self.addForm("Secondary", Second_TUI, name = "Second Form")
+        self.addForm("MAIN", 
+            HomePage, 
+            name = "Welcome to cov3rt",
+            lines = 20,
+            columns = 80
+        )
+        self.addForm("CloakSelection",
+            Second_TUI,
+            name = "Cloak Selection",
+            lines = 20,
+            columns = 80
+        )
 
 # Main page for our interactive application
 class HomePage(npyscreen.ActionForm):
 
     # Defines the elements on the page
     def create(self):
+        # Header
+        self.header1 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
+            value = "                 ╭───╮       │"
+        )
+        self.header2 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
+            value = "                     │      ─┼─╴"
+        )
+        self.header3 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
+            value = "╭─── ╭───╮ ╮   ╭  ───┤ ╭───╮ │"
+        )
+        self.header4 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
+            value = "│    │   │ ╰╮ ╭╯     │ │     │"
+        )
+        self.header5 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
+            value = "╰─── ╰───╯  ╰─╯  ╰───╯ ╵     ╰╴"
+        )
+        self.nextrely += 2
         # List of cloaks
-        self.cloak_list = self.add(npyscreen.TitleSelectOne, 
+        self.cloak_classification = self.add(npyscreen.TitleSelectOne, scroll_exit = True, begin_entry_at = 25, max_height = 7,
             name = "Cloak Classifications:", 
-            scroll_exit = True,
-            begin_entry_at = 25,
-            values = ["Inter-Packet Timing", 
-                "Random Value", 
-                "Reserved or Unreserved", 
-                "Size Modulation", 
-                "Value Modulation"
-            ]
+            values = list(cloaks.keys())
         )
 
     # Runs when the user completes the form
     def on_ok(self):
         # Ensure correct number is selected
-        if len(self.cloak_list.value) == 1:
+        if len(self.cloak_classification.value) == 1:
             # Pass it to the Secondary form
-            self.parentApp.getForm("Secondary").cloak_list.value = self.cloak_list.values[self.cloak_list.value[0]]
-            self.parentApp.switchForm("Secondary")
+            self.parentApp.getForm("CloakSelection").cloak_classification.value = self.cloak_classification.values[self.cloak_classification.value[0]]
+            self.parentApp.switchForm("CloakSelection")
         # No element selected
-        elif len(self.cloak_list.value) == 0:
-            npyscreen.notify_wait("Please select one of the cloaks before proceeding.", "Invalid Cloak", "DANGER", wide = True)
+        elif len(self.cloak_classification.value) == 0:
+            npyscreen.notify_wait("Please select one of the cloaks before proceeding.", "Invalid Cloak", "DANGER")
         # More than one selected (How did you even do that?)
         else:
             npyscreen.notify_wait("Please select a single cloak before proceeding.", "Invalid Cloak", "DANGER", wide = True)
@@ -134,12 +176,18 @@ class Second_TUI(npyscreen.ActionForm):
     
     # Defines the elements on the page
     def create(self):
-        self.cloak_list = self.add(npyscreen.TitleFixedText, 
-            name = "Selected Cloak", 
-            begin_entry_at = 20, 
-            editable = False
+        self.cloak_classification = self.add(npyscreen.TitleFixedText, begin_entry_at = 30, editable = False, color="LABELBOLD",
+            name = "Selected Classification:"
+        )
+        self.nextrely += 1
+        self.cloak_type = self.add(npyscreen.TitleSelectOne, scroll_exit = True, begin_entry_at = 30, max_height = 7,
+            name = "Cloak Types:", 
+            values = []
         )
     
+    def while_editing(self):
+        self.cloak_type.values = cloaks[self.cloak_classification.value] if (cloaks.get(self.cloak_classification.value, -1) != -1) else ["Could not load Cloaks!"]
+
     # Runs when the user finishes the form
     def afterEditing(self):
         # Exit
@@ -149,3 +197,10 @@ class Second_TUI(npyscreen.ActionForm):
 # Main program
 if __name__ == '__main__':
     app = App().run()
+    print("""
+                 ╭───╮       │
+                     │      ─┼─╴  
+╭─── ╭───╮ ╮   ╭  ───┤ ╭───╮ │    
+│    │   │ ╰╮ ╭╯     │ │     │  
+╰─── ╰───╯  ╰─╯  ╰───╯ ╵     ╰╴  
+""")
