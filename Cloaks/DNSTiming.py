@@ -97,7 +97,6 @@ class DNSTiming(Cloak):
         '''Receives packets which use the DNS Timing Cloak.'''
         self.read_data = []
         print("Sniffing beginning...")
-        self.read_data = ''
         if max_count:
             sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         else:
