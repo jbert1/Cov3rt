@@ -19,8 +19,8 @@ ONE_TIMING
 class DNSTiming(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9 \][0-9]?)$"
-
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"    
+   
     def __init__(self, ip_dst = "8.8.8.8", domain_delim = "wikipedia.org", domain_cont = "twitter.com", zero_timing = 2, one_timing = 10):
         self.description = "A cloak based on delays between DNS requests to domains."
         self.name = "DNS Timing"
