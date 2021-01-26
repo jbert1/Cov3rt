@@ -22,8 +22,9 @@ class DNSTiming(Cloak):
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"    
    
     def __init__(self, ip_dst = "8.8.8.8", domain_delim = "wikipedia.org", domain_cont = "twitter.com", zero_timing = 2, one_timing = 10):
+        self.classification = Cloak.INTER_PACKET_TIMING
+        self.name = "DNS"
         self.description = "A cloak based on delays between DNS requests to domains."
-        self.name = "DNS Timing"
         self.ip_dst = ip_dst
         self.domaindelim = domain_delim + "."
         self.domaincont = domain_cont + "."

@@ -22,8 +22,9 @@ class UDPSizeModulation(Cloak):
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"    
     
     def __init__(self, ip_dst="192.168.1.101", send_port=25565, dest_port=25577):
-        self.description = "A cloak based on modulation of the UDP "
-        self.name = "UDP Size Modulation"
+        self.classification = Cloak.SIZE_MODULATION
+        self.name = "UDP Payload"
+        self.description = "A cloak based on modulation of the UDP payload."
         self.ip_dst = ip_dst
         self.send_port = send_port
         self.dest_port = dest_port
