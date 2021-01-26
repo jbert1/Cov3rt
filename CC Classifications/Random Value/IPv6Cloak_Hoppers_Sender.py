@@ -12,7 +12,7 @@ secret_phrase_dec = [ord(i) for i in secret_phrase]
 # print(secret_phrase_dec) DEBUG
 
 # Creates an IPv6 Packet 
-p = IPv6(src = 'fe80::1461:beca:7ad:3167', dst = 'ff02::1:ffad:317')
+p = IPv6(dst = 'ff02::1:ffad:317')
 
 # Sets Hop Limit to transmit at end of phrase transmission
 p.hlim = eot_hl
