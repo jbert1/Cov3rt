@@ -1,16 +1,40 @@
 from abc import ABC, abstractmethod
 from logging import error, warning
+
+# Check priviliges based on OS
 try:
     from os import geteuid
-    # Check to make sure we have the correct privileges
     if geteuid() != 0:
         warning("You must be root to send packets with cov3rt!")
+# If this doesn't exist, assume we are OK with Windows
 except ImportError:
     pass
 
 
 # Cloak superclass
 class Cloak(ABC):
+
+    # Classifications
+    INTER_PACKET_TIMING = ("Inter-Packet Timing", 0)
+    MESSAGE_TIMING = ("Message Timing", 1)
+    RATE_THROUGHPUT_TIMING = ("Rate/Throughput", 2)
+    ARTIFICIAL_LOSS = ("Artificial Loss", 3)
+    MESSAGE_ORDERING = ("Message (PDU) Ordering", 4)
+    RETRANSMISSION = ("Retransmission", 5)
+    FRAME_COLLISIONS = ("Frame Collisions", 6)
+    TEMPERATURE = ("Temperature", 7)
+    SIZE_MODULATION = ("Size Modulation", 8)
+    POSITION = ("Sequence: Position", 9)
+    NUMBER_OF_ELEMENTS = ("Sequence: Number of Elements", 10)
+    RANDOM_VALUE = ("Random Value", 11)
+    CASE_MODULATION = ("Value Modulation: Case", 12)
+    LSB_MODULATION = ("Value Modulation: LSB", 13)
+    VALUE_INFLUENCING = ("Value Modulation: Value Influencing", 14)
+    RESERVED_UNUSED = ("Reserved/Unused", 15)
+    PAYLOAD_FIELD_SIZE_MODULATION = ("Payload Field Size Modulation", 16)
+    USER_DATA_CORRUPTION = ("User-Data Corruption", 17)
+    MODIFY_REDUNDANCY = ("Modify Redundancy", 18)
+    USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = ("User-Data Value Modulation & Reserved/Unused", 19)
 
     @abstractmethod
     def ingest(self, data):
