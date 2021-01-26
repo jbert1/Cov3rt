@@ -134,16 +134,16 @@ class HomePage(npyscreen.ActionForm):
             value = "                 ╭───╮       │"
         )
         self.header2 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
-            value = "                     │      ─┼─╴"
+            value = "           ╱╲_╱╲     │      ─┼──"
         )
         self.header3 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
-            value = "╭─── ╭───╮ ╮   ╭  ───┤ ╭───╮ │"
+            value = "╭─── ╭───╮ ╲╷ ╷╱  ───┤ ╭───╮ │  "
         )
         self.header4 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
-            value = "│    │   │ ╰╮ ╭╯     │ │     │"
+            value = "│    │   │  ╲_╱      │ │     │  "
         )
         self.header5 = self.add(npyscreen.FixedText, relx = 20, color = "DANGER", editable = False,
-            value = "╰─── ╰───╯  ╰─╯  ╰───╯ ╵     ╰╴"
+            value = "╰─── ╰───╯   ╳   ╰───╯ ╵     ╰──"
         )
         self.nextrely += 2
         # List of cloaks
@@ -199,8 +199,8 @@ if __name__ == '__main__':
     app = App().run()
     print("""
                  ╭───╮       │
-                     │      ─┼─╴  
-╭─── ╭───╮ ╮   ╭  ───┤ ╭───╮ │    
-│    │   │ ╰╮ ╭╯     │ │     │  
-╰─── ╰───╯  ╰─╯  ╰───╯ ╵     ╰╴  
+           ╱╲_╱╲     │      ─┼──
+╭─── ╭───╮ ╲╷ ╷╱  ───┤ ╭───╮ │  
+│    │   │  ╲_╱      │ │     │  
+╰─── ╰───╯   ╳   ╰───╯ ╵     ╰──
 """)
