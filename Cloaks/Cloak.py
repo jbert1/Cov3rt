@@ -26,14 +26,15 @@ class Cloak(ABC):
     SIZE_MODULATION = ("Size Modulation", 8)
     POSITION = ("Sequence: Position", 9)
     NUMBER_OF_ELEMENTS = ("Sequence: Number of Elements", 10)
-    CASE_MODULATION = ("Value Modulation: Case", 11)
-    LSB_MODULATION = ("Value Modulation: LSB", 12)
-    VALUE_INFLUENCING = ("Value Modulation: Value Influencing", 13)
-    RESERVED_UNUSED = ("Reserved/Unused", 14)
-    PAYLOAD_FIELD_SIZE_MODULATION = ("Payload Field Size Modulation", 15)
-    USER_DATA_CORRUPTION = ("User-Data Corruption", 16)
-    MODIFY_REDUNDANCY = ("Modify Redundancy", 17)
-    USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = ("User-Data Value Modulation & Reserved/Unused", 18)
+    RANDOM_VALUE = ("Random Value", 11)
+    CASE_MODULATION = ("Value Modulation: Case", 12)
+    LSB_MODULATION = ("Value Modulation: LSB", 13)
+    VALUE_INFLUENCING = ("Value Modulation: Value Influencing", 14)
+    RESERVED_UNUSED = ("Reserved/Unused", 15)
+    PAYLOAD_FIELD_SIZE_MODULATION = ("Payload Field Size Modulation", 16)
+    USER_DATA_CORRUPTION = ("User-Data Corruption", 17)
+    MODIFY_REDUNDANCY = ("Modify Redundancy", 18)
+    USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = ("User-Data Value Modulation & Reserved/Unused", 19)
 
     @abstractmethod
     def ingest(self, data):
