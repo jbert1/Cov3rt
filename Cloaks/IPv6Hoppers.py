@@ -22,14 +22,9 @@ class IPv6Hoppers(Cloak):
 
 
     def __init__(self, EOT_hl = 69, ip_src = "fe80::1461:beca:7ad:3167", ip_dst = "ff02::1:ffad:317"):
-<<<<<<< HEAD
-        self.description = "A covert channel using the hop limit in IPv6 packets to transmit messages."
-        self.name = "IPv6Hoppers"
-=======
         self.classification = Cloak.RANDOM_VALUE
         self.name = "IPv6 Hoppers"
         self.description = "A covert channel using the hop limit in IPv6 packets to transmit messages."
->>>>>>> beae2b6c153cb601b2d51baebec6d7b0e39027c9
         self.ip_dst = ip_dst
         self.ip_src = ip_src
         self.EOT_hl = EOT_hl
