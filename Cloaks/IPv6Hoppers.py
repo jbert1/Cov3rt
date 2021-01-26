@@ -65,13 +65,13 @@ class IPv6Hoppers(Cloak):
     def packet_handler(self, pkt):
         #Determines what packets we accept when choosing data
         if (pkt.haslayer(IPv6)):
-            if(pkt.dst == self.ip_dst and pkt.src == self.ip_src):
+            if(pkt["IPv6"].dst == self.ip_dst):
                 self.read_data.append(pkt.hlim)
 
     def recv_EOT(self,pkt):
         #Looks for EOT packet to signify end of transmission
         if (pkt.haslayer(IPv6)): 
-            if (pkt.dst == self.ip_dst and pkt.hlim == self.EOT_hl):  
+            if (pkt["IPv6"].dst == self.ip_dst and pkt["IPv6"].hlim == self.EOT_hl):  
                 return True
         return False
 
@@ -89,8 +89,8 @@ class IPv6Hoppers(Cloak):
         
         for item in self.read_data[:-1]:
             decoded_string += chr(item - self.EOT_hl)
-            print("Decoded Message: {}".format(decoded_string))
-
+            
+        print("Decoded Message: {}".format(decoded_string))
         return decoded_string
 
     # Getters and Setters
