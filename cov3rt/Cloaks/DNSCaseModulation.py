@@ -12,11 +12,13 @@ class DNSCaseModulation(Cloak):
 
     # Regular expression to verify IP
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"    
-   
+    
+    # Classification, name, and description
+    classification = Cloak.CASE_MODULATION
+    name = "DNS Domain"
+    description = "A cloak based on case modulation of a specified domain."
+
     def __init__(self, ip_dst = "8.8.8.8", domain = "www.google.com"):
-        self.classification = Cloak.CASE_MODULATION
-        self.name = "DNS Domain"
-        self.description = "A cloak based on case modulation of a specified domain."
         self.ip_dst = ip_dst
         self.domain = domain + '.'
         self.read_data = ''

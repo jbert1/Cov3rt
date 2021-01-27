@@ -1,17 +1,19 @@
-from scapy.all import *
+from scapy.sendrecv import send, sniff
+from scapy.layers.inet import IP, TCP
 
 from logging import error
-from re import search
 from time import sleep
 
 from cov3rt.Cloaks.Cloak import Cloak
 
 class TCPSequenceNumber(Cloak):
 
+    # Classification, name, and description
+    classification = Cloak.RANDOM_VALUE
+    name = "TCP Sequence Number"
+    description = "A cloak based on changing the TCP sequence number ASCII values."
+    
     def __init__(self, ip_dst="8.8.8.8"):
-        self.classification = Cloak.RANDOM_VALUE
-        self.name = "IP Reserved Bit"
-        self.description = "A cloak based on modulating the reserved bit in the IP header field."
         self.ip_dst = ip_dst
         self.read_data = ""
 

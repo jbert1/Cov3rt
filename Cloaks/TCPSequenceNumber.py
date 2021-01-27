@@ -1,17 +1,18 @@
 from scapy.all import *
 
 from logging import error
-from re import search
 from time import sleep
 
 from Cloak import Cloak
 
 class TCPSequenceNumber(Cloak):
 
+    # Classification, name, and description
+    classification = Cloak.RANDOM_VALUE
+    name = "TCP Sequence Number"
+    description = "A cloak based on changing the TCP sequence number ASCII values."
+    
     def __init__(self, ip_dst="8.8.8.8"):
-        self.classification = Cloak.RANDOM_VALUE
-        self.name = "TCP Sequence Number"
-        self.description = "A cloak based on changing the TCP sequence number ASCII values."
         self.ip_dst = ip_dst
         self.read_data = ""
 
