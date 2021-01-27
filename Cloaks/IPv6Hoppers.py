@@ -21,9 +21,10 @@ class IPv6Hoppers(Cloak):
     IPv6_REGEX = "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
 
 
-    def __init__(self, EOT_hl = 69, ip_dst = "ff02::1:ffad:317"):
+    def __init__(self, EOT_hl = 69, ip_src = "fe80::1461:beca:7ad:3167", ip_dst = "ff02::1:ffad:317"):
+        self.classification = Cloak.RANDOM_VALUE
+        self.name = "IPv6 Hoppers"
         self.description = "A covert channel using the hop limit in IPv6 packets to transmit messages."
-        self.name = "IPv6Hoppers"
         self.ip_dst = ip_dst
         self.EOT_hl = EOT_hl
         self.read_data = []
