@@ -110,69 +110,69 @@ USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = "User-Data Value Modulation & Reser
 
 # This is my idea for storing cloak classifications
 cloaks =  {
-    "Inter-Packet Timing" : [
+    INTER_PACKET_TIMING : [
         "DNSTiming",
     ],
 
-    "Message Timing" : [
+    MESSAGE_TIMING : [
     ],
 
-    "Rate/Throughput" : [
+    RATE_THROUGHPUT_TIMING : [
     ],
 
-    "Artificial Loss" : [
+    ARTIFICIAL_LOSS : [
     ],
 
-    "Message (PDU) Ordering" : [
+    MESSAGE_ORDERING : [
     ],
 
-    "Retransmission" : [
+    RETRANSMISSION : [
     ],
 
-    "Frame Collisions" : [
+    FRAME_COLLISIONS : [
     ],
     
-    "Temperature" : [
+    TEMPERATURE : [
     ],
 
-    "Size Modulation" : [
+    SIZE_MODULATION : [
         "UDPRaw",
     ],
 
-    "Sequence: Position" : [
+    POSITION : [
     ],
 
-    "Sequence: Number of Elements" : [
+    NUMBER_OF_ELEMENTS : [
     ],
 
-    "Random Value" : [
+    RANDOM_VALUE : [
         "IPv6Hoppers","TCP",
     ],
 
-    "Value Modulation: Case" : [
+    CASE_MODULATION : [
         "DNSCaseModulation"
     ],
 
-    "Value Modulation: LSB" : [
+    LSB_MODULATION : [
     ],
     
-    "Value Modulation: Value Influencing" : [
+    VALUE_INFLUENCING : [
     ],
 
-    "Reserved or Unused" : [
+    RESERVED_UNUSED : [
         "IPReservedBit"
     ],
     
-    "Payload Field Size Modulation" : [
+    PAYLOAD_FIELD_SIZE_MODULATION : [
     ],
 
-    "User-Data Corruption" : [
+    USER_DATA_CORRUPTION : [
     ],
 
-    "Modify Redundancy" : [
+    MODIFY_REDUNDANCY : [
     ],
 
-    "User-Data Value Modulation & Reserved/Unused" : [
+    USER_DATA_VALUE_MODULATION_RESERVED_UNUSED : [
     ],
 }
 
