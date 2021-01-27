@@ -10,8 +10,8 @@ class TCPSequenceNumber(Cloak):
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.classification = Cloak.RANDOM_VALUE
-        self.name = "IP Reserved Bit"
-        self.description = "A cloak based on modulating the reserved bit in the IP header field."
+        self.name = "TCP Sequence Number"
+        self.description = "A cloak based on changing the TCP sequence number ASCII values."
         self.ip_dst = ip_dst
         self.read_data = ""
 
