@@ -250,9 +250,10 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
 
         self.submenu.addItem("Close Menu", self.close_menu, "^X")
 
-    def populate(self, submenu):
-        for 
-        submenu.addItem()
+    #def populate(self, submenu):
+      
+        #for 
+        #submenu.addItem()
 
     def press_1(self):
         npyscreen.notify_confirm("You pressed Item 1!", "Item 1", editw=1)
