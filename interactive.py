@@ -86,26 +86,26 @@ import npyscreen
 #     app = App().run()
 
 # Classification encoding
-INTER_PACKET_TIMING = ("Inter-Packet Timing", 0)
-MESSAGE_TIMING = ("Message Timing", 1)
-RATE_THROUGHPUT_TIMING = ("Rate/Throughput", 2)
-ARTIFICIAL_LOSS = ("Artificial Loss", 3)
-MESSAGE_ORDERING = ("Message (PDU) Ordering", 4)
-RETRANSMISSION = ("Retransmission", 5)
-FRAME_COLLISIONS = ("Frame Collisions", 6)
-TEMPERATURE = ("Temperature", 7)
-SIZE_MODULATION = ("Size Modulation", 8)
-POSITION = ("Sequence: Position", 9)
-NUMBER_OF_ELEMENTS = ("Sequence: Number of Elements", 10)
-RANDOM_VALUE = ("Random Value", 11)
-CASE_MODULATION = ("Value Modulation: Case", 12)
-LSB_MODULATION = ("Value Modulation: LSB", 13)
-VALUE_INFLUENCING = ("Value Modulation: Value Influencing", 14)
-RESERVED_UNUSED = ("Reserved/Unused", 15)
-PAYLOAD_FIELD_SIZE_MODULATION = ("Payload Field Size Modulation", 16)
-USER_DATA_CORRUPTION = ("User-Data Corruption", 17)
-MODIFY_REDUNDANCY = ("Modify Redundancy", 18)
-USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = ("User-Data Value Modulation & Reserved/Unused", 19) 
+INTER_PACKET_TIMING = "Inter-Packet Timing"
+MESSAGE_TIMING = "Message Timing"
+RATE_THROUGHPUT_TIMING = "Rate/Throughput"
+ARTIFICIAL_LOSS = "Artificial Loss"
+MESSAGE_ORDERING = "Message (PDU) Ordering"
+RETRANSMISSION = "Retransmission"
+FRAME_COLLISIONS = "Frame Collisions"
+TEMPERATURE = "Temperature"
+SIZE_MODULATION = "Size Modulation"
+POSITION = "Sequence: Position"
+NUMBER_OF_ELEMENTS = "Sequence: Number of Elements"
+RANDOM_VALUE = "Random Value"
+CASE_MODULATION = "Value Modulation: Case"
+LSB_MODULATION = "Value Modulation: LSB"
+VALUE_INFLUENCING = "Value Modulation: Value Influencing"
+RESERVED_UNUSED = "Reserved/Unused"
+PAYLOAD_FIELD_SIZE_MODULATION = "Payload Field Size Modulation"
+USER_DATA_CORRUPTION = "User-Data Corruption"
+MODIFY_REDUNDANCY = "Modify Redundancy"
+USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = "User-Data Value Modulation & Reserved/Unused" 
 
 
 # This is my idea for storing cloak classifications
