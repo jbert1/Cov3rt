@@ -107,7 +107,6 @@ USER_DATA_CORRUPTION = ("User-Data Corruption", 17)
 MODIFY_REDUNDANCY = ("Modify Redundancy", 18)
 USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = ("User-Data Value Modulation & Reserved/Unused", 19) 
 
-from cov3rt.folder import DNSTiming
 
 # This is my idea for storing cloak classifications
 cloaks =  {
@@ -229,7 +228,7 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
         def cloak_options_next_page(self, cloak):
             pass
 
-        
+
         # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
         # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
         # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
