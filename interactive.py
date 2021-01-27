@@ -157,7 +157,7 @@ cloaks =  {
         []
     ),
     "Reserved or Unreserved" : (RESERVED_UNUSED,
-        []
+        ["IPReservedBit"]
     ),
     "Payload Field Size Modulation" : (PAYLOAD_FIELD_SIZE_MODULATION,
         []
