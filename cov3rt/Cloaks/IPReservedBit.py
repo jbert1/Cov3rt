@@ -11,7 +11,7 @@ class IPReservedBit(Cloak):
     # Classification, name, and description
     classification = Cloak.RESERVED_UNUSED
     name = "IP Reserved Bit"
-    description = "A cloak based on modulating the reserved bit in the IP header field."
+    description = "A cloak based on modulating the reserved bit in \nthe IP header field."
     
     def __init__(self, ip_dst = "8.8.8.8"):
         self.ip_dst = ip_dst

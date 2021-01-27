@@ -24,7 +24,7 @@ class DNSTiming(Cloak):
     # Classification, name, and description
     classification = Cloak.INTER_PACKET_TIMING
     name = "DNS"
-    description = "A cloak based on delays between DNS requests to domains."
+    description = "A cloak based on delays between DNS requests to \ndomains."
 
     def __init__(self, ip_dst = "8.8.8.8", domain_delim = "wikipedia.org", domain_cont = "twitter.com", zero_timing = 2, one_timing = 10):
         self.ip_dst = ip_dst
