@@ -226,6 +226,10 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
                 for cloak in cloaks[cloak_name]:
                     submenu.addItem(cloak.name, cloak_options_next_page(cloak))
         
+        def cloak_options_next_page(self, cloak):
+            pass
+
+        
         # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
         # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
         # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
