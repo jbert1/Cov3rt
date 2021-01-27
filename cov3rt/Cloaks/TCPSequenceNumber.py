@@ -11,7 +11,7 @@ class TCPSequenceNumber(Cloak):
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
     name = "TCP Sequence Number"
-    description = "A cloak based on changing the TCP sequence number ASCII values."
+    description = "A cloak based on changing the TCP sequence number \nASCII values."
     
     def __init__(self, ip_dst="8.8.8.8"):
         self.ip_dst = ip_dst

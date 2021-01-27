@@ -16,7 +16,7 @@ class DNSCaseModulation(Cloak):
     # Classification, name, and description
     classification = Cloak.CASE_MODULATION
     name = "DNS Domain"
-    description = "A cloak based on case modulation of a specified domain."
+    description = "A cloak based on case modulation of a specified \ndomain."
 
     def __init__(self, ip_dst = "8.8.8.8", domain = "www.google.com"):
         self.ip_dst = ip_dst
