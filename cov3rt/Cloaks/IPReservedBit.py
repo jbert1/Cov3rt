@@ -4,7 +4,7 @@ from logging import error
 from re import search
 from time import sleep
 
-from Cloak import Cloak
+from cov3rt.Cloaks.Cloak import Cloak
 
 class IPReservedBit(Cloak):
     
