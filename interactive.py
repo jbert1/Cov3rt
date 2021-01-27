@@ -156,7 +156,7 @@ cloaks =  {
     "Value Modulation: Value Influencing" : (VALUE_INFLUENCING,
         []
     ),
-    "Reserved or Unreserved" : (RESERVED_UNUSED,
+    "Reserved or Unused" : (RESERVED_UNUSED,
         ["IPReservedBit"]
     ),
     "Payload Field Size Modulation" : (PAYLOAD_FIELD_SIZE_MODULATION,
