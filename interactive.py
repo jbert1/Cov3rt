@@ -154,13 +154,6 @@ cloaks =  {
     ],
 }
 
-# from cov3rt.Cloaks.DNSTiming import DNSTiming
-# cloaks =  {
-#     Cloak.Cloak.INTER_PACKET_TIMING : [
-#         DNSTiming
-#     ],
-# }
-
 # Add classes from files in a folder with a defined package name
 def add_classes(filepath, package_name):
     # Get all of the cloaks within the folder
@@ -198,7 +191,7 @@ class App(npyscreen.NPSAppManaged):
             lines = 22,
             columns = 80
         )
-        self.addForm("CloakSelection",
+        self.addForm("CloakOptions",
             Second_TUI,
             name = "Cloak Selection",
             lines = 22,
@@ -223,6 +216,7 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
 
         )
         self.nextrely += 2
+        # Disclaimer
         self.disclaimer = self.add(npyscreen.Pager, height = 5, relx = 5, editable = False,
             values = [
                 "This tool should only be used to enhance the effectiveness of",
@@ -233,16 +227,15 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
             ]
         )
         self.nextrely += 1
+        # Classification, name, and description
         self.cloak_classification = self.add(npyscreen.TitleFixedText, relx = 5, begin_entry_at = 18, editable = False,
             name = "Classification:",
             value = ""
         )
-
-        self.cloak_type = self.add(npyscreen.TitleFixedText, relx = 5, begin_entry_at = 18, editable = False,
+        self.cloak_name = self.add(npyscreen.TitleFixedText, relx = 5, begin_entry_at = 18, editable = False,
             name = "Name:",
             value = ""
         )
-
         self.cloak_description = self.add(npyscreen.TitlePager, relx = 5, begin_entry_at = 18, editable = False,
             name = "Description:",
             values = ["Press CTRL+X to open the menu."]
@@ -268,29 +261,32 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
             submenu.addItem("Close Menu", self.close_menu, "^X")
         # Add close menu at the bottom for convenience
         self.menu.addItem("Close Menu", self.close_menu, "^X")
-    
-    def populateScreen(self, cloak):
-        self.cloak = cloak
-        self.cloak_classification.value = cloak.classification
-        self.cloak_type.value = cloak.name
-        self.cloak_description.values = cloak.description.split("\n")
-        
+
+    # Closes the menu
     def close_menu(self):
         self.parentApp.setNextForm(None)
 
+    # Populates the screen and saves the cloak type
+    def populateScreen(self, cloak):
+        # Save the cloak
+        self.cloak = cloak
+        # Populate on-screen items
+        self.cloak_classification.value = cloak.classification
+        self.cloak_name.value = cloak.name
+        self.cloak_description.values = cloak.description.split("\n")
+        
     # Runs when the user completes the form
     def on_ok(self):
-        # Ensure correct number is selected
-        if len(self.cloak_classification.value) == 1:
+        # Ensure cloak is selected
+        if self.cloak_name != "":
             # Pass it to the Secondary form
-            self.parentApp.getForm("CloakSelection").cloak_classification.value = self.cloak_classification.values[self.cloak_classification.value[0]]
-            self.parentApp.switchForm("CloakSelection")
+            self.parentApp.getForm("CloakOptions").cloak = self.cloak
+            self.parentApp.getForm("CloakOptions").populateScreen()
+            self.parentApp.switchForm("CloakOptions")
         # No element selected
-        elif len(self.cloak_classification.value) == 0:
-            npyscreen.notify_wait("Please select one of the cloaks before proceeding.", "Invalid Cloak", "DANGER")
-        # More than one selected (How did you even do that?)
         else:
-            npyscreen.notify_wait("Please select a single cloak before proceeding.", "Invalid Cloak", "DANGER", wide = True)
+            npyscreen.notify_wait("Please select a cloak before proceeding.", "Invalid Cloak", "DANGER")
+
 
     # Runs when the user cancels the form
     def on_cancel(self):
@@ -302,17 +298,27 @@ class Second_TUI(npyscreen.ActionForm):
     
     # Defines the elements on the page
     def create(self):
-        self.cloak_classification = self.add(npyscreen.TitleFixedText, begin_entry_at = 30, editable = False, color="LABELBOLD",
-            name = "Selected Classification:"
+
+        # Classification, name, and description
+        self.cloak_classification = self.add(npyscreen.TitleFixedText, relx = 5, begin_entry_at = 18, editable = False,
+            name = "Classification:",
+            value = ""
         )
-        self.nextrely += 1
-        self.cloak_type = self.add(npyscreen.TitleSelectOne, scroll_exit = True, begin_entry_at = 30, max_height = 7,
-            name = "Cloak Types:", 
-            values = []
+        self.cloak_name = self.add(npyscreen.TitleFixedText, relx = 5, begin_entry_at = 18, editable = False,
+            name = "Name:",
+            value = ""
         )
-    
-    def while_editing(self):
-        self.cloak_type.values = cloaks[self.cloak_classification.value] if (cloaks.get(self.cloak_classification.value, -1) != -1) else ["Could not load Cloaks!"]
+        self.cloak_description = self.add(npyscreen.TitlePager, relx = 5, begin_entry_at = 18, editable = False,
+            name = "Description:",
+            values = ["Press CTRL+X to open the menu."]
+        )
+
+    # Populates the screen
+    def populateScreen(self):
+        # Populate on-screen items
+        self.cloak_classification.value = self.cloak.classification
+        self.cloak_name.value = self.cloak.name
+        self.cloak_description.values = self.cloak.description.split("\n")
 
     # Runs when the user finishes the form
     def afterEditing(self):
@@ -330,7 +336,11 @@ if __name__ == '__main__':
     else:
         COV3RT_PATH = '/'.join(Cloak.__file__.split('/')[:-1])
 
+    # Add the existing cloaks to our classifications
     add_classes(COV3RT_PATH, "cov3rt.Cloaks")
+
+    # Delete empty classifications
+    for empty in [cloak for cloak in cloaks if len(cloaks[cloak]) == 0]: del cloaks[empty]
 
     app = App().run()
     
