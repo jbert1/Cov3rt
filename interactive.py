@@ -107,11 +107,13 @@ USER_DATA_CORRUPTION = ("User-Data Corruption", 17)
 MODIFY_REDUNDANCY = ("Modify Redundancy", 18)
 USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = ("User-Data Value Modulation & Reserved/Unused", 19) 
 
+from cov3rt.folder import DNSTiming
+
 # This is my idea for storing cloak classifications
 cloaks =  {
-    "Inter-Packet Timing" : (INTER_PACKET_TIMING,
-        ["DNSTiming"]
-    ),
+    "Inter-Packet Timing" : [
+        DNSTiming,
+    ],
     "Message Timing" : (MESSAGE_TIMING,
         []
     ),
@@ -218,8 +220,32 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
         self.menu.addItem("Item 1", self.press_1, "1")
         self.menu.addItem("Item 2", self.press_2, "2")
         self.menu.addItem("Close Menu", self.close_menu, "^X")
-        self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        
+        for cloak_name in cloaks:
+            with self.menu.addNewSubmenu(cloak_name) as submenu:
+                for cloak in cloaks[cloak_name]:
+                    submenu.addItem(cloak.name, cloak_options_next_page(cloak))
+        
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu = self.menu.addNewSubmenu("A sub menu!", 's')
+        # self.submenu10 = self.menu.addNewSubmenu("A sub menu!", 's')
+
+        self.populate(self.submenu10)
+
         self.submenu.addItem("Close Menu", self.close_menu, "^X")
+
+    def populate(self, submenu):
+        for 
+        submenu.addItem()
 
     def press_1(self):
         npyscreen.notify_confirm("You pressed Item 1!", "Item 1", editw=1)
