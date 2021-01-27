@@ -14,8 +14,8 @@ else:
 
 b = []
 
-def get_modules_in_package(package_name: str):
-    files = listdir(package_name)
+def get_modules_in_package(filepath, package_name):
+    files = listdir(filepath)
     for file in files:
         if file not in ['__init__.py', '__pycache__']:
             if file[-3:] != '.py':
@@ -24,9 +24,15 @@ def get_modules_in_package(package_name: str):
             file_name = file[:-3]
             module_name = package_name + '.' + file_name
             for n, cls in inspect.getmembers(importlib.import_module(module_name), inspect.isclass):
-                b.append((n , cls))
+                b.append((n, cls))
+                try:
+                    imprt = str(cls).split("'")[1]
+                    if ("{}.{}.{}".format(package_name, n, n) == imprt):
+                        print(imprt)
+                except:
+                    pass
                 # if cls.__module__ == module_name:
                 #     yield cls
 
-a = get_modules_in_package("cov3rt")
+get_modules_in_package(COV3RT_PATH, "cov3rt.Cloaks")
 
