@@ -6,7 +6,7 @@ from time import sleep
 
 from Cloak import Cloak
 
-class tcpSequenceNumber(Cloak):
+class TCPSequenceNumber(Cloak):
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.classification = Cloak.RANDOM_VALUE
