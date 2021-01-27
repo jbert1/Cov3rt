@@ -8,10 +8,12 @@ from Cloak import Cloak
 
 class IPReservedBit(Cloak):
     
+    # Classification, name, and description
+    classification = Cloak.RESERVED_UNUSED
+    name = "IP Reserved Bit"
+    description = "A cloak based on modulating the reserved bit in the IP header field."
+    
     def __init__(self, ip_dst = "8.8.8.8"):
-        self.classification = Cloak.RESERVED_UNUSED
-        self.name = "IP Reserved Bit"
-        self.description = "A cloak based on modulating the reserved bit in the IP header field."
         self.ip_dst = ip_dst
         self.read_data = ""
 
