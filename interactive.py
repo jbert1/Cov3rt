@@ -290,8 +290,11 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
 
     # Runs when the user cancels the form
     def on_cancel(self):
-        # Exit
-        self.parentApp.setNextForm(None)
+        # Exit Choice
+        exit_choice = npyscreen.notify_yes_no("Are you sure you want to exit cov3rt?")
+        if exit_choice:
+            npyscreen.notify_confirm("Thank you for using cov3rt!")
+            self.parentApp.setNextForm(None)
 
 
 class Second_TUI(npyscreen.ActionForm):
