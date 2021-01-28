@@ -2,7 +2,7 @@ from scapy.sendrecv import send, sniff
 from scapy.layers.inet import IP, UDP
 from scapy.all import Raw
 
-from logging import error
+from logging import error, info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
 from string import printable
@@ -10,23 +10,18 @@ from random import choice
 
 from cov3rt.Cloaks.Cloak import Cloak
 
-'''Options:
-IP_DST
-SEND_PORT
-DEST_PORT
-'''
-
 class UDPSizeModulation(Cloak):
 
     # Regular expression to verify IP
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"    
-    
+    LOGLEVEL = WARNING
+
     # Classification, name, and description
     classification = Cloak.SIZE_MODULATION
     name = "UDP Payload"
     description = "A cloak based on modulation of the UDP payload."
     
-    def __init__(self, ip_dst="192.168.1.101", send_port=25565, dest_port=25577):
+    def __init__(self, ip_dst = "192.168.1.101", send_port = 25565, dest_port = 25577):
         self.ip_dst = ip_dst
         self.send_port = send_port
         self.dest_port = dest_port
@@ -36,18 +31,22 @@ class UDPSizeModulation(Cloak):
         '''Ingests and formats data as a binary stream.'''
         if isinstance(data, str):
             self.data = [ord(i) for i in data]
+            debug(self.data)
         else:
             error("'data' must be of type 'str'")
 
     def send_EOT(self):
         '''Send an end-of-transmission packet to signal end of transmission.'''
-        # Create short random string for final packet
+        # Create short random string of four characters for final packet
         packet_string = ""
         for i in range(4):
             packet_string += choice(printable)
         # Create packet and send
-        pkt = IP(dst=self.ip_dst)/UDP(sport=self.send_port, dport=self.dest_port)/Raw(packet_string)
-        send(pkt, verbose=False)
+        pkt = IP(dst = self.ip_dst)/UDP(sport = self.send_port, dport = self.dest_port)/Raw(packet_string)
+        if self.LOGLEVEL == DEBUG:
+            send(pkt, verbose = False)
+        else:
+            send(pkt, verbose = True)
 
     def send_packet(self, number):
         '''Sends single packet based on the number in stream.'''
@@ -55,18 +54,28 @@ class UDPSizeModulation(Cloak):
         packet_string = ""
         for i in range(number):
             packet_string += choice(printable)
-        
         # Create packet and send
-        pkt = IP(dst=self.ip_dst)/UDP(sport=self.send_port, dport=self.dest_port)/Raw(packet_string)
-        send(pkt, verbose=False)
+        pkt = IP(dst = self.ip_dst)/UDP(sport = self.send_port, dport = self.dest_port)/Raw(packet_string)
+        if self.LOGLEVEL == DEBUG:
+            send(pkt, verbose = False)
+        else:
+            send(pkt, verbose = True)
 
     def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""
-        self.read_data = ""
-        # Send our data
+        info("Sending packets...")
+        # Loop over the data 
         for item in self.data:
             self.send_packet(item)
-        # Send EOT
+            # Packet delay
+            if (isinstance(packetDelay, int) or isinstance(packetDelay, float)):
+                debug("Packet delay sleep for {}s".format(packetDelay))
+                sleep(packetDelay)
+
+        # End delay
+        if (isinstance(endDelay, int) or isinstance(endDelay, float)):
+            debug("End delay sleep for {}s".format(endDelay))
+            sleep(endDelay)
         self.send_EOT()
         return True
 
@@ -78,6 +87,8 @@ class UDPSizeModulation(Cloak):
                 length = len(pkt["Raw"].load)
                 if length != 4:
                     self.read_data += chr(length)
+                    debug("Received a '{}'".format(chr(length)))
+                    info("String: {}".format(self.read_data))
         
     def recv_EOT(self, pkt):
         '''Specifies the EOT packet, singaling the end of transmission.'''
@@ -86,15 +97,19 @@ class UDPSizeModulation(Cloak):
             if (pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port):
                 length = len(pkt["Raw"].load)
                 if length == 4:
+                    info("Received EOT")
                     return True
         return False
 
     def recv_packets(self, timeout = None, max_count = None, iface = None, in_file = None, out_file = None):
-        '''Receives packets which use the UDP Size Modulation cloak.'''
+        """Receives packets which use the UDP Size Modulation Cloak."""  
+        info("Receiving packets...")
+        self.read_data = ''
         if max_count:
             sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         else:
             sniff(timeout = timeout, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+        info("String decoded: {}".format(self.read_data))
         return self.read_data
 
     ## Getters and Setters ##

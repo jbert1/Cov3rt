@@ -1,23 +1,17 @@
 from scapy.sendrecv import send, sniff
 from scapy.layers.inet6 import IPv6
 
-from logging import error
+from logging import error, info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
 
 from cov3rt.Cloaks.Cloak import Cloak
 
-'''
-VARIABLES REQUIRED
-IPv6 Source (ip_src)
-IPv6 Destination (ip_dst)
-EOT Hop Limit (EOT_hl) (MUST be set between 64 and 128)
-'''
-
 class IPv6Hoppers(Cloak):
     
-    #To whoever wants to read this, I'm sorry
+    # Regular expression to verify IP
     IPv6_REGEX = "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
+    LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
@@ -31,72 +25,82 @@ class IPv6Hoppers(Cloak):
         self.read_data = []
 
     def ingest(self, data):
-        #Ingests the data to send cov3rtly
+        """Ingests and formats data as a binary stream."""
         if isinstance(data, str):
             self.data = [ord(i) for i in data]
+            debug(self.data)
 
     def send_EOT(self):
-        #Sends the EOT packet
-        pkt = IPv6(src = 'fe80::1461:beca:7ad:3167', dst = 'ff02::1:ffad:317')
+        """Sends an end-of-transmission packet to signal the end of transmission."""
+        pkt = IPv6(dst = 'ff02::1:ffad:317')
         pkt.hlim = self.EOT_hl
-        send(pkt)
+        if self.LOGLEVEL == DEBUG:
+            send(pkt, verbose = False)
+        else:
+            send(pkt, verbose = True)
 
     def send_packet(self, var_hl):
-        pkt = IPv6(src = 'fe80::1461:beca:7ad:3167', dst = 'ff02::1:ffad:317')
+        """Sends packets based on hop limit."""
+        pkt = IPv6(dst = 'ff02::1:ffad:317')
         pkt.hlim = var_hl + self.EOT_hl
-        send(pkt)
+        if self.LOGLEVEL == DEBUG:
+            send(pkt, verbose = False)
+        else:
+            send(pkt, verbose = True)
 
     def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
-        print("Sending data:")
-        print(self.data)
-        
-        pkt = IPv6(src = 'fe80::1461:beca:7ad:3167', dst = 'ff02::1:ffad:317')
-        pkt.hlim = self.EOT_hl
-        
+        """Sends the entire ingested data via the send_packet method."""
+        info("Sending packets...")
+        # Loop over the data 
         for item in self.data:
-            var_hl = item
-            self.send_packet(var_hl)
+            self.send_packet(item)
+            # Packet delay
             if (isinstance(packetDelay, int) or isinstance(packetDelay, float)):
+                debug("Packet delay sleep for {}s".format(packetDelay))
                 sleep(packetDelay)
-       
+
+        # End delay
         if (isinstance(endDelay, int) or isinstance(endDelay, float)):
+            debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
         self.send_EOT()
         return True
 
     def packet_handler(self, pkt):
-        #Determines what packets we accept when choosing data
+        """Specifies the packet handler for receiving information via the IPv6 Hoppers Cloak."""
         if (pkt.haslayer(IPv6)):
-            if(pkt.dst == self.ip_dst and pkt.src == self.ip_src):
+            if(pkt["IPv6"].dst == self.ip_dst):
                 self.read_data.append(pkt.hlim)
+                debug("Received {}".format(pkt.hlim))
+
 
     def recv_EOT(self,pkt):
-        #Looks for EOT packet to signify end of transmission
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
         if (pkt.haslayer(IPv6)): 
-            if (pkt.dst == self.ip_dst and pkt.hlim == self.EOT_hl):  
+            if (pkt["IPv6"].dst == self.ip_dst and pkt["IPv6"].hlim == self.EOT_hl):  
+                info("Received EOT")
                 return True
         return False
 
     def recv_packets(self, timeout = None, max_count = None, iface = None, in_file = None, out_file = None):
-        #Sniffs and receives packets transmitted by IPv6Hoppers Cloak
+        """Receives packets which use the IPv6 Hoppers Cloak."""
+        info("Receiving packets...")
         self.read_data = []
         if max_count:
             sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         else:
             sniff(timeout = timeout, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
 
-        # When an EOT packet is received, the message is decoded for the user
-        print("Sniffing has ended, EOT received")
+        # Decode read data
         decoded_string = ''
-        
+        # Loop over the data
         for item in self.read_data[:-1]:
+            # Get the ascii character and add it to our string
             decoded_string += chr(item - self.EOT_hl)
-            print("Decoded Message: {}".format(decoded_string))
-
+        info("String decoded: {}".format(decoded_string))
         return decoded_string
 
-    # Getters and Setters
-
+    ## Getters and Setters ##
     # Getter for "ip_dst"
     @property
     def ip_dst(self):
