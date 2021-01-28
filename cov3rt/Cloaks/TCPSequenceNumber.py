@@ -2,6 +2,7 @@ from scapy.sendrecv import send, sniff
 from scapy.layers.inet import IP, TCP
 
 from logging import error, info, debug, DEBUG, WARNING
+from re import search
 from time import sleep
 
 from cov3rt.Cloaks.Cloak import Cloak
