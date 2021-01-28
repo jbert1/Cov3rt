@@ -594,6 +594,6 @@ if __name__ == "__main__":
         elif RECEIVING:
             # Receive packets
             if OUTPUT_TO_FILE:
-                cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, OUTPUT_TO_FILE)
+                cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, filename)
             else:
-                print(cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, OUTPUT_TO_FILE))
+                print(cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, filename))
