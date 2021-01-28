@@ -36,18 +36,18 @@ class IPv6Hoppers(Cloak):
         pkt = IPv6(dst = 'ff02::1:ffad:317')
         pkt.hlim = self.EOT_hl
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packet(self, var_hl):
         """Sends packets based on hop limit."""
         pkt = IPv6(dst = 'ff02::1:ffad:317')
         pkt.hlim = var_hl + self.EOT_hl
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""

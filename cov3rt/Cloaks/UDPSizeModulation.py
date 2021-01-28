@@ -45,9 +45,9 @@ class UDPSizeModulation(Cloak):
         # Create packet and send
         pkt = IP(dst = self.ip_dst)/UDP(sport = self.send_port, dport = self.dest_port)/Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packet(self, number):
         '''Sends single packet based on the number in stream.'''
@@ -58,9 +58,9 @@ class UDPSizeModulation(Cloak):
         # Create packet and send
         pkt = IP(dst = self.ip_dst)/UDP(sport = self.send_port, dport = self.dest_port)/Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""

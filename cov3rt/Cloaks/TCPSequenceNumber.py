@@ -35,17 +35,17 @@ class TCPSequenceNumber(Cloak):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst = self.ip_dst, flags = 0x06)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packet(self, num):
         """Sends packets based on TCP sequence number."""
         pkt = IP(dst = self.ip_dst)/TCP(seq = num)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""
