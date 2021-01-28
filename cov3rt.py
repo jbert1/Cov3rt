@@ -4,7 +4,7 @@ from importlib import import_module
 from inspect import getmembers, isclass, signature
 from os import listdir
 from os import name as OS_NAME
-from logging import error
+from logging import error, basicConfig, INFO, DEBUG
 from cov3rt.Cloaks import Cloak
 
 # This is my idea for storing cloak classifications
@@ -256,26 +256,28 @@ def print_help():
 """Usage: cov3rt.py [-h] [-l] [-i] (-s | -r) -c cloak_id [Options]
 
 Primary Arguments:
-  -c, --cloak           Selected covert channel implementation
-  -s, --send            Send information via the selected cloak
-  -r, --receive         Receive information via the selected cloak
+  -c,  --cloak           Selected covert channel implementation
+  -s,  --send            Send information via the selected cloak
+  -r,  --receive         Receive information via the selected cloak
 
 Send Options:
-  -m, --message         Send message within the command-line
-  -f, --filename        Send the contents of a file
+  -m,  --message         Send message within the command-line
+  -f,  --filename        Send the contents of a file
 
 Receive Options:
-  -t, --timeout         Timeout (in seconds) for the packet handler
+  -t,  --timeout         Timeout (in seconds) for the packet handler
   -mc, --maxCount       Max number of packets for the packet handler
   -if, --iface          Interface for the packet handler
   -in, --inFile         Use a .cap or .pcap rather than live analysis
-  -o, --outFile         Output packets from packet handler to a file
+  -o,  --outFile         Output packets from packet handler to a file
 
 Options:
   -pd, --packetDelay    Delay between packets
   -dd, --delimitDelay   Delay before each packet delimiter
   -ed, --endDelay       Delay before EOT packet
-  -d, --default         Use the default options for the cloak"""
+  -d,  --default        Use the default options for the cloak
+  -v,  --verbose        Increase verbosity
+  -vv, --veryVerbose    Maximum verbosity"""
 )
 
 # Prints a list of available cloaks for the user to choose from
@@ -402,6 +404,12 @@ if __name__ == "__main__":
         # Default parameters
         if ("-d" in argv or "--default" in argv):
             DEFAULT = True
+        # Verbosity
+        if ("-v" in argv or "--verbose" in argv):
+            basicConfig(level=INFO)
+        # Extra verbosity
+        if ("-vv" in argv or "--veryVerbose" in argv):
+            basicConfig(level=DEBUG)
 
         # Send message
         if ("-s" in argv or "--send" in argv):
