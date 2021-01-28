@@ -7,6 +7,7 @@ from inspect import getmembers, isclass
 from os import listdir
 from os import name as OS_NAME
 from cov3rt.Cloaks import Cloak
+from inspect import signature 
 
 ### TEST CODE (Mainly kept for quick reference) ###
 # class ActionFormObject(npyscreen.ActionForm, npyscreen.FormWithMenus):
@@ -311,18 +312,38 @@ class Second_TUI(npyscreen.ActionForm):
             name = "Name:",
             value = ""
         )
-        self.cloak_description = self.add(npyscreen.TitlePager, relx = 5, begin_entry_at = 18, editable = False,
+        self.cloak_description = self.add(npyscreen.TitlePager, relx = 5, begin_entry_at = 18, editable = False, height = 2,
             name = "Description:",
             values = ["Press CTRL+X to open the menu."]
         )
 
     # Populates the screen
     def populateScreen(self):
-        # self.instance = self.cloak()
+        self.instance = self.cloak()
+        
+        self.a = []
+        parameters = dict(signature(self.instance.__init__).parameters)
+        for p in parameters:
+            self.a.append(self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18, name = p, value = str(parameters[p].default)))
+        
         # Populate on-screen items
         self.cloak_classification.value = self.cloak.classification
         self.cloak_name.value = self.cloak.name
         self.cloak_description.values = self.cloak.description.split("\n")
+        print(self.a[0].value)
+        print(self.a[1].value)
+        print(self.a[2].value)
+
+    def on_ok(self):
+        #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
+        pass
+
+    def on_cancel(self):
+        # Exit Choice
+        exit_choice = npyscreen.notify_yes_no("Are you sure you want to exit cov3rt?")
+        if exit_choice:
+            npyscreen.notify_confirm("Thank you for using cov3rt!")
+            self.parentApp.setNextForm(None)
 
     # Runs when the user finishes the form
     def afterEditing(self):
