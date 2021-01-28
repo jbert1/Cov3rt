@@ -318,6 +318,7 @@ class Second_TUI(npyscreen.ActionForm):
 
     # Populates the screen
     def populateScreen(self):
+        # self.instance = self.cloak()
         # Populate on-screen items
         self.cloak_classification.value = self.cloak.classification
         self.cloak_name.value = self.cloak.name
