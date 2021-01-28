@@ -35,9 +35,9 @@ class IPReservedBit(Cloak):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst = self.ip_dst, flags = 0x06)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packet(self, databit):
         """Sends packets based on the evil bit."""
@@ -45,17 +45,17 @@ class IPReservedBit(Cloak):
             # Binary zero sends a non-evil bit packet
             pkt = IP(dst=self.ip_dst, flags = 0x00)
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose = False)
-            else:
                 send(pkt, verbose = True)
+            else:
+                send(pkt, verbose = False)
 
         elif databit == '1':
             # Binary zero sends an evil bit packet
             pkt = IP(dst=self.ip_dst, flags = 0x04)
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose = False)
-            else:
                 send(pkt, verbose = True)
+            else:
+                send(pkt, verbose = False)
 
 
     def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):

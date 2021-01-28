@@ -40,9 +40,9 @@ class DNSTiming(Cloak):
         '''Send an end-of-transmission packet to signal end of transmission.'''
         pkt = IP(dst = self.ip_dst)/UDP(dport = 53)/DNS(rd = 1, qd = DNSQR(qname = self.domaindelim.capitalize()))
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = False)
-        else:
             send(pkt, verbose = True)
+        else:
+            send(pkt, verbose = False)
 
     def send_packet(self, databit):
         '''Sends single packet with corresponding delay based on databit (0/1).'''
@@ -51,16 +51,16 @@ class DNSTiming(Cloak):
             sleep(self.zerotiming)
             pkt = IP(dst = self.ip_dst)/UDP(dport = 53)/DNS(rd = 1, qd = DNSQR(qname = self.domaincont.capitalize()))
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose = False)
-            else:
                 send(pkt, verbose = True)
+            else:
+                send(pkt, verbose = False)
         elif databit == '1':
             sleep(self.onetiming)
             pkt = IP(dst = self.ip_dst)/UDP(dport = 53)/DNS(rd = 1, qd = DNSQR(qname = self.domaincont.capitalize()))
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose = False)
-            else:
                 send(pkt, verbose = True)
+            else:
+                send(pkt, verbose = False)
 
     def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
         """Sends the entire ingested data via the send_packet method."""
