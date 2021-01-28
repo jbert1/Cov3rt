@@ -1,6 +1,7 @@
 from scapy.sendrecv import send, sniff
 from scapy.layers.inet import IP, UDP
 from scapy.all import Raw
+from scapy.utils import wrpcap
 
 from logging import error, info, debug, DEBUG, WARNING
 from re import search
@@ -106,9 +107,11 @@ class UDPSizeModulation(Cloak):
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
-            sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+            packets = sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         else:
-            sniff(timeout = timeout, iface = iface, offline = in_file, store = out_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+            packets = sniff(timeout = timeout, iface = iface, offline = in_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+        if out_file:
+            wrpcap(out_file, packets)
         info("String decoded: {}".format(self.read_data))
         return self.read_data
 
