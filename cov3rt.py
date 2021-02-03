@@ -463,6 +463,7 @@ if __name__ == "__main__":
         # Receive message
         elif ("-r" in argv or "--receive" in argv):
             RECEIVING = True
+            FILENAME = None
             # Output to file
             if ("-o" in argv or "--outFile" in argv):
                 OUTPUT_TO_FILE = True
@@ -472,15 +473,15 @@ if __name__ == "__main__":
                     index = argv.index("--outFile")
                 # Ensure the next positional argument is correct
                 try:
-                    filename = argv[index + 1]
+                    FILENAME = argv[index + 1]
                     # Ensure we can write to the file
                     try:
-                        f = open(filename, "w")
+                        f = open(FILENAME, "w")
                         f.write('')
                         f.close()
                     # Other file error
                     except FileExistsError:
-                        error("Error in writing to {}!".format(filename))
+                        error("Error in writing to {}!".format(FILENAME))
                         exit()
                 # Missing following positional argument
                 except IndexError:
@@ -594,6 +595,6 @@ if __name__ == "__main__":
         elif RECEIVING:
             # Receive packets
             if OUTPUT_TO_FILE:
-                cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, filename)
+                cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME)
             else:
-                print(cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, filename))
+                print(cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME))
