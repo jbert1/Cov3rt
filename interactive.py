@@ -4,6 +4,7 @@
 import npyscreen
 from importlib import import_module
 from inspect import getmembers, isclass
+from logging import error
 from os import listdir
 from os import name as OS_NAME
 from cov3rt.Cloaks import Cloak
@@ -322,26 +323,48 @@ class Second_TUI(npyscreen.ActionForm):
         self.instance = self.cloak()
         
         self.a = []
+        self.a_margin = 0
         parameters = dict(signature(self.instance.__init__).parameters)
         for p in parameters:
             self.a.append(self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18, name = p, value = str(parameters[p].default)))
+            self.a_margin += 1
         
         # Populate on-screen items
         self.cloak_classification.value = self.cloak.classification
         self.cloak_name.value = self.cloak.name
         self.cloak_description.values = self.cloak.description.split("\n")
         print("Old Values")
-        print(self.a[0].value)
-        print(self.a[1].value)
-        print(self.a[2].value)
+        for i in self.a:
+            print("{} -> {}".format(i.name, i.value))
 
     def on_ok(self):
         #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
-        print("\nNew Values")
-        print(self.a[0].value)
-        print(self.a[1].value)
-        print(self.a[2].value)
-        pass
+        for element in self.a:
+            p = element.name
+            new_val = element.value
+            parameters = dict(signature(self.instance.__init__).parameters)
+            # String parameter
+            if isinstance(parameters[p].default, str):
+                try:
+                    exec("self.instance.{} = '{}'".format(p, new_val))
+                except ValueError as err:
+                    npyscreen.notify_wait("info about error", title = "Ya done fucked up, AAron")
+            # Integer parameter
+            elif isinstance(parameters[p].default, int):
+                if new_val.isdigit():
+                    exec("self.instance.{} = int({})".format(p, new_val))
+                else:
+                    error("{} must be of type 'int'!".format(new_val))
+            # Float parameter
+            elif isinstance(parameters[p].default, int):
+                if new_val.replace('.', '', 1).isdigit():
+                    exec("self.instance.{} = float({})".format(p, new_val))
+                else:
+                    error("{} must be of type 'float'!".format(new_val))
+        
+        print("domain : {}".format(self.instance.domain))
+
+        self.parentApp.setNextForm(None)
 
     def on_cancel(self):
         # Exit Choice
@@ -349,11 +372,22 @@ class Second_TUI(npyscreen.ActionForm):
         if exit_choice:
             npyscreen.notify_confirm("Thank you for using cov3rt!")
             self.parentApp.setNextForm(None)
+        
+        
+        ### On_cancel return to previous screen
+        # back_choice = npyscreen.notify_yes_no("Choose a different Cloak?")
+        # if back_choice:
+        #     npyscreen.notify_wait("Returning to Cloak Selection", title = "Cloak Selection Cancelled")
+        #     for i in self.a:
+        #         i.hidden = True
+        #     self.a = []
+        #     self.parentApp.setNextForm("MAIN")
 
     # Runs when the user finishes the form
     def afterEditing(self):
-        # Exit
-        self.parentApp.setNextForm(None)
+        #Exit
+        #self.parentApp.setNextForm(None)
+        pass
     
 
 # Main program
