@@ -330,15 +330,17 @@ class Second_TUI(npyscreen.ActionForm):
         self.cloak_classification.value = self.cloak.classification
         self.cloak_name.value = self.cloak.name
         self.cloak_description.values = self.cloak.description.split("\n")
-        #print(self.a[0].value)
-        #print(self.a[1].value)
-        #print(self.a[2].value)
+        print("Old Values")
+        print(self.a[0].value)
+        print(self.a[1].value)
+        print(self.a[2].value)
 
     def on_ok(self):
         #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
-        #print(self.a[0].value)
-        #print(self.a[1].value)
-        #print(self.a[2].value)
+        print("\nNew Values")
+        print(self.a[0].value)
+        print(self.a[1].value)
+        print(self.a[2].value)
         pass
 
     def on_cancel(self):
