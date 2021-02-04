@@ -8,6 +8,7 @@ from logging import error
 from os import listdir
 from os import name as OS_NAME
 from cov3rt.Cloaks import Cloak
+from cov3rt import Cloaks
 from inspect import signature 
 
 ### TEST CODE (Mainly kept for quick reference) ###
@@ -95,64 +96,64 @@ from inspect import signature
 
 # This is my idea for storing cloak classifications
 cloaks =  {
-    Cloak.Cloak.INTER_PACKET_TIMING : [
+    Cloak.INTER_PACKET_TIMING : [
     ],
 
-    Cloak.Cloak.MESSAGE_TIMING : [
+    Cloak.MESSAGE_TIMING : [
     ],
 
-    Cloak.Cloak.RATE_THROUGHPUT_TIMING : [
+    Cloak.RATE_THROUGHPUT_TIMING : [
     ],
 
-    Cloak.Cloak.ARTIFICIAL_LOSS : [
+    Cloak.ARTIFICIAL_LOSS : [
     ],
 
-    Cloak.Cloak.MESSAGE_ORDERING : [
+    Cloak.MESSAGE_ORDERING : [
     ],
 
-    Cloak.Cloak.RETRANSMISSION : [
+    Cloak.RETRANSMISSION : [
     ],
 
-    Cloak.Cloak.FRAME_COLLISIONS : [
+    Cloak.FRAME_COLLISIONS : [
     ],
     
-    Cloak.Cloak.TEMPERATURE : [
+    Cloak.TEMPERATURE : [
     ],
 
-    Cloak.Cloak.SIZE_MODULATION : [
+    Cloak.SIZE_MODULATION : [
     ],
 
-    Cloak.Cloak.POSITION : [
+    Cloak.POSITION : [
     ],
 
-    Cloak.Cloak.NUMBER_OF_ELEMENTS : [
+    Cloak.NUMBER_OF_ELEMENTS : [
     ],
 
-    Cloak.Cloak.RANDOM_VALUE : [
+    Cloak.RANDOM_VALUE : [
     ],
 
-    Cloak.Cloak.CASE_MODULATION : [
+    Cloak.CASE_MODULATION : [
     ],
 
-    Cloak.Cloak.LSB_MODULATION : [
+    Cloak.LSB_MODULATION : [
     ],
     
-    Cloak.Cloak.VALUE_INFLUENCING : [
+    Cloak.VALUE_INFLUENCING : [
     ],
 
-    Cloak.Cloak.RESERVED_UNUSED : [
+    Cloak.RESERVED_UNUSED : [
     ],
     
-    Cloak.Cloak.PAYLOAD_FIELD_SIZE_MODULATION : [
+    Cloak.PAYLOAD_FIELD_SIZE_MODULATION : [
     ],
 
-    Cloak.Cloak.USER_DATA_CORRUPTION : [
+    Cloak.USER_DATA_CORRUPTION : [
     ],
 
-    Cloak.Cloak.MODIFY_REDUNDANCY : [
+    Cloak.MODIFY_REDUNDANCY : [
     ],
 
-    Cloak.Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED : [
+    Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED : [
     ],
 }
 
@@ -339,6 +340,7 @@ class Second_TUI(npyscreen.ActionForm):
 
     def on_ok(self):
         #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
+        editing = False
         for element in self.a:
             p = element.name
             new_val = element.value
@@ -348,23 +350,37 @@ class Second_TUI(npyscreen.ActionForm):
                 try:
                     exec("self.instance.{} = '{}'".format(p, new_val))
                 except ValueError as err:
-                    npyscreen.notify_wait("info about error", title = "Ya done fucked up, AAron")
+                    npyscreen.notify_wait(str(err), title = "Value Error!")
+                    editing = True
+                except TypeError as err:
+                    npyscreen.notify_wait(str(err), title = "Type Error!")
+                    editing = True
             # Integer parameter
             elif isinstance(parameters[p].default, int):
-                if new_val.isdigit():
+                try:
                     exec("self.instance.{} = int({})".format(p, new_val))
-                else:
-                    error("{} must be of type 'int'!".format(new_val))
+                except ValueError as err:
+                    npyscreen.notify_wait(str(err), title = "Value Error!")
+                    editing = True
+                except TypeError as err:
+                    npyscreen.notify_wait(str(err), title = "Type Error!")
+                    editing = True
             # Float parameter
             elif isinstance(parameters[p].default, int):
-                if new_val.replace('.', '', 1).isdigit():
+                try:
                     exec("self.instance.{} = float({})".format(p, new_val))
-                else:
-                    error("{} must be of type 'float'!".format(new_val))
+                except ValueError as err:
+                    npyscreen.notify_wait(str(err), title = "Value Error!")
+                    editing = True
+                except TypeError as err:
+                    npyscreen.notify_wait(str(err), title = "Type Error!")
+                    editing = True
         
-        print("domain : {}".format(self.instance.domain))
-
-        self.parentApp.setNextForm(None)
+        if not (editing):
+            print("\nNew Values")
+            for i in self.a:
+                print("{} -> {}".format(i.name, i.value))
+            self.parentApp.setNextForm(None)
 
     def on_cancel(self):
         # Exit Choice
@@ -396,15 +412,13 @@ if __name__ == '__main__':
     # Get path for cov3rt
     if OS_NAME == "nt":
         # Windows path
-        COV3RT_PATH = "\\".join(Cloak.__file__.split("\\")[:-1])
+        COV3RT_PATH = "\\".join(Cloaks.__file__.split("\\")[:-1])
     else:
-        COV3RT_PATH = '/'.join(Cloak.__file__.split('/')[:-1])
-
+        COV3RT_PATH = '/'.join(Cloaks.__file__.split('/')[:-1])
     # Add the existing cloaks to our classifications
     add_classes(COV3RT_PATH, "cov3rt.Cloaks")
 
     # Delete empty classifications
     for empty in [cloak for cloak in cloaks if len(cloaks[cloak]) == 0]: del cloaks[empty]
-
     app = App().run()
     
