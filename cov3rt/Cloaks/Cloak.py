@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from logging import error, warning
+from logging import warning
+from typing import Type
 
 # Check priviliges based on OS
 try:
@@ -91,7 +92,7 @@ class Cloak(ABC):
             # Set the description
             self._description = d
         else:
-            error("'description' must be of type 'str'")
+            raise TypeError("'description' must be of type 'str'")
     
     # Getter for 'name'
     @property
@@ -106,4 +107,4 @@ class Cloak(ABC):
             # Set the name
             self._name = d
         else:
-            error("'name' must be of type 'str'")
+            raise TypeError("'name' must be of type 'str'")

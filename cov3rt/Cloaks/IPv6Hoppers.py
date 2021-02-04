@@ -2,7 +2,7 @@ from scapy.sendrecv import send, sniff
 from scapy.layers.inet6 import IPv6
 from scapy.utils import wrpcap
 
-from logging import error, info, debug, DEBUG, WARNING
+from logging import info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
 
@@ -117,9 +117,9 @@ class IPv6Hoppers(Cloak):
             if search(self.IPv6_REGEX, ip_dst):
                 self._ip_dst = ip_dst
             else:
-                error("Invalid IP address provided: {}".format(ip_dst))
+                raise ValueError("Invalid IP address provided: {}".format(ip_dst))
         else:
-            error("'ip_dst' must be of type 'str'")
+            raise TypeError("'ip_dst' must be of type 'str'")
 
     # Getter for "ip_src"
     @property
@@ -135,9 +135,9 @@ class IPv6Hoppers(Cloak):
             if search(self.IPv6_REGEX, ip_src):
                 self._ip_src = ip_src
             else:
-                error("Invalid IP address provided: {}".format(ip_src))
+                raise ValueError("Invalid IP address provided: {}".format(ip_src))
         else:
-            error("'ip_src' must be of type 'str'")        
+            raise TypeError("'ip_src' must be of type 'str'")        
 
     # Getter for "EOT_hl"
     @property
@@ -147,10 +147,10 @@ class IPv6Hoppers(Cloak):
     # Setter for "EOT_hl"
     @EOT_hl.setter
     def EOT_hl(self, EOT_hl):
-        if ( isinstance(EOT_hl, int)):
+        if (isinstance(EOT_hl, int)):
             if (EOT_hl > 64 and EOT_hl < 127):
                 self._EOT_hl = EOT_hl
             else:
-                error("'EOT_hl' must be between 64 and 127")
+                raise ValueError("'EOT_hl' must be between 64 and 127")
         else:
-            error("'EOT_hl' must be of type  'int'")
+            raise TypeError("'EOT_hl' must be of type 'int'")

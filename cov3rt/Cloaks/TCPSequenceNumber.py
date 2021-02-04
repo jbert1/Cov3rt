@@ -2,7 +2,7 @@ from scapy.sendrecv import send, sniff
 from scapy.layers.inet import IP, TCP
 from scapy.utils import wrpcap
 
-from logging import error, info, debug, DEBUG, WARNING
+from logging import info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
 
@@ -29,7 +29,7 @@ class TCPSequenceNumber(Cloak):
             self.data = [ord(i) for i in data]
             debug(self.data)
         else:
-            error("'data' must be of type 'str'")
+            raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
         """Sends an end-of-transmission packet to signal the end of transmission."""
@@ -111,6 +111,6 @@ class TCPSequenceNumber(Cloak):
                 self._ip_dst = ip_dst
             # Not a valid IP
             else:
-                error("Invalid IP '{}'".format(ip_dst))
+                raise ValueError("Invalid IP '{}'".format(ip_dst))
         else:
-            error("'ip_dst' must be of type 'str'")
+            raise TypeError("'ip_dst' must be of type 'str'")

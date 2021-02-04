@@ -3,7 +3,7 @@ from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import IP, UDP
 from scapy.utils import wrpcap
 
-from logging import error, info, debug, DEBUG, WARNING
+from logging import info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
 
@@ -34,7 +34,7 @@ class DNSTiming(Cloak):
             self.data = ''.join(format(ord(i), 'b').zfill(8) for i in data)
             debug(self.data)
         else:
-            error("'data' must be of type 'str'")
+            raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
         '''Send an end-of-transmission packet to signal end of transmission.'''
@@ -173,9 +173,9 @@ class DNSTiming(Cloak):
                 self._ip_dst = ip_dst
         # Not valid cases
             else:
-                error("Invalid IP address provided: {}".format(ip_dst))
+                raise ValueError("Invalid IP address provided: {}".format(ip_dst))
         else:
-            error("'ip_dst' must be of type 'str'")
+            raise TypeError("'ip_dst' must be of type 'str'")
 
     # Getter for 'zerotiming'
     @property
@@ -189,7 +189,7 @@ class DNSTiming(Cloak):
         if (isinstance(zerotiming, float) or isinstance(zerotiming, int)):
             self._zerotiming = zerotiming
         else:
-            error("'zerotiming' must be of type 'float' or 'int'")
+            raise TypeError("'zerotiming' must be of type 'float' or 'int'")
 
     # Getter for 'onetiming'
     @property
@@ -203,4 +203,4 @@ class DNSTiming(Cloak):
         if (isinstance(onetiming, float) or isinstance(onetiming, int)):
             self._onetiming = onetiming
         else:
-            error("'onetiming' must be of type 'float' or 'int'")
+            raise TypeError("'onetiming' must be of type 'float' or 'int'")

@@ -3,7 +3,7 @@ from scapy.layers.inet import IP, UDP
 from scapy.all import Raw
 from scapy.utils import wrpcap
 
-from logging import error, info, debug, DEBUG, WARNING
+from logging import info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
 from string import printable
@@ -34,7 +34,7 @@ class UDPSizeModulation(Cloak):
             self.data = [ord(i) for i in data]
             debug(self.data)
         else:
-            error("'data' must be of type 'str'")
+            raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
         '''Send an end-of-transmission packet to signal end of transmission.'''
@@ -131,9 +131,9 @@ class UDPSizeModulation(Cloak):
                 self._ip_dst = ip_dst
             # Not a valid IP
             else:
-                error("Invalid IP '{}'".format(ip_dst))
+                raise ValueError("Invalid IP '{}'".format(ip_dst))
         else:
-            error("'ip_dst' must be of type 'str'")
+            raise TypeError("'ip_dst' must be of type 'str'")
     
     # Getter for send_port
     @property
@@ -149,9 +149,9 @@ class UDPSizeModulation(Cloak):
             if (1 <= send_port <= 65535):
                 self._send_port = send_port
             else:
-                error("'send_port' must be within valid port range (1-65535)")
+                raise ValueError("'send_port' must be within valid port range (1-65535)")
         else:
-            error("'send_port' must be of type 'int'")
+            raise TypeError("'send_port' must be of type 'int'")
 
     # Getter for dest_port
     @property
@@ -167,6 +167,6 @@ class UDPSizeModulation(Cloak):
             if (1 <= dest_port <= 65535):
                 self._dest_port = dest_port
             else:
-                error("'dest_port' must be within valid port range (1-65535)")
+                raise ValueError("'dest_port' must be within valid port range (1-65535)")
         else:
-            error("'dest_port' must be of type 'int'")
+            raise TypeError("'dest_port' must be of type 'int'")
