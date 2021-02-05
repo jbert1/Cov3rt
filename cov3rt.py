@@ -6,67 +6,68 @@ from os import listdir
 from os import name as OS_NAME
 from logging import error, basicConfig, INFO, DEBUG
 from cov3rt.Cloaks import Cloak
+from cov3rt import Cloaks
 
 # This is my idea for storing cloak classifications
 cloaks =  {
-    Cloak.Cloak.INTER_PACKET_TIMING : [
+    Cloak.INTER_PACKET_TIMING : [
     ],
 
-    Cloak.Cloak.MESSAGE_TIMING : [
+    Cloak.MESSAGE_TIMING : [
     ],
 
-    Cloak.Cloak.RATE_THROUGHPUT_TIMING : [
+    Cloak.RATE_THROUGHPUT_TIMING : [
     ],
 
-    Cloak.Cloak.ARTIFICIAL_LOSS : [
+    Cloak.ARTIFICIAL_LOSS : [
     ],
 
-    Cloak.Cloak.MESSAGE_ORDERING : [
+    Cloak.MESSAGE_ORDERING : [
     ],
 
-    Cloak.Cloak.RETRANSMISSION : [
+    Cloak.RETRANSMISSION : [
     ],
 
-    Cloak.Cloak.FRAME_COLLISIONS : [
+    Cloak.FRAME_COLLISIONS : [
     ],
     
-    Cloak.Cloak.TEMPERATURE : [
+    Cloak.TEMPERATURE : [
     ],
 
-    Cloak.Cloak.SIZE_MODULATION : [
+    Cloak.SIZE_MODULATION : [
     ],
 
-    Cloak.Cloak.POSITION : [
+    Cloak.POSITION : [
     ],
 
-    Cloak.Cloak.NUMBER_OF_ELEMENTS : [
+    Cloak.NUMBER_OF_ELEMENTS : [
     ],
 
-    Cloak.Cloak.RANDOM_VALUE : [
+    Cloak.RANDOM_VALUE : [
     ],
 
-    Cloak.Cloak.CASE_MODULATION : [
+    Cloak.CASE_MODULATION : [
     ],
 
-    Cloak.Cloak.LSB_MODULATION : [
+    Cloak.LSB_MODULATION : [
     ],
     
-    Cloak.Cloak.VALUE_INFLUENCING : [
+    Cloak.VALUE_INFLUENCING : [
     ],
 
-    Cloak.Cloak.RESERVED_UNUSED : [
+    Cloak.RESERVED_UNUSED : [
     ],
     
-    Cloak.Cloak.PAYLOAD_FIELD_SIZE_MODULATION : [
+    Cloak.PAYLOAD_FIELD_SIZE_MODULATION : [
     ],
 
-    Cloak.Cloak.USER_DATA_CORRUPTION : [
+    Cloak.USER_DATA_CORRUPTION : [
     ],
 
-    Cloak.Cloak.MODIFY_REDUNDANCY : [
+    Cloak.MODIFY_REDUNDANCY : [
     ],
 
-    Cloak.Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED : [
+    Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED : [
     ],
 }
 # Stores the classname and description of each cloak
@@ -301,300 +302,301 @@ INPUT_FILE = None
 DEFAULT = False
 
 if __name__ == "__main__":
-    # Get path for cov3rt
-    if OS_NAME == "nt":
-        # Windows path
-        COV3RT_PATH = "\\".join(Cloak.__file__.split("\\")[:-1])
-    else:
-        COV3RT_PATH = '/'.join(Cloak.__file__.split('/')[:-1])
-
-    # Add the existing cloaks to our classifications
-    add_classes(COV3RT_PATH, "cov3rt.Cloaks")
-
     # Hand written parser because argparse sucks
     if ("-h" in argv or "--help" in argv or "?" in argv):
         print_help()
-    # List cloaks
-    elif ("-l" in argv or "--listCloaks" in argv):
-        print_list()
-    # Interactive application
-    elif ("-i" in argv or "--interactive" in argv):
-        App().run()
-    # Other arguments
     else:
-        # Cloak type
-        if ("-c" in argv or "--cloak" in argv):
-            # Get the index in the arglist
-            try:
-                index = argv.index("-c")
-            except:
-                index = argv.index("--cloak")
-            # Ensure the next positional argument is correct
-            try:
-                temp = argv[index + 1]
-                # Check encoding
-                if temp.isdigit():
-                    # Check range
-                    if 0 <= int(temp) <= len(cloak_names):
-                        # Save cloak_type
-                        cloak_type = cloak_names[int(temp)]
+        # Get path for cov3rt
+        if OS_NAME == "nt":
+            # Windows path
+            COV3RT_PATH = "\\".join(Cloaks.__file__.split("\\")[:-1])
+        else:
+            COV3RT_PATH = '/'.join(Cloaks.__file__.split('/')[:-1])
+
+        # Add the existing cloaks to our classifications
+        add_classes(COV3RT_PATH, "cov3rt.Cloaks")
+
+        # List cloaks
+        if ("-l" in argv or "--listCloaks" in argv):
+            print_list()
+        # Interactive application
+        elif ("-i" in argv or "--interactive" in argv):
+            App().run()
+        # Other arguments
+        else:
+            # Cloak type
+            if ("-c" in argv or "--cloak" in argv):
+                # Get the index in the arglist
+                try:
+                    index = argv.index("-c")
+                except:
+                    index = argv.index("--cloak")
+                # Ensure the next positional argument is correct
+                try:
+                    temp = argv[index + 1]
+                    # Check encoding
+                    if temp.isdigit():
+                        # Check range
+                        if 0 <= int(temp) <= len(cloak_names):
+                            # Save cloak_type
+                            cloak_type = cloak_names[int(temp)]
+                        else:
+                            error("Invalid cloak type!\nUse the '-l' option to view valid cloak types.")
+                            exit()
                     else:
                         error("Invalid cloak type!\nUse the '-l' option to view valid cloak types.")
                         exit()
-                else:
-                    error("Invalid cloak type!\nUse the '-l' option to view valid cloak types.")
-                    exit()
-            # Missing following positional argument
-            except IndexError:
-                error("Missing cloak type argument!\nUse the '-l' option to view valid cloak types.")
-                exit()
-        else:
-            error("Please specify cloak type!")
-            exit()
-        
-        # Optional arguments
-        # Packet delay
-        if ("-pd" in argv or "--packetDelay" in argv):
-            try:
-                index = argv.index("-pd")
-            except:
-                index = argv.index("--packetDelay")
-            # Ensure the next positional argument is correct
-            try:
-                if argv[index + 1].replace('.', '', 1).isdigit():
-                    PACKET_DELAY = float(argv[index + 1])
-                else:
-                    error("Packet delay must be of type 'float'!")
-            # Missing following positional argument
-            except IndexError:
-                error("Missing packet delay value!")
-                exit()
-        # Delimiter delay
-        if ("-dd" in argv or "--delimitDelay" in argv):
-            try:
-                index = argv.index("-dd")
-            except:
-                index = argv.index("--delimitDelay")
-            # Ensure the next positional argument is correct
-            try:
-                if argv[index + 1].replace('.', '', 1).isdigit():
-                    DELIMITER_DELAY = float(argv[index + 1])
-                else:
-                    error("Delimiter delay must be of type 'float'!")
-            # Missing following positional argument
-            except IndexError:
-                error("Missing delimiter delay value!")
-                exit()
-        # End delay
-        if ("-ed" in argv or  "--endDelay" in argv):
-            try:
-                index = argv.index("-ed")
-            except:
-                index = argv.index("--endDelay")
-            # Ensure the next positional argument is correct
-            try:
-                if argv[index + 1].replace('.', '', 1).isdigit():
-                    END_DELAY = float(argv[index + 1])
-                else:
-                    error("End delay must be of type 'float'!")
-            # Missing following positional argument
-            except IndexError:
-                error("Missing end delay value!")
-                exit()
-        # Default parameters
-        if ("-d" in argv or "--default" in argv):
-            DEFAULT = True
-        # Verbosity
-        if ("-v" in argv or "--verbose" in argv):
-            basicConfig(level=INFO)
-        # Extra verbosity
-        if ("-vv" in argv or "--veryVerbose" in argv):
-            basicConfig(level=DEBUG)
-
-        # Send message
-        if ("-s" in argv or "--send" in argv):
-            SENDING = True
-            # Console Message
-            if ("-m" in argv or "--message" in argv):
-                try:
-                    index = argv.index("-m")
-                except:
-                    index = argv.index("--message")
-                # Ensure the next positional argument is correct
-                try:
-                    message = argv[index + 1]
                 # Missing following positional argument
                 except IndexError:
-                    error("Missing message!")
+                    error("Missing cloak type argument!\nUse the '-l' option to view valid cloak types.")
                     exit()
-            # Filename
-            elif ("-f" in argv or "--filename" in argv):
-                try:
-                    index = argv.index("-f")
-                except:
-                    index = argv.index("--filename")
-                # Ensure the next positional argument is correct
-                try:
-                    filename = argv[index + 1]
-                    # Error handling for opening the file
-                    try:
-                        f = open(filename, "r", encoding="UTF-8")
-                        message = f.read()
-                        f.close()
-                    # File not found
-                    except FileNotFoundError:
-                        error("Could not find file {}!".format(filename))
-                        exit()
-                    # Other file error
-                    except FileExistsError:
-                        error("Error in opening {}!".format(filename))
-                        exit()
-                # Missing following positional argument
-                except IndexError:
-                    error("Missing filename!")
-                    exit()
-            # Standard input
             else:
-                # Build a string based on stdin
-                message = ''
-                for line in stdin:
-                    message += line
-
-        # Receive message
-        elif ("-r" in argv or "--receive" in argv):
-            RECEIVING = True
-            FILENAME = None
-            # Output to file
-            if ("-o" in argv or "--outFile" in argv):
-                OUTPUT_TO_FILE = True
+                error("Please specify cloak type!")
+                exit()
+            
+            # Optional arguments
+            # Packet delay
+            if ("-pd" in argv or "--packetDelay" in argv):
                 try:
-                    index = argv.index("-o")
+                    index = argv.index("-pd")
                 except:
-                    index = argv.index("--outFile")
-                # Ensure the next positional argument is correct
-                try:
-                    FILENAME = argv[index + 1]
-                    # Ensure we can write to the file
-                    try:
-                        f = open(FILENAME, "w")
-                        f.write('')
-                        f.close()
-                    # Other file error
-                    except FileExistsError:
-                        error("Error in writing to {}!".format(FILENAME))
-                        exit()
-                # Missing following positional argument
-                except IndexError:
-                    error("Missing output filename!")
-                    exit()
-            # Timeout
-            if ("-t" in argv or "--timeout" in argv):
-                try:
-                    index = argv.index("-t")
-                except:
-                    index = argv.index("--timeout")
+                    index = argv.index("--packetDelay")
                 # Ensure the next positional argument is correct
                 try:
                     if argv[index + 1].replace('.', '', 1).isdigit():
-                        TIMEOUT = float(argv[index + 1])
+                        PACKET_DELAY = float(argv[index + 1])
                     else:
-                        error("Timeout must be of type 'float'!")
+                        error("Packet delay must be of type 'float'!")
                 # Missing following positional argument
                 except IndexError:
-                    error("Missing timeout value!")
+                    error("Missing packet delay value!")
                     exit()
-            # Max packet count
-            if ("-mc" in argv or "--maxCount" in argv):
+            # Delimiter delay
+            if ("-dd" in argv or "--delimitDelay" in argv):
                 try:
-                    index = argv.index("-mc")
+                    index = argv.index("-dd")
                 except:
-                    index = argv.index("--maxCount")
+                    index = argv.index("--delimitDelay")
                 # Ensure the next positional argument is correct
                 try:
-                    if argv[index + 1].isdigit():
-                        MAX_COUNT = float(argv[index + 1])
+                    if argv[index + 1].replace('.', '', 1).isdigit():
+                        DELIMITER_DELAY = float(argv[index + 1])
                     else:
-                        error("Max packet count must be of type 'int'!")
+                        error("Delimiter delay must be of type 'float'!")
                 # Missing following positional argument
                 except IndexError:
-                    error("Missing max packet count value!")
+                    error("Missing delimiter delay value!")
                     exit()
-            # Interface
-            if ("-if" in argv or "--iface" in argv):
+            # End delay
+            if ("-ed" in argv or  "--endDelay" in argv):
                 try:
-                    index = argv.index("-if")
+                    index = argv.index("-ed")
                 except:
-                    index = argv.index("--iface")
+                    index = argv.index("--endDelay")
                 # Ensure the next positional argument is correct
                 try:
-                    INTERFACE = float(argv[index + 1])
+                    if argv[index + 1].replace('.', '', 1).isdigit():
+                        END_DELAY = float(argv[index + 1])
+                    else:
+                        error("End delay must be of type 'float'!")
                 # Missing following positional argument
                 except IndexError:
-                    error("Missing interface value!")
+                    error("Missing end delay value!")
                     exit()
-            # Input file
-            if ("-in" in argv or "--inFile" in argv):
-                try:
-                    index = argv.index("-in")
-                except:
-                    index = argv.index("--inFile")
-                # Ensure the next positional argument is correct
-                try:
-                    INPUT_FILE = argv[index + 1]
-                    # Ensure we can read the file
+            # Default parameters
+            if ("-d" in argv or "--default" in argv):
+                DEFAULT = True
+            # Verbosity
+            if ("-v" in argv or "--verbose" in argv):
+                basicConfig(level=INFO)
+            # Extra verbosity
+            if ("-vv" in argv or "--veryVerbose" in argv):
+                basicConfig(level=DEBUG)
+
+            # Send message
+            if ("-s" in argv or "--send" in argv):
+                SENDING = True
+                # Console Message
+                if ("-m" in argv or "--message" in argv):
                     try:
-                        f = open(INPUT_FILE, "r")
-                        f.close()
-                    # Other file error
-                    except FileExistsError:
-                        error("Error in reading {}!".format(INPUT_FILE))
+                        index = argv.index("-m")
+                    except:
+                        index = argv.index("--message")
+                    # Ensure the next positional argument is correct
+                    try:
+                        message = argv[index + 1]
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing message!")
                         exit()
-                # Missing following positional argument
-                except IndexError:
-                    error("Missing input filename!")
-                    exit()
+                # Filename
+                elif ("-f" in argv or "--filename" in argv):
+                    try:
+                        index = argv.index("-f")
+                    except:
+                        index = argv.index("--filename")
+                    # Ensure the next positional argument is correct
+                    try:
+                        filename = argv[index + 1]
+                        # Error handling for opening the file
+                        try:
+                            f = open(filename, "r", encoding="UTF-8")
+                            message = f.read()
+                            f.close()
+                        # File not found
+                        except FileNotFoundError:
+                            error("Could not find file {}!".format(filename))
+                            exit()
+                        # Other file error
+                        except FileExistsError:
+                            error("Error in opening {}!".format(filename))
+                            exit()
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing filename!")
+                        exit()
+                # Standard input
+                else:
+                    # Build a string based on stdin
+                    message = ''
+                    for line in stdin:
+                        message += line
 
-            ### RECEIVE LOGIC ###
-
-        else:
-            error("Please specify send/receive!")
-            exit()
-
-        ## Setup the sending mechanism
-        # Instantiate the cloak
-        cloak = cloak_type()
-        # Custom parameters
-        if not DEFAULT:
-            # Get the parameters for the constructor
-            parameters = dict(signature(cloak.__init__).parameters)
-            for p in parameters:
-                # Ask for user input
-                new_val = input("Value for {} (leave blank for default '{}'): ".format(p, parameters[p].default))
-                # User entered a new value
-                if new_val != "":
-                    # String parameter
-                    if isinstance(parameters[p].default, str):
-                        exec("cloak.{} = '{}'".format(p, new_val))
-                    # Integer parameter
-                    elif isinstance(parameters[p].default, int):
-                        if new_val.isdigit():
-                            exec("cloak.{} = int({})".format(p, new_val))
+            # Receive message
+            elif ("-r" in argv or "--receive" in argv):
+                RECEIVING = True
+                FILENAME = None
+                # Output to file
+                if ("-o" in argv or "--outFile" in argv):
+                    OUTPUT_TO_FILE = True
+                    try:
+                        index = argv.index("-o")
+                    except:
+                        index = argv.index("--outFile")
+                    # Ensure the next positional argument is correct
+                    try:
+                        FILENAME = argv[index + 1]
+                        # Ensure we can write to the file
+                        try:
+                            f = open(FILENAME, "w")
+                            f.write('')
+                            f.close()
+                        # Other file error
+                        except FileExistsError:
+                            error("Error in writing to {}!".format(FILENAME))
+                            exit()
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing output filename!")
+                        exit()
+                # Timeout
+                if ("-t" in argv or "--timeout" in argv):
+                    try:
+                        index = argv.index("-t")
+                    except:
+                        index = argv.index("--timeout")
+                    # Ensure the next positional argument is correct
+                    try:
+                        if argv[index + 1].replace('.', '', 1).isdigit():
+                            TIMEOUT = float(argv[index + 1])
                         else:
-                            error("{} must be of type 'int'!".format(new_val))
-                    # Float parameter
-                    elif isinstance(parameters[p].default, int):
-                        if new_val.replace('.', '', 1).isdigit():
-                            exec("cloak.{} = float({})".format(p, new_val))
+                            error("Timeout must be of type 'float'!")
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing timeout value!")
+                        exit()
+                # Max packet count
+                if ("-mc" in argv or "--maxCount" in argv):
+                    try:
+                        index = argv.index("-mc")
+                    except:
+                        index = argv.index("--maxCount")
+                    # Ensure the next positional argument is correct
+                    try:
+                        if argv[index + 1].isdigit():
+                            MAX_COUNT = float(argv[index + 1])
                         else:
-                            error("{} must be of type 'float'!".format(new_val))
-        if SENDING:
-            # Ingest data
-            cloak.ingest(message)
-            # Send packets
-            cloak.send_packets(PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
-        elif RECEIVING:
-            # Receive packets
-            if OUTPUT_TO_FILE:
-                cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME)
+                            error("Max packet count must be of type 'int'!")
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing max packet count value!")
+                        exit()
+                # Interface
+                if ("-if" in argv or "--iface" in argv):
+                    try:
+                        index = argv.index("-if")
+                    except:
+                        index = argv.index("--iface")
+                    # Ensure the next positional argument is correct
+                    try:
+                        INTERFACE = float(argv[index + 1])
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing interface value!")
+                        exit()
+                # Input file
+                if ("-in" in argv or "--inFile" in argv):
+                    try:
+                        index = argv.index("-in")
+                    except:
+                        index = argv.index("--inFile")
+                    # Ensure the next positional argument is correct
+                    try:
+                        INPUT_FILE = argv[index + 1]
+                        # Ensure we can read the file
+                        try:
+                            f = open(INPUT_FILE, "r")
+                            f.close()
+                        # Other file error
+                        except FileExistsError:
+                            error("Error in reading {}!".format(INPUT_FILE))
+                            exit()
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing input filename!")
+                        exit()
+
+                ### RECEIVE LOGIC ###
+
             else:
-                print(cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME))
+                error("Please specify send/receive!")
+                exit()
+
+            ## Setup the sending mechanism
+            # Instantiate the cloak
+            cloak = cloak_type()
+            # Custom parameters
+            if not DEFAULT:
+                # Get the parameters for the constructor
+                parameters = dict(signature(cloak.__init__).parameters)
+                for p in parameters:
+                    # Ask for user input
+                    new_val = input("Value for {} (leave blank for default '{}'): ".format(p, parameters[p].default))
+                    # User entered a new value
+                    if new_val != "":
+                        # String parameter
+                        if isinstance(parameters[p].default, str):
+                            exec("cloak.{} = '{}'".format(p, new_val))
+                        # Integer parameter
+                        elif isinstance(parameters[p].default, int):
+                            if new_val.isdigit():
+                                exec("cloak.{} = int({})".format(p, new_val))
+                            else:
+                                error("{} must be of type 'int'!".format(new_val))
+                        # Float parameter
+                        elif isinstance(parameters[p].default, int):
+                            if new_val.replace('.', '', 1).isdigit():
+                                exec("cloak.{} = float({})".format(p, new_val))
+                            else:
+                                error("{} must be of type 'float'!".format(new_val))
+            if SENDING:
+                # Ingest data
+                cloak.ingest(message)
+                # Send packets
+                cloak.send_packets(PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
+            elif RECEIVING:
+                # Receive packets
+                if OUTPUT_TO_FILE:
+                    cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME)
+                else:
+                    print(cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME))
