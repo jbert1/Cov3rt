@@ -18,7 +18,7 @@ class ICMPEchoMultiPayload(Cloak):
     # Classification, name, and description
     classification = Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED
     name = "ICMP Echo Binary Payloads"
-    description = "A cloak based on splitting the message into \bmultiple packets in the ICMP echo payload"
+    description = "A cloak based on splitting the message into \nmultiple packets in the ICMP echo payload"
     
     def __init__(self, ip_dst = "8.8.8.8"):
         self.ip_dst = ip_dst
