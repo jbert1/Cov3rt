@@ -9,7 +9,7 @@ from time import sleep
 
 from cov3rt.Cloaks.Cloak import Cloak
 
-class ICMPEchoBinaryPayloads(Cloak):
+class ICMPEchoMultiPayload(Cloak):
     
     # Regular expression to verify IP
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"    
@@ -25,9 +25,9 @@ class ICMPEchoBinaryPayloads(Cloak):
         self.read_data = ""
 
     def ingest(self,data):
-        """Ingests and formats data as a single element."""
+        """Ingests and formats data as a string."""
         if isinstance(data, str):
-            self.data = ''.join(format(ord(i),'b').zfill(8) for i in data)
+            self.data = data
             debug(self.data)
         else:
             raise TypeError("'data' must be of type 'str'")
@@ -93,16 +93,8 @@ class ICMPEchoBinaryPayloads(Cloak):
         if out_file:
             wrpcap(out_file, packets)
         info("Binary string: {}".format(self.read_data))
-        # Decode read data
-        string = ''
-        # Loop over the data
-        for i in range(0, len(self.read_data), 8):
-            # Get the ascii character
-            char = "0b{}".format(self.read_data[i:i + 8])
-            # Add it to our string
-            string = string + chr(int(char, 2))
-        info("String decoded: {}".format(string))
-        return string
+        # Return read data
+        return self.read_data
         
     ## Getters and Setters ##
     # Getter for 'ip_dst'
