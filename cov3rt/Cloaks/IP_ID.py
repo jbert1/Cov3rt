@@ -19,7 +19,7 @@ class IPID(Cloak):
     name = "IP Identification"
     description = "A covert channel using the Identification Field in \n IP packets to transmit messages."
 
-    def __init__(self, EOT_ID = 420, ip_dst = "10.10.10.10"):
+    def __init__(self, EOT_ID = 20, ip_dst = "10.10.10.10"):
         self.ip_dst = ip_dst
         self.EOT_ID = EOT_ID
         self.read_data = []
@@ -130,6 +130,9 @@ class IPID(Cloak):
     @EOT_ID.setter
     def EOT_ID(self, EOT_ID):
         if (isinstance(EOT_ID, int)):
-            self.EOT_ID = EOT_ID
+            if (EOT_ID > 0 and EOT_ID < 50000):
+                self._EOT_ID = EOT_ID
+            else:
+                raise ValueError("'EOT_ID' must be between 0 and 50000")
         else:
             raise TypeError("'EOT_ID' must be of type 'int'")
