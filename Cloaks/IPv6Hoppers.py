@@ -27,7 +27,6 @@ class IPv6Hoppers(Cloak):
 
     def __init__(self, EOT_hl = 69, ip_src = "fe80::1461:beca:7ad:3167", ip_dst = "ff02::1:ffad:317"):
         self.ip_dst = ip_dst
-        self.ip_src = ip_src
         self.EOT_hl = EOT_hl
         self.read_data = []
 
@@ -38,12 +37,12 @@ class IPv6Hoppers(Cloak):
 
     def send_EOT(self):
         #Sends the EOT packet
-        pkt = IPv6(src = 'fe80::1461:beca:7ad:3167', dst = 'ff02::1:ffad:317')
+        pkt = IPv6(dst = 'ff02::1:ffad:317')
         pkt.hlim = self.EOT_hl
         send(pkt)
 
     def send_packet(self, var_hl):
-        pkt = IPv6(src = 'fe80::1461:beca:7ad:3167', dst = 'ff02::1:ffad:317')
+        pkt = IPv6(dst = 'ff02::1:ffad:317')
         pkt.hlim = var_hl + self.EOT_hl
         send(pkt)
 
@@ -51,7 +50,7 @@ class IPv6Hoppers(Cloak):
         print("Sending data:")
         print(self.data)
         
-        pkt = IPv6(src = 'fe80::1461:beca:7ad:3167', dst = 'ff02::1:ffad:317')
+        pkt = IPv6(dst = 'ff02::1:ffad:317')
         pkt.hlim = self.EOT_hl
         
         for item in self.data:
@@ -68,13 +67,13 @@ class IPv6Hoppers(Cloak):
     def packet_handler(self, pkt):
         #Determines what packets we accept when choosing data
         if (pkt.haslayer(IPv6)):
-            if(pkt.dst == self.ip_dst and pkt.src == self.ip_src):
+            if(pkt["IPv6"].dst == self.ip_dst):
                 self.read_data.append(pkt.hlim)
 
     def recv_EOT(self,pkt):
         #Looks for EOT packet to signify end of transmission
         if (pkt.haslayer(IPv6)): 
-            if (pkt.dst == self.ip_dst and pkt.hlim == self.EOT_hl):  
+            if (pkt["IPv6"].dst == self.ip_dst and pkt["IPv6"].hlim == self.EOT_hl):  
                 return True
         return False
 
@@ -92,8 +91,8 @@ class IPv6Hoppers(Cloak):
         
         for item in self.read_data[:-1]:
             decoded_string += chr(item - self.EOT_hl)
-            print("Decoded Message: {}".format(decoded_string))
-
+            
+        print("Decoded Message: {}".format(decoded_string))
         return decoded_string
 
     # Getters and Setters

@@ -1,21 +1,24 @@
 from scapy.all import *
 
-IP_DST = "ff02::1:ffad:317"
-stop_hl = 68
+IP_DST = "10.10.10.10"
+stop_id = 42069
 MSG = ''
         
 
 def Sniff_For_Message(pkt):
-    if pkt.haslayer(IPv6):
+    
+    if pkt.haslayer(IP):
         if (pkt.dst == IP_DST):
             pass
 
         
 def Stop_Sniffing(pkt):
     global MSG
-    if (pkt.haslayer(IPv6)):
-        MSG += chr(pkt.hlim - 68)
-        if (pkt["IPv6"].dst == IP_DST and pkt["IPv6"].hlim == stop_hl):  
+    if (pkt.haslayer(IP)):
+        if(pkt["IP"].dst == IP_DST and pkt["IP"].id != stop_id):
+            MSG += chr(pkt.id)
+            
+        if (pkt["IP"].dst == IP_DST and pkt["IP"].id == stop_id):  
             return True
     return False
 
