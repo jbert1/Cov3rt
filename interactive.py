@@ -334,7 +334,7 @@ class Second_TUI(npyscreen.ActionForm):
         self.cloak_classification.value = self.cloak.classification
         self.cloak_name.value = self.cloak.name
         self.cloak_description.values = self.cloak.description.split("\n")
-        print("Old Values")
+        print("Default Values")
         for i in self.a:
             print("{} -> {}".format(i.name, i.value))
 
