@@ -456,17 +456,18 @@ class Third_TUI(npyscreen.ActionForm):
                 name = "Interface:",
                 value = "eth0" if OS_NAME != "nt" else "Wi-Fi"
             )
-            # self.in_file - TitleFilenameCombo
-            
+            self.in_file = self.add(npyscreen.TitleFilenameCombo, relx = 5, begin_entry_at = 18,
+                name="Filename:", label=True
+            )
             self.out_file = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
                 name = "Output File:",
                 value = "None"
             )
-            # self.out_file - TitleText
+            
             
     
 
-    def on_ok(self):      
+    def on_ok(self):
         self.parentApp.setNextForm(None)
 
     def on_cancel(self):
