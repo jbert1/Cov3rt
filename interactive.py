@@ -340,7 +340,7 @@ class Second_TUI(npyscreen.ActionForm):
         
         self.nextrely += 1
         
-        self.send_or_recv = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True,
+        self.send_or_recv = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True, height = 2,
             name = "Sender/Receiver",
             values = ["Sender", "Receiver"]
         )
@@ -354,7 +354,7 @@ class Second_TUI(npyscreen.ActionForm):
     def on_ok(self):
         
         if (len(self.send_or_recv.value) == 0):
-            npyscreen.notify_wait("Please pick Sender or Receiver.", "You're a Fuck Up", "DANGER")
+            npyscreen.notify_wait("Please pick Sender or Receiver.", "Sender or Receiver", "DANGER")
         else:
             
 
@@ -438,11 +438,20 @@ class Third_TUI(npyscreen.ActionForm):
         self.a = []
         self.a_margin = 0
         if (self.sor == "Sender"):
-            pass
-            '''self.send_or_recv = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True,
-            name = "Sender/Receiver",
-            values = ["Sender", "Receiver"]
-            )'''
+            self.nextrely += 1
+            self.whattosend = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True, height = 2,
+                name = "Message Type:",
+                values = ["File Input", "Text Input"]
+            )
+            self.nextrely += 1
+            self.filename = self.add(npyscreen.TitleFilenameCombo, relx = 5, begin_entry_at = 18,
+                name="Filename:", label=True
+            )
+            self.inputtext = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Text Input:", value = ""
+            )
+            self.filename.hidden = True
+            self.inputtext.hidden = True
         else:
             self.timeout = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
                 name = "Timeout:",
@@ -465,9 +474,101 @@ class Third_TUI(npyscreen.ActionForm):
             )
             
             
+    def selectFilename(self):
+        self.filename.hidden = False
+        self.inputtext.hidden = True
     
+    def selectText(self):
+        self.inputtext.hidden = False
+        self.filename.hidden = True
 
     def on_ok(self):
+        editing = False
+        
+        if (self.sor == "Sender"):
+            
+            
+            if not (editing):
+                pass
+        
+        
+        else:
+            
+            # Timeout
+            if (self.timeout.value == "None"):
+                self.timeoutval = None
+            else:
+                if (self.timeout.value.replace(".", "", 1).isdigit()):
+                    self.timeoutval = float(self.timeout.value)
+                else:
+                    npyscreen.notify_wait("Timeout Value must be an integer or float.", title = "Timeout Value Error")
+                    editing = True
+            
+            # Max Count
+            if (self.maxcount.value == "∞"):
+                self.maxcountval = None
+            else:
+                if (self.maxcount.value.isdigit()):
+                    self.maxcountval = int(self.maxcount.value)
+                else:
+                    npyscreen.notify_wait("Max Count Value must be an integer.", title = "Max Count Value Error")
+                    editing = True
+            
+            # Interface
+            if (self.iface.value == "eth0" or self.iface.value == "Wi-Fi"):
+                self.ifaceval = "eth0" if self.iface.value == "eth0" else "Wi-Fi"
+            elif (self.iface.value == ""):
+                npyscreen.notify_wait("Interface must not be empty.", title = "Interface Value Error")
+                editing = True
+            else:
+                self.ifaceval = self.iface.value
+            
+            # Input file
+            if (self.in_file.value == None):
+                self.infileval = None
+            else:
+                # Ensure we can read the file
+                try:
+                    f = open(self.in_file.value, "r")
+                    f.close()
+                    self.infileval = self.in_file.value
+                # Other file error
+                except FileNotFoundError:
+                    npyscreen.notify_wait("Input file ({}) does not exist.".format(self.in_file.value), title = "Input Filename Error")
+                    editing = True
+                # Other file error
+                except FileExistsError:
+                    npyscreen.notify_wait("Cannot read input file ({}).".format(self.in_file.value), title = "Input Filename Error")
+                    editing = True
+                
+
+            # Output file
+            if (self.out_file.value == "None"):
+                self.outfileval = None
+            elif (self.out_file.value == ""):
+                npyscreen.notify_wait("Output Filename must not be empty.", title = "Output Filename Value Error")
+                editing = True
+            else:
+                # Ensure we can write to the file
+                try:
+                    f = open(self.out_file.value, "w")
+                    f.write('')
+                    f.close()
+                    self.outfileval = self.out_file.value
+                # Other file error
+                except FileExistsError:
+                    npyscreen.notify_wait("Cannot write to output file ({}).".format(self.out_file.value), title = "Output Filename Error")
+                    editing = True
+
+
+
+            if not (editing):
+                if (self.outfileval):
+                    self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outfileval)
+                else:
+                    print(self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outfileval))
+                
+
         self.parentApp.setNextForm(None)
 
     def on_cancel(self):
