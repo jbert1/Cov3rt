@@ -400,6 +400,7 @@ class Second_TUI(npyscreen.ActionForm):
                 toSor.sor = self.send_or_recv.values[self.send_or_recv.value[0]]
                 toSor.cloak = self.instance
                 toSor.cloak_name.value = self.instance.name
+                toSor.populateScreen()
                 self.parentApp.setNextForm("Communications")
 
     def on_cancel(self):
@@ -455,8 +456,13 @@ class Third_TUI(npyscreen.ActionForm):
                 name = "Interface:",
                 value = "eth0" if OS_NAME != "nt" else "Wi-Fi"
             )
-            self.in_file - TitleFilenameCombo
-            self.out_file - TitleText
+            # self.in_file - TitleFilenameCombo
+            
+            self.out_file = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Output File:",
+                value = "None"
+            )
+            # self.out_file - TitleText
             
     
 
