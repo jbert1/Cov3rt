@@ -443,6 +443,7 @@ class Third_TUI(npyscreen.ActionForm):
                 name = "Message Type:",
                 values = ["File Input", "Text Input"]
             )
+            self.whattosend.when_value_edited = self.handleValueChange
             self.nextrely += 1
             self.filename = self.add(npyscreen.TitleFilenameCombo, relx = 5, begin_entry_at = 18,
                 name="Filename:", label=True
@@ -474,23 +475,48 @@ class Third_TUI(npyscreen.ActionForm):
             )
             
             
-    def selectFilename(self):
-        self.filename.hidden = False
-        self.inputtext.hidden = True
-    
-    def selectText(self):
-        self.inputtext.hidden = False
-        self.filename.hidden = True
-
+    def handleValueChange(self):
+        if (len(self.whattosend.value) != 0):
+            if(self.whattosend.values[self.whattosend.value[0]] == "File Input"):
+                self.filename.hidden = False
+                self.inputtext.hidden = True
+            if(self.whattosend.values[self.whattosend.value[0]] == "Text Input"):
+                self.filename.hidden = True
+                self.inputtext.hidden = False
+            self.filename.display()
+            self.inputtext.display()
     def on_ok(self):
         editing = False
         
         if (self.sor == "Sender"):
             
+            if (self.inputtext.value == ""):
+                npyscreen.notify_wait("Message must not be empty.", title = "No Message Error")
+                editing = True
+            else:
+                self.message = self.inputtext.value
+             
+            if (self.filename.value == None):
+                self.filenameval = None
+            else:
+                # Ensure we can read the file
+                try:
+                    f = open(self.in_file.value, "r")
+                    self.message = f.read()
+                    f.close()
+                    
+                # Other file error
+                except FileNotFoundError:
+                    npyscreen.notify_wait("Input file ({}) does not exist.".format(self.filename.value), title = "Input Filename Error")
+                    editing = True
+                # Other file error
+                except FileExistsError:
+                    npyscreen.notify_wait("Cannot read input file ({}).".format(self.filename.value), title = "Input Filename Error")
+                    editing = True
             
             if not (editing):
-                pass
-        
+                self.cloak.ingest(self.message)
+                self.cloak.send_packets()        
         
         else:
             
