@@ -25,7 +25,7 @@ class IPv6Hoppers(Cloak):
     name = "IPv6 Hoppers"
     description = "A covert channel using the hop limit in IPv6 packets to transmit messages."
 
-    def __init__(self, EOT_hl = 69, ip_src = "fe80::1461:beca:7ad:3167", ip_dst = "ff02::1:ffad:317"):
+    def __init__(self, EOT_hl = 69, ip_dst = "ff02::1:ffad:317"):
         self.ip_dst = ip_dst
         self.EOT_hl = EOT_hl
         self.read_data = []
@@ -114,25 +114,7 @@ class IPv6Hoppers(Cloak):
                 error("Invalid IP address provided: {}".format(ip_dst))
         else:
             error("'ip_dst' must be of type 'str'")
-
-    # Getter for "ip_src"
-    @property
-    def ip_src(self):
-        return self._ip_src
-
-    # Setter for "ip_src"
-    @ip_dst.setter
-    def ip_src(self,ip_src):
-        # Ensure valid type:str
-        if isinstance(ip_src, str):
-            # Ensure valid IP format
-            if search(self.IPv6_REGEX, ip_src):
-                self._ip_src = ip_src
-            else:
-                error("Invalid IP address provided: {}".format(ip_src))
-        else:
-            error("'ip_src' must be of type 'str'")        
-
+      
     # Getter for "EOT_hl"
     @property
     def EOT_hl(self):

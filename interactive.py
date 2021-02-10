@@ -200,6 +200,12 @@ class App(npyscreen.NPSAppManaged):
             lines = 22,
             columns = 80
         )
+        self.addForm("Communications",
+            Third_TUI,
+            name = "Sender and Receiver Options",
+            lines = 22,
+            columns = 80
+        )
 
 # Main page for our interactive application
 class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
@@ -326,61 +332,136 @@ class Second_TUI(npyscreen.ActionForm):
         self.a = []
         self.a_margin = 0
         parameters = dict(signature(self.instance.__init__).parameters)
+        self.nextrely += 1
+
         for p in parameters:
             self.a.append(self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18, name = p, value = str(parameters[p].default)))
             self.a_margin += 1
+        
+        self.nextrely += 1
+        
+        self.send_or_recv = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True,
+            name = "Sender/Receiver",
+            values = ["Sender", "Receiver"]
+        )
         
         # Populate on-screen items
         self.cloak_classification.value = self.cloak.classification
         self.cloak_name.value = self.cloak.name
         self.cloak_description.values = self.cloak.description.split("\n")
-        print("Default Values")
-        for i in self.a:
-            print("{} -> {}".format(i.name, i.value))
+        
 
     def on_ok(self):
-        #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
-        editing = False
-        for element in self.a:
-            p = element.name
-            new_val = element.value
-            parameters = dict(signature(self.instance.__init__).parameters)
-            # String parameter
-            if isinstance(parameters[p].default, str):
-                try:
-                    exec("self.instance.{} = '{}'".format(p, new_val))
-                except ValueError as err:
-                    npyscreen.notify_wait(str(err), title = "Value Error!")
-                    editing = True
-                except TypeError as err:
-                    npyscreen.notify_wait(str(err), title = "Type Error!")
-                    editing = True
-            # Integer parameter
-            elif isinstance(parameters[p].default, int):
-                try:
-                    exec("self.instance.{} = int({})".format(p, new_val))
-                except ValueError as err:
-                    npyscreen.notify_wait(str(err), title = "Value Error!")
-                    editing = True
-                except TypeError as err:
-                    npyscreen.notify_wait(str(err), title = "Type Error!")
-                    editing = True
-            # Float parameter
-            elif isinstance(parameters[p].default, int):
-                try:
-                    exec("self.instance.{} = float({})".format(p, new_val))
-                except ValueError as err:
-                    npyscreen.notify_wait(str(err), title = "Value Error!")
-                    editing = True
-                except TypeError as err:
-                    npyscreen.notify_wait(str(err), title = "Type Error!")
-                    editing = True
         
-        if not (editing):
-            print("\nNew Values")
-            for i in self.a:
-                print("{} -> {}".format(i.name, i.value))
+        if (len(self.send_or_recv.value) == 0):
+            npyscreen.notify_wait("Please pick Sender or Receiver.", "You're a Fuck Up", "DANGER")
+        else:
+            
+
+            #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
+            editing = False
+            for element in self.a:
+                p = element.name
+                new_val = element.value
+                parameters = dict(signature(self.instance.__init__).parameters)
+                # String parameter
+                if isinstance(parameters[p].default, str):
+                    try:
+                        exec("self.instance.{} = '{}'".format(p, new_val))
+                    except ValueError as err:
+                        npyscreen.notify_wait(str(err), title = "Value Error!")
+                        editing = True
+                    except TypeError as err:
+                        npyscreen.notify_wait(str(err), title = "Type Error!")
+                        editing = True
+                # Integer parameter
+                elif isinstance(parameters[p].default, int):
+                    try:
+                        exec("self.instance.{} = int({})".format(p, new_val))
+                    except ValueError as err:
+                        npyscreen.notify_wait(str(err), title = "Value Error!")
+                        editing = True
+                    except TypeError as err:
+                        npyscreen.notify_wait(str(err), title = "Type Error!")
+                        editing = True
+                # Float parameter
+                elif isinstance(parameters[p].default, int):
+                    try:
+                        exec("self.instance.{} = float({})".format(p, new_val))
+                    except ValueError as err:
+                        npyscreen.notify_wait(str(err), title = "Value Error!")
+                        editing = True
+                    except TypeError as err:
+                        npyscreen.notify_wait(str(err), title = "Type Error!")
+                        editing = True
+            
+            if not (editing):
+                toSor = self.parentApp.getForm("Communications")
+                toSor.sor = self.send_or_recv.values[self.send_or_recv.value[0]]
+                toSor.cloak = self.instance
+                toSor.cloak_name.value = self.instance.name
+                self.parentApp.setNextForm("Communications")
+
+    def on_cancel(self):
+        # Exit Choice
+        exit_choice = npyscreen.notify_yes_no("Are you sure you want to exit cov3rt?")
+        if exit_choice:
+            npyscreen.notify_confirm("Thank you for using cov3rt!")
             self.parentApp.setNextForm(None)
+        
+
+
+        ### On_cancel return to previous screen
+        # back_choice = npyscreen.notify_yes_no("Choose a different Cloak?")
+        # if back_choice:
+        #     npyscreen.notify_wait("Returning to Cloak Selection", title = "Cloak Selection Cancelled")
+        #     for i in self.a:
+        #         i.hidden = True
+        #     self.a = []
+        #     self.parentApp.setNextForm("MAIN")
+
+
+
+class Third_TUI(npyscreen.ActionForm):
+    
+    # Defines the elements on the page
+    def create(self):
+
+        # Classification, name, and description
+        self.cloak_name = self.add(npyscreen.TitleFixedText, relx = 5, begin_entry_at = 18, editable = False,
+            name = "Cloak: "
+        )
+
+    # Populates the screen
+    def populateScreen(self):
+        self.a = []
+        self.a_margin = 0
+        if (self.sor == "Sender"):
+            pass
+            '''self.send_or_recv = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True,
+            name = "Sender/Receiver",
+            values = ["Sender", "Receiver"]
+            )'''
+        else:
+            self.timeout = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Timeout:",
+                value = "None"
+            )
+            self.maxcount = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Max Count:",
+                value = "∞"
+            )
+            self.iface = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Interface:",
+                value = "eth0" if OS_NAME != "nt" else "Wi-Fi"
+            )
+            self.in_file - TitleFilenameCombo
+            self.out_file - TitleText
+            
+    
+
+    def on_ok(self):      
+        self.parentApp.setNextForm(None)
 
     def on_cancel(self):
         # Exit Choice
@@ -402,9 +483,10 @@ class Second_TUI(npyscreen.ActionForm):
     # Runs when the user finishes the form
     def afterEditing(self):
         #Exit
-        #self.parentApp.setNextForm(None)
+        # self.parentApp.setNextForm(None)
         pass
     
+
 
 # Main program
 if __name__ == '__main__':
