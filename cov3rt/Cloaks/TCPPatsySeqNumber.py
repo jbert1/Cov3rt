@@ -43,6 +43,7 @@ class TCPPatsySeqNumber(Cloak):
     def send_EOT(self):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         # EOT packet sends to patsy w/ src of destination, don't fragment, SYN flag, no payload.
+        # no payload will be interpreted as pkt.load == b''
         pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02)/""
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose = True)
@@ -79,7 +80,7 @@ class TCPPatsySeqNumber(Cloak):
         return True
 
     def packet_handler(self,pkt):
-        """Specifies the packet handler for receiving information via the TCP Sequence Number Cloak."""
+        """Specifies the packet handler for receiving information via the TCP Patsy Cloak."""
         if pkt.haslayer(TCP):
             if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags != 0x06:
                 self.read_data += chr(pkt["TCP"].seq)
@@ -90,13 +91,13 @@ class TCPPatsySeqNumber(Cloak):
     def recv_EOT(self,pkt):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags == 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src = self.ip_pasty and pkt.load == b'':
                 info("Received EOT")
                 return True
         return False
 
     def recv_packets(self, timeout = None, max_count = None, iface = None, in_file = None, out_file = None):
-        """Receives packets which use the TCP Sequence Number Cloak."""  
+        """Receives packets which use the TCP Patsy Cloak."""  
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
