@@ -517,7 +517,7 @@ class Third_TUI(npyscreen.ActionForm):
             if not (editing):
                 self.cloak.ingest(self.message)
                 self.cloak.send_packets()
-                npyscreen.notify_wait("Packets have been sent. Thank you for using cov3rt!.", title = "Message Sent Successfully")
+                npyscreen.notify_wait("Packets have been sent. Thank you for using cov3rt!", title = "Message Sent Successfully")
         
         else:
             
