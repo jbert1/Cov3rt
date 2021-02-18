@@ -422,7 +422,7 @@ class SendReceive(npyscreen.ActionForm):
                 else:
                     self.message = self.inputtext.value
             # File input option
-            if not self.inputtext.hidden:
+            if not self.filename.hidden:
                 if (self.filename.value == None):
                     npyscreen.notify_wait("You must select a file.", title = "No File Selected")
                     editing = True
