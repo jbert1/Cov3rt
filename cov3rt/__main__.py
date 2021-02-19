@@ -1,3 +1,3 @@
-from cov3rt.main import runApplication
+from cov3rt.command_line import runApplication
 
 runApplication()
