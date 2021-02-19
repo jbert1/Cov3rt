@@ -11,7 +11,7 @@ setup(
     packages=setuptools.find_packages(),
     install_requires = ['scapy>=2.4.3','npyscreen'],
     entry_points = {
-        'console_scripts': ['cov3rt=cov3rt.main:runApplication']
+        'console_scripts': ['cov3rt=cov3rt.command_line:runApplication']
     },
     zip_safe=False
 )
