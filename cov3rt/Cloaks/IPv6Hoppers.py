@@ -19,9 +19,8 @@ class IPv6Hoppers(Cloak):
     name = "IPv6 Hoppers"
     description = "A covert channel using the hop limit in IPv6 \npackets to transmit messages."
 
-    def __init__(self, EOT_hl = 69, ip_src = "fe80::1461:beca:7ad:3167", ip_dst = "ff02::1:ffad:317"):
+    def __init__(self, EOT_hl = 69, ip_dst = "ff02::1:ffad:317"):
         self.ip_dst = ip_dst
-        self.ip_src = ip_src
         self.EOT_hl = EOT_hl
         self.read_data = []
 

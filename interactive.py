@@ -200,6 +200,12 @@ class App(npyscreen.NPSAppManaged):
             lines = 22,
             columns = 80
         )
+        self.addForm("Communications",
+            Third_TUI,
+            name = "Sender and Receiver Options",
+            lines = 22,
+            columns = 80
+        )
 
 # Main page for our interactive application
 class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
@@ -213,8 +219,8 @@ class HomePage(npyscreen.ActionForm, npyscreen.FormWithMenus):
                 "                 ╭───╮       │",
                 "           ╱╲_╱╲     │      ─┼──",
                 "╭─── ╭───╮ ╲╷ ╷╱  ───┤ ╭───╮ │  ",
-                "│    │   │  ╲_╱      │ │     │  ",
-                "╰─── ╰───╯   ╳   ╰───╯ ╵     ╰──"
+                "│    │   │ >╲ ╱<     │ │     │  ",
+                "╰─── ╰───╯   v   ╰───╯ ╵     ╰──"
             ]
 
         )
@@ -326,61 +332,273 @@ class Second_TUI(npyscreen.ActionForm):
         self.a = []
         self.a_margin = 0
         parameters = dict(signature(self.instance.__init__).parameters)
+        self.nextrely += 1
+
         for p in parameters:
             self.a.append(self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18, name = p, value = str(parameters[p].default)))
             self.a_margin += 1
+        
+        self.nextrely += 1
+        
+        self.send_or_recv = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True, height = 2,
+            name = "Sender/Receiver",
+            values = ["Sender", "Receiver"]
+        )
         
         # Populate on-screen items
         self.cloak_classification.value = self.cloak.classification
         self.cloak_name.value = self.cloak.name
         self.cloak_description.values = self.cloak.description.split("\n")
-        print("Old Values")
-        for i in self.a:
-            print("{} -> {}".format(i.name, i.value))
+        
 
     def on_ok(self):
-        #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
-        editing = False
-        for element in self.a:
-            p = element.name
-            new_val = element.value
-            parameters = dict(signature(self.instance.__init__).parameters)
-            # String parameter
-            if isinstance(parameters[p].default, str):
-                try:
-                    exec("self.instance.{} = '{}'".format(p, new_val))
-                except ValueError as err:
-                    npyscreen.notify_wait(str(err), title = "Value Error!")
-                    editing = True
-                except TypeError as err:
-                    npyscreen.notify_wait(str(err), title = "Type Error!")
-                    editing = True
-            # Integer parameter
-            elif isinstance(parameters[p].default, int):
-                try:
-                    exec("self.instance.{} = int({})".format(p, new_val))
-                except ValueError as err:
-                    npyscreen.notify_wait(str(err), title = "Value Error!")
-                    editing = True
-                except TypeError as err:
-                    npyscreen.notify_wait(str(err), title = "Type Error!")
-                    editing = True
-            # Float parameter
-            elif isinstance(parameters[p].default, int):
-                try:
-                    exec("self.instance.{} = float({})".format(p, new_val))
-                except ValueError as err:
-                    npyscreen.notify_wait(str(err), title = "Value Error!")
-                    editing = True
-                except TypeError as err:
-                    npyscreen.notify_wait(str(err), title = "Type Error!")
-                    editing = True
         
-        if not (editing):
-            print("\nNew Values")
-            for i in self.a:
-                print("{} -> {}".format(i.name, i.value))
+        if (len(self.send_or_recv.value) == 0):
+            npyscreen.notify_wait("Please pick Sender or Receiver.", "Sender or Receiver", "DANGER")
+        else:
+            
+
+            #TODO: Sanitize Inputs to Fit REGEX/ Datatypes and restore keys in original dictionary
+            editing = False
+            for element in self.a:
+                p = element.name
+                new_val = element.value
+                parameters = dict(signature(self.instance.__init__).parameters)
+                # String parameter
+                if isinstance(parameters[p].default, str):
+                    try:
+                        exec("self.instance.{} = '{}'".format(p, new_val))
+                    except ValueError as err:
+                        npyscreen.notify_wait(str(err), title = "Value Error!")
+                        editing = True
+                    except TypeError as err:
+                        npyscreen.notify_wait(str(err), title = "Type Error!")
+                        editing = True
+                # Integer parameter
+                elif isinstance(parameters[p].default, int):
+                    try:
+                        exec("self.instance.{} = int({})".format(p, new_val))
+                    except ValueError as err:
+                        npyscreen.notify_wait(str(err), title = "Value Error!")
+                        editing = True
+                    except TypeError as err:
+                        npyscreen.notify_wait(str(err), title = "Type Error!")
+                        editing = True
+                # Float parameter
+                elif isinstance(parameters[p].default, int):
+                    try:
+                        exec("self.instance.{} = float({})".format(p, new_val))
+                    except ValueError as err:
+                        npyscreen.notify_wait(str(err), title = "Value Error!")
+                        editing = True
+                    except TypeError as err:
+                        npyscreen.notify_wait(str(err), title = "Type Error!")
+                        editing = True
+            
+            if not (editing):
+                toSor = self.parentApp.getForm("Communications")
+                toSor.sor = self.send_or_recv.values[self.send_or_recv.value[0]]
+                toSor.cloak = self.instance
+                toSor.cloak_name.value = self.instance.name
+                toSor.populateScreen()
+                self.parentApp.setNextForm("Communications")
+
+    def on_cancel(self):
+        # Exit Choice
+        exit_choice = npyscreen.notify_yes_no("Are you sure you want to exit cov3rt?")
+        if exit_choice:
+            npyscreen.notify_confirm("Thank you for using cov3rt!")
             self.parentApp.setNextForm(None)
+        
+
+
+        ### On_cancel return to previous screen
+        # back_choice = npyscreen.notify_yes_no("Choose a different Cloak?")
+        # if back_choice:
+        #     npyscreen.notify_wait("Returning to Cloak Selection", title = "Cloak Selection Cancelled")
+        #     for i in self.a:
+        #         i.hidden = True
+        #     self.a = []
+        #     self.parentApp.setNextForm("MAIN")
+
+
+
+class Third_TUI(npyscreen.ActionForm):
+    
+    # Defines the elements on the page
+    def create(self):
+
+        # Classification, name, and description
+        self.cloak_name = self.add(npyscreen.TitleFixedText, relx = 5, begin_entry_at = 18, editable = False,
+            name = "Cloak: "
+        )
+
+    # Populates the screen
+    def populateScreen(self):
+        self.a = []
+        self.a_margin = 0
+        if (self.sor == "Sender"):
+            self.nextrely += 1
+            self.whattosend = self.add(npyscreen.TitleSelectOne, relx = 5, begin_entry_at = 18, scroll_exit = True, height = 2,
+                name = "Message Type:",
+                values = ["File Input", "Text Input"]
+            )
+            self.whattosend.when_value_edited = self.handleValueChange
+            self.nextrely += 1
+            self.filename = self.add(npyscreen.TitleFilenameCombo, relx = 5, begin_entry_at = 18,
+                name="Filename:", label=True
+            )
+            self.inputtext = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Text Input:", value = ""
+            )
+            self.filename.hidden = True
+            self.inputtext.hidden = True
+        else:
+            self.timeout = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Timeout:",
+                value = "None"
+            )
+            self.maxcount = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Max Count:",
+                value = "∞"
+            )
+            self.iface = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Interface:",
+                value = "eth0" if OS_NAME != "nt" else "Wi-Fi"
+            )
+            self.in_file = self.add(npyscreen.TitleFilenameCombo, relx = 5, begin_entry_at = 18,
+                name="Filename:", label=True
+            )
+            self.out_file = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                name = "Output File:",
+                value = "None"
+            )
+            
+            
+    def handleValueChange(self):
+        if (len(self.whattosend.value) != 0):
+            if(self.whattosend.values[self.whattosend.value[0]] == "File Input"):
+                self.filename.hidden = False
+                self.inputtext.hidden = True
+            if(self.whattosend.values[self.whattosend.value[0]] == "Text Input"):
+                self.filename.hidden = True
+                self.inputtext.hidden = False
+            self.filename.display()
+            self.inputtext.display()
+    def on_ok(self):
+        editing = False
+        
+        if (self.sor == "Sender"):
+            
+            if (self.inputtext.value == ""):
+                npyscreen.notify_wait("Message must not be empty.", title = "No Message Error")
+                editing = True
+            else:
+                self.message = self.inputtext.value
+             
+            if (self.filename.value == None):
+                self.filenameval = None
+            else:
+                # Ensure we can read the file
+                try:
+                    f = open(self.in_file.value, "r")
+                    self.message = f.read()
+                    f.close()
+                    
+                # Other file error
+                except FileNotFoundError:
+                    npyscreen.notify_wait("Input file ({}) does not exist.".format(self.filename.value), title = "Input Filename Error")
+                    editing = True
+                # Other file error
+                except FileExistsError:
+                    npyscreen.notify_wait("Cannot read input file ({}).".format(self.filename.value), title = "Input Filename Error")
+                    editing = True
+            
+            if not (editing):
+                self.cloak.ingest(self.message)
+                self.cloak.send_packets()
+                npyscreen.notify_wait("Packets have been sent. Thank you for using cov3rt!", title = "Message Sent Successfully")
+        
+        else:
+            
+            # Timeout
+            if (self.timeout.value == "None"):
+                self.timeoutval = None
+            else:
+                if (self.timeout.value.replace(".", "", 1).isdigit()):
+                    self.timeoutval = float(self.timeout.value)
+                else:
+                    npyscreen.notify_wait("Timeout Value must be an integer or float.", title = "Timeout Value Error")
+                    editing = True
+            
+            # Max Count
+            if (self.maxcount.value == "∞"):
+                self.maxcountval = None
+            else:
+                if (self.maxcount.value.isdigit()):
+                    self.maxcountval = int(self.maxcount.value)
+                else:
+                    npyscreen.notify_wait("Max Count Value must be an integer.", title = "Max Count Value Error")
+                    editing = True
+            
+            # Interface
+            if (self.iface.value == "eth0" or self.iface.value == "Wi-Fi"):
+                self.ifaceval = "eth0" if self.iface.value == "eth0" else "Wi-Fi"
+            elif (self.iface.value == ""):
+                npyscreen.notify_wait("Interface must not be empty.", title = "Interface Value Error")
+                editing = True
+            else:
+                self.ifaceval = self.iface.value
+            
+            # Input file
+            if (self.in_file.value == None):
+                self.infileval = None
+            else:
+                # Ensure we can read the file
+                try:
+                    f = open(self.in_file.value, "r")
+                    f.close()
+                    self.infileval = self.in_file.value
+                # Other file error
+                except FileNotFoundError:
+                    npyscreen.notify_wait("Input file ({}) does not exist.".format(self.in_file.value), title = "Input Filename Error")
+                    editing = True
+                # Other file error
+                except FileExistsError:
+                    npyscreen.notify_wait("Cannot read input file ({}).".format(self.in_file.value), title = "Input Filename Error")
+                    editing = True
+                
+
+            # Output file
+            if (self.out_file.value == "None"):
+                self.outfileval = None
+            elif (self.out_file.value == ""):
+                npyscreen.notify_wait("Output Filename must not be empty.", title = "Output Filename Value Error")
+                editing = True
+            else:
+                # Ensure we can write to the file
+                try:
+                    f = open(self.out_file.value, "w")
+                    f.write('')
+                    f.close()
+                    self.outfileval = self.out_file.value
+                # Other file error
+                except FileExistsError:
+                    npyscreen.notify_wait("Cannot write to output file ({}).".format(self.out_file.value), title = "Output Filename Error")
+                    editing = True
+
+
+
+            if not (editing):
+                if (self.outfileval):
+                    self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outfileval)
+
+                else:
+                    self.decoded_message = self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outfileval)
+                    npyscreen.notify_wait("Your secret message is '{}'. Thank you for using cov3rt!".format(self.decoded_message), title = "Message Received Successfully")
+
+
+        self.parentApp.setNextForm(None)
 
     def on_cancel(self):
         # Exit Choice
@@ -402,9 +620,10 @@ class Second_TUI(npyscreen.ActionForm):
     # Runs when the user finishes the form
     def afterEditing(self):
         #Exit
-        #self.parentApp.setNextForm(None)
+        # self.parentApp.setNextForm(None)
         pass
     
+
 
 # Main program
 if __name__ == '__main__':
