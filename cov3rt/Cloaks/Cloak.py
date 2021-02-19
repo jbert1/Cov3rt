@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from logging import warning
-from typing import Type
 
 # Check priviliges based on OS
 try:
