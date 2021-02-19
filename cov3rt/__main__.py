@@ -596,22 +596,26 @@ def add_classes(filepath, package_name):
 def print_help():
     print(
 """Usage: cov3rt.py [-h] [-l] [-i] (-s | -r) -c cloak_id [Options]
-
 Primary Arguments:
-  -c,  --cloak           Selected covert channel implementation
-  -s,  --send            Send information via the selected cloak
-  -r,  --receive         Receive information via the selected cloak
+  -c,  --cloak          Selected covert channel implementation
+  -s,  --send           Send information via the selected cloak
+  -r,  --receive        Receive information via the selected cloak
 
 Send Options:
-  -m,  --message         Send message within the command-line
-  -f,  --filename        Send the contents of a file
+  -m,  --message        Send message within the command-line
+  -f,  --filename       Send the contents of a file
 
 Receive Options:
-  -t,  --timeout         Timeout (in seconds) for the packet handler
+  -t,  --timeout        Timeout (in seconds) for the packet handler
   -mc, --maxCount       Max number of packets for the packet handler
   -if, --iface          Interface for the packet handler
   -in, --inFile         Use a .cap or .pcap rather than live analysis
-  -o,  --outFile         Output packets from packet handler to a file"""
+  -o,  --outFile        Output packets from packet handler to a file
+
+Other Arguments:
+  -h,  --help           Show this help screen
+  -l,  --listCloaks     List available cloaks
+  -i,  --interactive    Display an interactive shell for communication"""
 
 # For a later day:
 # Options:

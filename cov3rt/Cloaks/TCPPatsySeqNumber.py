@@ -19,7 +19,7 @@ class TCPPatsySeqNumber(Cloak):
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
     name = "TCP Patsy using Sequence Number"
-    description = "A cloak based on four characters per sequence number. Sender --> SYN w/ src ip of actual dst, seq = 4 chars --> patsy --> SYN RST seq++ --> Receiver seq--, extract message"
+    description = "A cloak based on changing the TCP sequence number\nto 4 ascii characters."
     
     def __init__(self, ip_dst="8.8.8.8", ip_patsy = "142.250.138.101"):
         self.ip_dst = ip_dst
