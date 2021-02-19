@@ -1,8 +1,8 @@
 from threading import Thread
 import curses
-from cov3rt.Cloaks.DNSCaseModulation import DNSCaseModulation
+from cov3rt.Cloaks import ICMPEchoFullPayload
 
-cloak = DNSCaseModulation()
+cloak = ICMPEchoFullPayload()
 
 
 # Field class
