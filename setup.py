@@ -9,6 +9,9 @@ setup(
     author_email='author@email.com',
     license='MIT',
     packages=setuptools.find_packages(),
-    install_requires = ['scapy>=2.4.3','npyscreen']
+    install_requires = ['scapy>=2.4.3','npyscreen'],
+    entry_points = {
+        'console_scripts': ['cov3rt=cov3rt.main:runApplication']
+    },
     zip_safe=False
 )
