@@ -91,7 +91,7 @@ class TCPPatsySeqNumber(Cloak):
     def recv_EOT(self,pkt):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src = self.ip_pasty and pkt.load == b'':
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_pasty and pkt.load == b'':
                 info("Received EOT")
                 return True
         return False
