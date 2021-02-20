@@ -369,6 +369,8 @@ def runApplication():
                 self.inputtext.hidden = True
             # Receiver options
             else:
+                # Start the next element 1 line down
+                self.nextrely += 1
                 # Timeout
                 self.timeout = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
                     name = "Timeout:",
