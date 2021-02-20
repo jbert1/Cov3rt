@@ -1011,4 +1011,3 @@ def runApplication():
                     # Simply print message
                     else:
                         print(m)
-runApplication()
