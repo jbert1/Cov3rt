@@ -285,7 +285,7 @@ def runApplication():
                             if new_val.isdigit():
                                 exec("self.instance.{} = int({})".format(p, new_val))
                             else:
-                                npyscreen.notify_wait(str(err), title = "Type Error!")
+                                npyscreen.notify_wait("Parameter '{}' must be an integer.".format(p), title = "Type Error!")
                                 editing = True
                         except ValueError as err:
                             npyscreen.notify_wait(str(err), title = "Value Error!")
@@ -299,7 +299,7 @@ def runApplication():
                             if new_val.replace('.', '', 1).isdigit():
                                 exec("self.instance.{} = float({})".format(p, new_val))
                             else:
-                                npyscreen.notify_wait(str(err), title = "Type Error!")
+                                npyscreen.notify_wait("Parameter '{}' must be an integer or float.".format(p), title = "Type Error!")
                                 editing = True
                         except ValueError as err:
                             npyscreen.notify_wait(str(err), title = "Value Error!")
