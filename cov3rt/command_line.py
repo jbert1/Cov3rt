@@ -617,7 +617,7 @@ def runApplication():
     -mc, --maxCount       Max number of packets for the packet handler
     -if, --iface          Interface for the packet handler
     -in, --inFile         Use a .cap or .pcap rather than live analysis
-    -of,  --outFile        Output received message to a file
+    -of,  --outFile       Output received message to a file
     -op, --outPcap        Output packets to a capture file (pcap)
 
     Other Arguments:
