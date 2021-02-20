@@ -50,6 +50,9 @@ def runApplication():
         
         Cloaks.Cloak.TEMPERATURE : [
         ],
+        
+        Cloaks.Cloak.ARTIFICIAL_RECONNECTIONS : [
+        ],
 
         Cloaks.Cloak.SIZE_MODULATION : [
         ],
@@ -612,12 +615,16 @@ def runApplication():
     -mc, --maxCount       Max number of packets for the packet handler
     -if, --iface          Interface for the packet handler
     -in, --inFile         Use a .cap or .pcap rather than live analysis
-    -o,  --outFile        Output packets from packet handler to a file
+    -of,  --outFile        Output received message to a file
+    -op, --outPcap        Output packets to a capture file (pcap)
 
     Other Arguments:
     -h,  --help           Show this help screen
     -l,  --listCloaks     List available cloaks
-    -i,  --interactive    Display an interactive shell for communication"""
+    -i,  --interactive    Display an interactive shell for communication
+    -d,  --default        Use the default parameters for the cloak
+    -v,  --verbose        Increase verbosity
+    -vv, --veryVerbose    Further increase verbosity"""
 
     # For a later day:
     # Options:
@@ -642,7 +649,8 @@ def runApplication():
     PACKET_DELAY = None
     DELIMITER_DELAY = None
     END_DELAY = None
-    OUTPUT_TO_FILE = False
+    OUTPUT_PCAP = False
+    OUTPUT_MESSAGE = False
     TIMEOUT = None
     MAX_COUNT = None
     INTERFACE = None
@@ -813,29 +821,53 @@ def runApplication():
             # Receive message
             elif ("-r" in argv or "--receive" in argv):
                 RECEIVING = True
-                FILENAME = None
-                # Output to file
-                if ("-o" in argv or "--outFile" in argv):
-                    OUTPUT_TO_FILE = True
+                PCAP_FILENAME = None
+                MESSAGE_FILENAME = None
+                # Output pcaps to file
+                if ("-op" in argv or "--outPcap" in argv):
+                    OUTPUT_PCAP = True
                     try:
-                        index = argv.index("-o")
+                        index = argv.index("-op")
                     except:
-                        index = argv.index("--outFile")
+                        index = argv.index("--outPcap")
                     # Ensure the next positional argument is correct
                     try:
-                        FILENAME = argv[index + 1]
+                        PCAP_FILENAME = argv[index + 1]
                         # Ensure we can write to the file
                         try:
-                            f = open(FILENAME, "w")
+                            f = open(PCAP_FILENAME, "w")
                             f.write('')
                             f.close()
                         # Other file error
                         except FileExistsError:
-                            error("Error in writing to {}!".format(FILENAME))
+                            error("Error in writing to {}!".format(PCAP_FILENAME))
                             exit()
                     # Missing following positional argument
                     except IndexError:
-                        error("Missing output filename!")
+                        error("Missing output packet capture filename!")
+                        exit()
+                # Output message to file
+                if ("-of" in argv or "--outFile" in argv):
+                    OUTPUT_MESSAGE = True
+                    try:
+                        index = argv.index("-of")
+                    except:
+                        index = argv.index("--outFile")
+                    # Ensure the next positional argument is correct
+                    try:
+                        MESSAGE_FILENAME = argv[index + 1]
+                        # Ensure we can write to the file
+                        try:
+                            f = open(MESSAGE_FILENAME, "w")
+                            f.write('')
+                            f.close()
+                        # Other file error
+                        except FileExistsError:
+                            error("Error in writing to {}!".format(MESSAGE_FILENAME))
+                            exit()
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing output message filename!")
                         exit()
                 # Timeout
                 if ("-t" in argv or "--timeout" in argv):
@@ -924,19 +956,42 @@ def runApplication():
                     if new_val != "":
                         # String parameter
                         if isinstance(parameters[p].default, str):
-                            exec("cloak.{} = '{}'".format(p, new_val))
+                            try:
+                                exec("cloak.{} = '{}'".format(p, new_val))
+                            except ValueError as err:
+                                error(err)
+                                exit()
+                            except TypeError as err:
+                                error(err)
+                                exit()
                         # Integer parameter
                         elif isinstance(parameters[p].default, int):
                             if new_val.isdigit():
-                                exec("cloak.{} = int({})".format(p, new_val))
+                                try:
+                                    exec("cloak.{} = int({})".format(p, new_val))
+                                except ValueError as err:
+                                    error(err)
+                                    exit()
+                                except TypeError as err:
+                                    error(err)
+                                    exit()
                             else:
                                 error("{} must be of type 'int'!".format(new_val))
+                                exit()
                         # Float parameter
                         elif isinstance(parameters[p].default, float):
                             if new_val.replace('.', '', 1).isdigit():
-                                exec("cloak.{} = float({})".format(p, new_val))
+                                try:
+                                    exec("cloak.{} = float({})".format(p, new_val))
+                                except ValueError as err:
+                                    error(err)
+                                    exit()
+                                except TypeError as err:
+                                    error(err)
+                                    exit()
                             else:
                                 error("{} must be of type 'float'!".format(new_val))
+                                exit()
             if SENDING:
                 # Ingest data
                 cloak.ingest(message)
@@ -944,7 +999,16 @@ def runApplication():
                 cloak.send_packets(PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
             elif RECEIVING:
                 # Receive packets
-                if OUTPUT_TO_FILE:
-                    cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME)
+                if OUTPUT_PCAP:
+                    cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, PCAP_FILENAME)
                 else:
-                    print(cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, FILENAME))
+                    m = cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, PCAP_FILENAME)
+                    # Output to file
+                    if OUTPUT_MESSAGE:
+                        f = open(MESSAGE_FILENAME, "w")
+                        f.write(m)
+                        f.close()
+                    # Simply print message
+                    else:
+                        print(m)
+runApplication()

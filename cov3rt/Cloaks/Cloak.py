@@ -23,6 +23,7 @@ class Cloak(ABC):
     RETRANSMISSION = "Retransmission"
     FRAME_COLLISIONS = "Frame Collisions"
     TEMPERATURE = "Temperature"
+    ARTIFICIAL_RECONNECTIONS = "Artificial Reconnections"
     SIZE_MODULATION = "Size Modulation"
     POSITION = "Sequence: Position"
     NUMBER_OF_ELEMENTS = "Sequence: Number of Elements"
