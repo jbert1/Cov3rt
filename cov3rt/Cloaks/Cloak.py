@@ -25,25 +25,26 @@ class Cloak(ABC):
     TEMPERATURE = "Temperature"
     ARTIFICIAL_RECONNECTIONS = "Artificial Reconnections"
     SIZE_MODULATION = "Size Modulation"
-    POSITION = "Sequence: Position"
-    NUMBER_OF_ELEMENTS = "Sequence: Number of Elements"
+    POSITION = "Sequence Position"
+    NUMBER_OF_ELEMENTS = "Number of Elements"
     RANDOM_VALUE = "Random Value"
-    CASE_MODULATION = "Value Modulation: Case"
-    LSB_MODULATION = "Value Modulation: LSB"
-    VALUE_INFLUENCING = "Value Modulation: Value Influencing"
+    CASE_MODULATION = "Case Modulation"
+    LSB_MODULATION = "LSB Modulation"
+    VALUE_INFLUENCING = "Value Influencing"
     RESERVED_UNUSED = "Reserved/Unused"
-    PAYLOAD_FIELD_SIZE_MODULATION = "Payload Field Size Modulation"
+    PAYLOAD_FIELD_SIZE_MODULATION = "Payload Size Modulation"
     USER_DATA_CORRUPTION = "User-Data Corruption"
     MODIFY_REDUNDANCY = "Modify Redundancy"
-    USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = "User-Data Value Modulation & Reserved/Unused"
+    USER_DATA_VALUE_MODULATION_RESERVED_UNUSED = "User-Data Value Modulation"
 
     @abstractmethod
     def ingest(self, data):
         """Ingests and formats data for the cloak to communicate."""
         pass
-    
+
     def send_EOT(self):
-        """Sends an end-of-transmission packet to signal the end of transmission."""
+        """Sends an end-of-transmission packet to signal the end of
+        transmission."""
         pass
 
     def send_delimiter(self):
@@ -51,7 +52,7 @@ class Cloak(ABC):
         pass
 
     @abstractmethod
-    def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
+    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         pass
 
@@ -62,7 +63,8 @@ class Cloak(ABC):
 
     @abstractmethod
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the defined covert channel."""
+        """Specifies the packet handler for receiving information via the
+        defined covert channel."""
         pass
 
     def recv_packets(self):
@@ -70,41 +72,54 @@ class Cloak(ABC):
         pass
 
     def recv_EOT(self, pkt):
-        """Specifies the end-of-transmission packet that signals the end of transmission."""
+        """Specifies the end-of-transmission packet that signals the end of
+        transmission."""
         pass
 
     def recv_delimiter(self, pkt):
-        """Specifies the delimiter packet that signals the end of a specified data stream."""
+        """Specifies the delimiter packet that signals the end of a specified
+        data stream."""
         pass
 
-    
-    ## Getters and Setters ##
+    # Getters and Setters
     # Getter for 'description'
+
     @property
     def description(self):
         return self._description
-    
+
     # Setter for 'description'
     @description.setter
     def description(self, d):
         # Check type
         if isinstance(d, str):
+            # Loop over the lines of the description to check length
+            for line in d.split("\n"):
+                # Line too long
+                if len(line) >= 53:
+                    raise ValueError("'description' lines must be less than 53\
+                        characters long")
             # Set the description
             self._description = d
         else:
             raise TypeError("'description' must be of type 'str'")
-    
+
     # Getter for 'name'
     @property
     def name(self):
         return self._name
-    
+
     # Setter for 'name'
     @name.setter
     def name(self, d):
         # Check type
         if isinstance(d, str):
-            # Set the name
-            self._name = d
+            # Check if the name is the correct size
+            if len(d) <= 30:
+                # Set the name
+                self._name = d
+            # Name is too long for the application menu
+            else:
+                raise ValueError("'name' must be less than 30 characters long")
         else:
             raise TypeError("'name' must be of type 'str'")

