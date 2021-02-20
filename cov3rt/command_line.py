@@ -390,9 +390,14 @@ def runApplication():
                 self.in_file = self.add(npyscreen.TitleFilenameCombo, relx = 5, begin_entry_at = 18,
                     name="Input File:", label=True
                 )
-                # Output File
+                # Output Message
                 self.out_file = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
-                    name = "Output File:",
+                    name = "Output Message:",
+                    value = "None"
+                )
+                # Output Capture 
+                self.out_capture = self.add(npyscreen.TitleText, relx = 5, begin_entry_at = 18,
+                    name = "Output Capture:",
                     value = "None"
                 )
                 
@@ -522,13 +527,13 @@ def runApplication():
                         npyscreen.notify_wait("Cannot read input file ({}).".format(self.in_file.value), title = "Input Filename Error")
                         editing = True
 
-                # Output file
+                # Output message
                 if (self.out_file.value == "None"):
                     # Set the default value
-                    self.outfileval = None
+                    self.outfile = None
                 # Ensure the output file is not blank
-                elif (self.out_file.value == ""):
-                    npyscreen.notify_wait("Output Filename must not be empty.", title = "Output Filename Value Error")
+                elif (self.out_captout_fileure.value == ""):
+                    npyscreen.notify_wait("Output Capture must not be empty.", title = "Output Filename Value Error")
                     editing = True
                 else:
                     # Ensure we can write to the file
@@ -537,24 +542,51 @@ def runApplication():
                         f.write('')
                         f.close()
                         # Set the value 
-                        self.outfileval = self.out_file.value
+                        self.outfile = self.out_file.value
                     # Other file error
                     except FileExistsError:
-                        npyscreen.notify_wait("Cannot write to output file ({}).".format(self.out_file.value), title = "Output Filename Error")
+                        npyscreen.notify_wait("Cannot write to output capture file ({}).".format(self.out_file.value), title = "Output Filename Error")
+                        editing = True
+
+                # Output capture
+                if (self.out_capture.value == "None"):
+                    # Set the default value
+                    self.outcapfile = None
+                # Ensure the output file is not blank
+                elif (self.out_capture.value == ""):
+                    npyscreen.notify_wait("Output Capture must not be empty.", title = "Output Filename Value Error")
+                    editing = True
+                else:
+                    # Ensure we can write to the file
+                    try:
+                        f = open(self.out_capture.value, "w")
+                        f.write('')
+                        f.close()
+                        # Set the value 
+                        self.outcapfile = self.out_capture.value
+                    # Other file error
+                    except FileExistsError:
+                        npyscreen.notify_wait("Cannot write to output capture file ({}).".format(self.out_capture.value), title = "Output Filename Error")
                         editing = True
 
                 # Correct values for all parameters
-                if not (editing):
+                if not editing:
                     # Notify the user before the message is about to send
                     npyscreen.notify_wait("Listening for the message...", title = "Message Status")
-                    if (self.outfileval):
-                        self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outfileval)
+                    if (self.outfile):
+                        self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
                         # Notify the user the message has been received
-                        npyscreen.notify_wait("Your message has been saved to {}. Thank you for using cov3rt!".format(self.outfileval), title = "Message Received Successfully")
+                        if self.outcapfile:
+                            npyscreen.notify_wait("Your message has been saved to {} and your capture has been saved to {}. Thank you for using cov3rt!".format(self.outfile, self.outcapfile), title = "Message Received Successfully")
+                        else:
+                            npyscreen.notify_wait("Your message has been saved to {}. Thank you for using cov3rt!".format(self.outfile), title = "Message Received Successfully")
                     else:
-                        self.decoded_message = self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outfileval)
+                        self.decoded_message = self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
                         # Notify the user the message has been received
-                        npyscreen.notify_wait("Your secret message is '{}'. Thank you for using cov3rt!".format(self.decoded_message), title = "Message Received Successfully")
+                        if self.outcapfile:
+                            npyscreen.notify_wait("Your capture has been saved to {}. Your secret message is '{}'. Thank you for using cov3rt!".format(self.outcapfile, self.decoded_message), title = "Message Received Successfully")
+                        else:
+                            npyscreen.notify_wait("Your secret message is '{}'. Thank you for using cov3rt!".format(self.decoded_message), title = "Message Received Successfully")
                     self.parentApp.setNextForm(None)
 
         # Runs when the user cancels the form
@@ -619,7 +651,7 @@ def runApplication():
     -mc, --maxCount       Max number of packets for the packet handler
     -if, --iface          Interface for the packet handler
     -in, --inFile         Use a .cap or .pcap rather than live analysis
-    -of,  --outFile       Output received message to a file
+    -of, --outFile       Output received message to a file
     -op, --outPcap        Output packets to a capture file (pcap)
 
     Other Arguments:
