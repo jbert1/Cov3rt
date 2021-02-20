@@ -106,7 +106,7 @@ def runApplication():
             # Cloak Options
             self.addForm("CloakOptions",
                 CloakOptionsForm,
-                name = "Cloak Selection",
+                name = "Cloak Options",
                 lines = WINDOW_LINES,
                 columns = WINDOW_COLUMNS
             )
