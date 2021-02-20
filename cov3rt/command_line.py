@@ -448,7 +448,7 @@ exit cov3rt?")
                     else:
                         self.message = self.inputtext.value
                 # File input option
-                if not self.filename.hidden:
+                elif not self.filename.hidden:
                     if self.filename.value is None:
                         npyscreen.notify_wait("You must select a file.",
                                               title="No File Selected")
@@ -475,7 +475,10 @@ exist."
                                                   .format(self.filename.value),
                                                   title="Input Filename Error")
                             editing = True
-
+                else:
+                    npyscreen.notify_wait("Please Pick Input File or Input Text",
+                                          title="Input Not Selected")
+                    editing = True
                 # Correct values for all parameters
                 if not (editing):
                     # Ingest the message in our cloak
@@ -492,7 +495,7 @@ for using cov3rt!",
                     self.parentApp.setNextForm(None)
 
             # Receiver options
-            else:
+            elif (self.sor == "Receiver"):
                 # Timeout option
                 if self.timeout.value == "None":
                     # Set the default value
@@ -560,7 +563,7 @@ integer.",
                         editing = True
 
                 # Output message
-                if self.out_file.value is "None":
+                if self.out_file.value == "None":
                     # Set the default value
                     self.outfile = None
                 # Ensure the output file is not blank
@@ -656,7 +659,9 @@ Successfully")
                                                   title="Message Received \
 Successfully")
                     self.parentApp.setNextForm(None)
-
+            else:
+                npyscreen.notify_wait("You messed up somewhere. Try again.",
+                                      title="What did you even do?")
         # Runs when the user cancels the form
         def on_cancel(self):
             # Ensure the user wants to exit
