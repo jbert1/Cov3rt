@@ -7,7 +7,7 @@ setup(
     entry_points={
         'console_scripts': ['cov3rt=cov3rt.command_line:runApplication']
     },
-    install_requires=['scapy>=2.4.3', 'npyscreen'],
+    install_requires=['scapy>=2.4.3', 'npyscreen>=4.10.0'],
     license='MIT',
     name='cov3rt',
     packages=setuptools.find_packages(),
