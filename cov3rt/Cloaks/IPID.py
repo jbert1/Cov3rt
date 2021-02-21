@@ -10,17 +10,12 @@ from cov3rt.Cloaks.Cloak import Cloak
 class IPID(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
-
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
     name = "IP Identification"
-    description = "A covert channel using the Identification Field in \n\
-IP packets to transmit messages."
+    description = "A covert channel using the Identification Field in \nIP packets to transmit messages."
 
     def __init__(self, EOT_ID=20, ip_dst="10.10.10.10"):
         self.ip_dst = ip_dst
@@ -34,8 +29,7 @@ IP packets to transmit messages."
             debug(self.data)
 
     def send_EOT(self):
-        """Sends an end-of-transmission packet to signal the end of
-        transmission."""
+        """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst="10.10.10.10")
         pkt.id = self.EOT_ID
         if self.LOGLEVEL == DEBUG:
@@ -71,41 +65,28 @@ IP packets to transmit messages."
         return True
 
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the IP
-        Identifiaction Cloak."""
+        """Specifies the packet handler for receiving information via the IP Identifiaction Cloak."""
         if pkt.haslayer(IP):
             if pkt["IP"].dst == self.ip_dst:
                 self.read_data.append(pkt.id)
                 debug("Received {}".format(pkt.id))
 
     def recv_EOT(self, pkt):
-        """Specifies the end-of-transmission packet that signals the end of
-        transmission."""
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["IP"].id == self.EOT_ID:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].id == self.EOT_ID:
                 info("Received EOT")
                 return True
         return False
 
-    def recv_packets(self, timeout=None, max_count=None, iface=None,
-                     in_file=None, out_file=None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the IP Identification Cloak."""
         info("Receiving packets...")
         self.read_data = []
         if max_count:
-            packets = sniff(timeout=timeout,
-                            count=max_count,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout=timeout,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         # Decode read data
@@ -132,8 +113,7 @@ IP packets to transmit messages."
             if search(self.IP_REGEX, ip_dst):
                 self._ip_dst = ip_dst
             else:
-                raise ValueError(
-                    "Invalid IP address provided: {}".format(ip_dst))
+                raise ValueError("Invalid IP address provided: {}".format(ip_dst))
         else:
             raise TypeError("'ip_dst' must be of type 'str'")
 
@@ -146,8 +126,8 @@ IP packets to transmit messages."
     # Setter for "EOT_ID"
     @EOT_ID.setter
     def EOT_ID(self, EOT_ID):
-        if (isinstance(EOT_ID, int)):
-            if (EOT_ID > 0 and EOT_ID < 65535):
+        if isinstance(EOT_ID, int):
+            if EOT_ID > 0 and EOT_ID < 65535:
                 self._EOT_ID = EOT_ID
             else:
                 raise ValueError("'EOT_ID' must be between 0 and 65535")

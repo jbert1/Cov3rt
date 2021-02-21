@@ -11,17 +11,13 @@ from cov3rt.Cloaks.Cloak import Cloak
 class ICMPEchoMultiPayload(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED
     name = "ICMP Echo Binary Payloads"
-    description = "A cloak based on splitting the message into \n\
-multiple packets in the ICMP echo payload"
+    description = "A cloak based on splitting the message into \nmultiple packets in the ICMP echo payload"
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.ip_dst = ip_dst
@@ -36,11 +32,8 @@ multiple packets in the ICMP echo payload"
             raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
-        """Sends an end-of-transmission packet to signal the end of
-        transmission."""
-        pkt = IP(dst=self.ip_dst) / \
-            ICMP(type=8) / \
-            Raw(load="\x04")
+        """Sends an end-of-transmission packet to signal the end of transmission."""
+        pkt = IP(dst=self.ip_dst) / ICMP(type=8) / Raw(load="\x04")
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -48,9 +41,7 @@ multiple packets in the ICMP echo payload"
 
     def send_packet(self, databit):
         """Sends a packet with the message in the ICMP echo payload."""
-        pkt = IP(dst=self.ip_dst) / \
-            ICMP(type=8) / \
-            Raw(load=databit)
+        pkt = IP(dst=self.ip_dst) / ICMP(type=8) / Raw(load=databit)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -77,20 +68,16 @@ multiple packets in the ICMP echo payload"
     def packet_handler(self, pkt):
         """Specifies the packet handler for receiving information via the IP
         Reserved Bit Cloak."""
-        if pkt.haslayer(IP) and \
-                pkt.haslayer(ICMP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["Raw"].load != b"\x04":
+        if pkt.haslayer(IP) and pkt.haslayer(ICMP):
+            if pkt["IP"].dst == self.ip_dst and pkt["Raw"].load != b"\x04":
                 self.read_data += pkt["Raw"].load.decode("UTF-8")
                 info("Received a {}".format(pkt["Raw"].load))
 
     def recv_EOT(self, pkt):
         """Specifies the end-of-transmission packet that signals the end of
         transmission."""
-        if pkt.haslayer(IP) and \
-                pkt.haslayer(ICMP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["Raw"].load == b"\x04":
+        if pkt.haslayer(IP) and pkt.haslayer(ICMP):
+            if pkt["IP"].dst == self.ip_dst and pkt["Raw"].load == b"\x04":
                 info("Received EOT")
                 return True
         return False
@@ -101,18 +88,9 @@ multiple packets in the ICMP echo payload"
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
-            packets = sniff(timeout=timeout,
-                            count=max_count,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout=timeout,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         info("Binary string: {}".format(self.read_data))

@@ -13,20 +13,15 @@ from cov3rt.Cloaks.Cloak import Cloak
 class UDPChecksum(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.VALUE_INFLUENCING
     name = "UDP Checksum"
-    description = "A cloak based on replacement of the UDP Checksum with\n\
-user data."
+    description = "A cloak based on replacement of the UDP Checksum with\nuser data."
 
-    def __init__(self, ip_dst="192.168.1.101", send_port=25565,
-                 dest_port=25577):
+    def __init__(self, ip_dst="192.168.1.101", send_port=25565, dest_port=25577):
         self.ip_dst = ip_dst
         self.send_port = send_port
         self.dest_port = dest_port
@@ -41,15 +36,12 @@ user data."
             raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
-        '''Send an end-of-transmission packet (checksum 0x9999) to signal end
-        of transmission.'''
+        '''Send an end-of-transmission packet (checksum 0x9999) to signal end of transmission.'''
         # Generate random string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
         # Create packet w/ fluff payload and checksum of all 0
-        pkt = IP(dst=self.ip_dst) / \
-            UDP(sport=self.send_port, dport=self.dest_port, chksum=0x9999) / \
-            Raw(packet_string)
+        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port, chksum=0x9999) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -61,10 +53,7 @@ user data."
         packet_string = urandom(randint(25, 50))
 
         # Create packet w/ fluff payload and checksum of "userdata"
-        pkt = IP(dst=self.ip_dst) / \
-            UDP(sport=self.send_port, dport=self.dest_port,
-                chksum=int(userdata)) / \
-            Raw(packet_string)
+        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port, chksum=int(userdata)) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -89,52 +78,32 @@ user data."
         return True
 
     def packet_handler(self, pkt):
-        '''Specifies the packet handler for receiving info via the UDP Size
-        Modulation cloak.'''
-        if pkt.haslayer(UDP) and \
-                pkt.haslayer(IP) and \
-                pkt.haslayer(Raw):
+        '''Specifies the packet handler for receiving info via the UDP Size Modulation cloak.'''
+        if pkt.haslayer(UDP) and pkt.haslayer(IP) and pkt.haslayer(Raw):
             # Check for correct options
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["UDP"].sport == self.send_port and \
-                    pkt["UDP"].dport == self.dest_port:
+            if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
                 if pkt["UDP"].chksum != 0x9999:
                     self.read_data += chr(pkt["UDP"].chksum)
                     debug("Received a {}".format(chr(pkt["UDP"].chksum)))
                     info("String: {}".format(self.read_data))
 
     def recv_EOT(self, pkt):
-        '''Specifies the EOT packet, singaling the end of transmission.
-        Checksum of 0x9999 for this channel.'''
-        if pkt.haslayer(UDP) and \
-                pkt.haslayer(IP) and \
-                pkt.haslayer(Raw):
+        '''Specifies the EOT packet, singaling the end of transmission. Checksum of 0x9999 for this channel.'''
+        if pkt.haslayer(UDP) and pkt.haslayer(IP) and pkt.haslayer(Raw):
             # Check for correct options
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["UDP"].sport == self.send_port and \
-                    pkt["UDP"].dport == self.dest_port:
+            if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
                 if (pkt["UDP"].chksum == 0x9999):
                     return True
         return False
 
-    def recv_packets(self, timeout=None, max_count=None, iface=None,
-                     in_file=None, out_file=None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the UDP Size Modulation Cloak."""
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
-            packets = sniff(timeout=timeout,
-                            count=max_count,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout=timeout,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         info("String decoded: {}".format(self.read_data))
@@ -174,8 +143,7 @@ user data."
             if 1 <= send_port <= 65535:
                 self._send_port = send_port
             else:
-                raise ValueError(
-                    "'send_port' must be within valid port range (1-65535)")
+                raise ValueError("'send_port' must be within valid port range (1-65535)")
         else:
             raise TypeError("'send_port' must be of type 'int'")
 
@@ -193,7 +161,6 @@ user data."
             if 1 <= dest_port <= 65535:
                 self._dest_port = dest_port
             else:
-                raise ValueError(
-                    "'dest_port' must be within valid port range (1-65535)")
+                raise ValueError("'dest_port' must be within valid port range (1-65535)")
         else:
             raise TypeError("'dest_port' must be of type 'int'")

@@ -66,8 +66,7 @@ class Field(object):
                 else:
                     raise TypeError("'x1' must be less than 'x2'")
             else:
-                raise ValueError("'x' must be between {} -> {}"
-                                 .format(0, self.MAX_X))
+                raise ValueError("'x' must be between {} -> {}".format(0, self.MAX_X))
         else:
             raise TypeError("'x' must be of type 'int'")
 
@@ -83,8 +82,7 @@ class Field(object):
                 else:
                     raise TypeError("'y1' must be less than 'x2'")
             else:
-                raise ValueError("'y' must be between {} -> {}"
-                                 .format(0, self.MAX_Y))
+                raise ValueError("'y' must be between {} -> {}".format(0, self.MAX_Y))
         else:
             raise TypeError("'y' must be of type 'int'")
 
@@ -124,23 +122,20 @@ class Field(object):
             # Get the old line
             try:
                 # Try ascii
-                string = self.screen.instr(
-                    y, self.x1, self.x2 - self.x1 + 1).decode("ascii")
+                string = self.screen.instr(y, self.x1, self.x2 - self.x1 + 1).decode("ascii")
             except UnicodeDecodeError:
                 # Curses hates unicode, so we have to go character by character
                 string = ""
                 for x in range(self.x1, self.x2 + 1):
                     try:
-                        char = chr(eval("0b\
-{}".format(str(bin(self.screen.inch(y, x)))[-14:])))
+                        char = chr(eval("0b{}".format(str(bin(self.screen.inch(y, x)))[-14:])))
                         string += char
                     except Exception as e:
                         string += ""
             if self.fieldtype == self.INPUT:
                 self.screen.addstr(y, self.x1, string, curses.A_BOLD)
                 # Grab the cursor character
-                char = chr(eval("0b\
-{}".format(str(bin(self.screen.inch(y, self.cursor_x)))[-14:])))
+                char = chr(eval("0b{}".format(str(bin(self.screen.inch(y, self.cursor_x)))[-14:])))
                 # Add it with the defined color
                 self.screen.addstr(y, self.cursor_x, char, curses.A_UNDERLINE)
             else:
@@ -156,8 +151,7 @@ class Field(object):
                 # Get the old line
                 try:
                     # Try ascii
-                    string = self.screen.instr(
-                        y, self.x1, self.x2 - self.x1 + 1).decode("ascii")
+                    string = self.screen.instr(y, self.x1, self.x2 - self.x1 + 1).decode("ascii")
                 except UnicodeDecodeError:
                     # Curses hates unicode, so we have to go character by
                     #  character
@@ -165,8 +159,7 @@ class Field(object):
                     for x in range(self.x1, self.x2 + 1):
                         try:
                             char = chr(
-                                eval("0b\
-{}".format(str(bin(self.screen.inch(y, x)))[-14:])))
+                                eval("0b{}".format(str(bin(self.screen.inch(y, x)))[-14:])))
                             string += char
                         except Exception as e:
                             string += ""
@@ -181,18 +174,13 @@ class Field(object):
     # Set text of the field
     def settext(self, string, xstart, ystart):
         # Type checks
-        if isinstance(xstart, int) and \
-                isinstance(ystart, int) and \
-                isinstance(string, str):
+        if isinstance(xstart, int) and isinstance(ystart, int) and isinstance(string, str):
             # Bound size
-            if xstart >= self.x1 and \
-                    (len(string) + xstart) <= (self.x2 + 1) and \
-                    (ystart >= self.y1 or ystart <= self.y2):
+            if xstart >= self.x1 and (len(string) + xstart) <= (self.x2 + 1) and (ystart >= self.y1 or ystart <= self.y2):
                 # Add text with the defined color
                 self.screen.addstr(ystart, xstart, string)
             else:
-                raise ValueError("'string' length must be between {} -> {}"
-                                 .format(self.x1, self.x2))
+                raise ValueError("'string' length must be between {} -> {}".format(self.x1, self.x2))
         else:
             raise TypeError("TypeError")
 
@@ -200,8 +188,7 @@ class Field(object):
     def updateboard(self, string):
         if len(self.board_data) < self.board_size:
             self.board_data.append(string.ljust(95))
-            self.settext(string.ljust(95), self.x1 +
-                         1, len(self.board_data) + 1)
+            self.settext(string.ljust(95), self.x1 + 1, len(self.board_data) + 1)
         else:
             self.board_data = self.board_data[1:]
             self.board_data.append(string.ljust(95))
@@ -215,8 +202,7 @@ class Field(object):
             # Input field type
             if self.fieldtype == self.INPUT:
                 # Add character
-                self.screen.addstr(
-                    self.cursor_y, self.cursor_x, char[0], curses.A_BOLD)
+                self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_BOLD)
                 self.cursor_x += 1
                 # End of field
                 if self.cursor_x > self.x2:
@@ -230,11 +216,9 @@ class Field(object):
                         # Move back one
                         self.cursor_x -= 1
                 # Grab the old character
-                char = self.screen.instr(
-                    self.cursor_y, self.cursor_x, 1).decode()
+                char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
                 # Add it back with the selected color
-                self.screen.addstr(self.cursor_y, self.cursor_x,
-                                   char[0], curses.A_UNDERLINE)
+                self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_UNDERLINE)
                 # Move the cursor
                 self.screen.move(self.cursor_y, self.cursor_x)
         else:
@@ -243,14 +227,12 @@ class Field(object):
 
     # Clear the text in the input
     def cleartext(self):
-        self.screen.addstr(self.y1, self.x1, " " *
-                           (self.x2 - self.x1 + 1), curses.A_BOLD)
+        self.screen.addstr(self.y1, self.x1, " " * (self.x2 - self.x1 + 1), curses.A_BOLD)
 
     # Return the text in the input field
     def returntext(self):
         # Get the old line
-        string = self.screen.instr(
-            self.y1, self.x1, self.x2 - self.x1 + 1).decode("utf-8").strip()
+        string = self.screen.instr(self.y1, self.x1, self.x2 - self.x1 + 1).decode("utf-8").strip()
         return string
 
     # Simulate the press of the backspace key
@@ -259,10 +241,7 @@ class Field(object):
         if self.cursor_x != self.x1:
             if ctrl:
                 # Grab the old characters
-                string = self.screen.instr(self.cursor_y,
-                                           self.cursor_x,
-                                           (self.x2 - self.cursor_x + 1))\
-                    .decode()
+                string = self.screen.instr(self.cursor_y, self.cursor_x, (self.x2 - self.cursor_x + 1)).decode()
                 # Add the required spaces
                 string += " " * (self.cursor_x - self.x1)
                 # Add it back with the deselected color
@@ -271,10 +250,7 @@ class Field(object):
                 self.cursor_x = self.x1
             else:
                 # Grab the old characters
-                string = self.screen.instr(self.cursor_y,
-                                           self.cursor_x,
-                                           (self.x2 - self.cursor_x + 1))\
-                    .decode() + " "
+                string = self.screen.instr(self.cursor_y, self.cursor_x, (self.x2 - self.cursor_x + 1)).decode() + " "
                 # Add it back with the deselected color
                 self.screen.addstr(self.cursor_y, self.cursor_x-1, string)
                 # Move cursor back one
@@ -282,8 +258,7 @@ class Field(object):
             # Grab the new character
             char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
             # Add it back with the selected color
-            self.screen.addstr(self.cursor_y, self.cursor_x,
-                               char[0], curses.A_UNDERLINE)
+            self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_UNDERLINE)
             self.screen.move(self.cursor_y, self.cursor_x)
             self.selected_x = self.cursor_x
 
@@ -296,25 +271,20 @@ class Field(object):
             self.screen.addstr(self.cursor_y, self.cursor_x, string)
         else:
             # Grab the old characters
-            string = self.screen.instr(self.cursor_y,
-                                       self.cursor_x + 1,
-                                       (self.x2 - self.cursor_x + 1))\
-                .decode()
+            string = self.screen.instr(self.cursor_y, self.cursor_x + 1, (self.x2 - self.cursor_x + 1)).decode()
             # Add it back with the deselected color
             self.screen.addstr(self.cursor_y, self.cursor_x, string)
         # Grab the new character
         char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
         # Add it back with the selected color
-        self.screen.addstr(self.cursor_y, self.cursor_x,
-                           char[0],  curses.A_UNDERLINE)
+        self.screen.addstr(self.cursor_y, self.cursor_x, char[0],  curses.A_UNDERLINE)
         self.screen.move(self.cursor_y, self.cursor_x)
         self.selected_x = self.cursor_x
 
     # Move the input cursor on the row
     def moveinputcursor(self, x, throwerror=False):
         # Bound size
-        if ((x <= 0) and (self.cursor_x + x >= self.x1)) \
-                or ((x > 0) and (self.cursor_x + x <= self.x2)):
+        if ((x <= 0) and (self.cursor_x + x >= self.x1)) or ((x > 0) and (self.cursor_x + x <= self.x2)):
             # Grab the old character
             char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
             # Add it back with the deselected color
@@ -325,45 +295,38 @@ class Field(object):
             # Grab the new character
             char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
             # Add it back with the selected color
-            self.screen.addstr(self.cursor_y, self.cursor_x,
-                               char[0], curses.A_UNDERLINE)
+            self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_UNDERLINE)
             # Move the cursor
             self.screen.move(self.cursor_y, self.cursor_x)
         elif (x <= 0):
             # Grab the old character
             char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
             # Add it back with the deselected color
-            self.screen.addstr(self.cursor_y, self.cursor_x,
-                               char[0], curses.A_BOLD)
+            self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_BOLD)
             # Get new cursorx location
             self.cursor_x = self.x1
             # Grab the new character
             char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
             # Add it back with the selected color
-            self.screen.addstr(self.cursor_y, self.cursor_x,
-                               char[0], curses.A_UNDERLINE)
+            self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_UNDERLINE)
             # Move the cursor
             self.screen.move(self.cursor_y, self.cursor_x)
         elif (x > 0):
             # Grab the old character
             char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
             # Add it back with the deselected color
-            self.screen.addstr(self.cursor_y, self.cursor_x,
-                               char[0], curses.A_BOLD)
+            self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_BOLD)
             # Get new cursorx location
             self.cursor_x = self.x2
             # Grab the new character
             char = self.screen.instr(self.cursor_y, self.cursor_x, 1).decode()
             # Add it back with the selected color
-            self.screen.addstr(self.cursor_y, self.cursor_x,
-                               char[0], curses.A_UNDERLINE)
+            self.screen.addstr(self.cursor_y, self.cursor_x, char[0], curses.A_UNDERLINE)
             # Move the cursor
             self.screen.move(self.cursor_y, self.cursor_x)
         # Throw an error if we say so
         elif throwerror:
-            raise ValueError("'x' must be between {} -> {}"
-                             .format(self.x1 - self.cursor_x,
-                                     self.x2 - self.cursor_x))
+            raise ValueError("'x' must be between {} -> {}".format(self.x1 - self.cursor_x, self.x2 - self.cursor_x))
         self.selected_x = self.cursor_x
 
     # Execute the argument type with the direction
@@ -507,8 +470,7 @@ class Field(object):
                     elif d == self.BACKTAB:
                         self.backtabx = x + self.x1
                 else:
-                    raise ValueError("'x' must be between {} -> {}"
-                                     .format(0, self.x2 - self.x1))
+                    raise ValueError("'x' must be between {} -> {}".format(0, self.x2 - self.x1))
             else:
                 # Bound size
                 if (x >= 0 and x <= self.MAX_X):
@@ -529,8 +491,7 @@ class Field(object):
                     elif d == self.BACKTAB:
                         self.backtabx = x
                 else:
-                    raise ValueError("'x' must be between {} -> {}"
-                                     .format(0, self.MAX_X))
+                    raise ValueError("'x' must be between {} -> {}".format(0, self.MAX_X))
         else:
             raise TypeError("'x' must be of type 'int'")
         # Check type
@@ -555,8 +516,7 @@ class Field(object):
                     elif d == self.BACKTAB:
                         self.backtaby = y + self.y1
                 else:
-                    raise ValueError("'y' must be between {} -> {}"
-                                     .format(0, self.y2 - self.y1))
+                    raise ValueError("'y' must be between {} -> {}".format(0, self.y2 - self.y1))
             else:
                 # Bound size
                 if (y >= 0 and y <= self.MAX_Y):
@@ -577,8 +537,7 @@ class Field(object):
                     elif d == self.BACKTAB:
                         self.backtaby = y
                 else:
-                    raise ValueError("'y' must be between {} -> {}"
-                                     .format(0, self.MAX_Y))
+                    raise ValueError("'y' must be between {} -> {}".format(0, self.MAX_Y))
         else:
             raise TypeError("'y' must be of type 'int'")
 
@@ -676,9 +635,7 @@ class Field(object):
                     elif d == self.BACKTAB:
                         self.backtabx = x + self.x2
                 else:
-                    raise ValueError("'x' must be between {} -> {}"
-                                     .format(self.x1 - self.cursor_x,
-                                             self.x2 - self.cursor_x))
+                    raise ValueError("'x' must be between {} -> {}".format(self.x1 - self.cursor_x, self.x2 - self.cursor_x))
         else:
             raise TypeError("'x' must be of type 'int'")
         # Check type
@@ -720,9 +677,7 @@ class Field(object):
                     elif d == self.BACKTAB:
                         self.backtaby = y + self.cursor_y
                 else:
-                    raise ValueError("'y' must be between {} -> {}"
-                                     .format(self.y1 - self.cursor_y,
-                                             self.y2 - self.cursor_y))
+                    raise ValueError("'y' must be between {} -> {}".format(self.y1 - self.cursor_y, self.y2 - self.cursor_y))
             else:
                 # Bound size
                 if (y <= 0) and (self.y1 + y >= 0):
@@ -760,8 +715,7 @@ class Field(object):
                     elif d == self.BACKTAB:
                         self.backtaby = y + self.y2
                 else:
-                    raise ValueError("'y' must be between {} -> {}"
-                                     .format(0, self.MAX_Y))
+                    raise ValueError("'y' must be between {} -> {}".format(0, self.MAX_Y))
         else:
             raise TypeError("'y' must be of type 'int'")
 
@@ -1032,8 +986,7 @@ class Field(object):
                 except AttributeError:
                     self._x1 = x1
             else:
-                raise ValueError("'x' must be between {} -> {}"
-                                 .format(0, self.MAX_X))
+                raise ValueError("'x' must be between {} -> {}".format(0, self.MAX_X))
         else:
             raise TypeError("'x' must be of type 'int'")
 
@@ -1058,8 +1011,7 @@ class Field(object):
                 except AttributeError:
                     self._x2 = x2
             else:
-                raise ValueError("'x' must be between {} -> {}"
-                                 .format(0, self.MAX_X))
+                raise ValueError("'x' must be between {} -> {}".format(0, self.MAX_X))
         else:
             raise TypeError("'x' must be of type 'int'")
 
@@ -1084,8 +1036,7 @@ class Field(object):
                 except AttributeError:
                     self._y1 = y1
             else:
-                raise ValueError("'y' must be between \{} -> {}"
-                                 .format(0, self.MAX_Y))
+                raise ValueError("'y' must be between \{} -> {}".format(0, self.MAX_Y))
         else:
             raise TypeError("'y' must be of type 'int'")
 
@@ -1110,8 +1061,7 @@ class Field(object):
                 except AttributeError:
                     self._y2 = y2
             else:
-                raise ValueError("'y' must be between \{} -> {}"
-                                 .format(0, self.MAX_Y))
+                raise ValueError("'y' must be between \{} -> {}".format(0, self.MAX_Y))
         else:
             raise TypeError("'y' must be of type 'int'")
 
@@ -1484,9 +1434,7 @@ def createbox(screen, x1, x2, y1, y2):
         # Bottom of modal
         screen.addstr(y2, x1, "└{}┘".format("─" * (x2 - x1 - 1)))
     else:
-        print("{} -> {} -> {}".format((0 >= x1 and x2 < MAX_X),
-                                      (0 >= y1 and y2 < MAX_Y),
-                                      ((x1 != x2) and (y1 != y2))))
+        print("{} -> {} -> {}".format((0 >= x1 and x2 < MAX_X), (0 >= y1 and y2 < MAX_Y), ((x1 != x2) and (y1 != y2))))
     screen.refresh()
 
 # Receiving function for our thread

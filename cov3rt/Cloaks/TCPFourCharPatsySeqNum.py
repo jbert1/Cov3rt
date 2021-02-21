@@ -9,20 +9,16 @@ from time import sleep
 from cov3rt.Cloaks.Cloak import Cloak
 
 
-class TCPPatsySeqNumber(Cloak):
+class TCPFourCharPatsySeqNum(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
     name = "TCP Four Character Seq Number"
-    description = "A cloak based on changing the TCP sequence number\n\
-to 4 ascii characters while using a patsy."
+    description = "A cloak based on changing the TCP sequence number\nto 4 ascii characters while using a patsy."
 
     def __init__(self, ip_dst="8.8.8.8", ip_patsy="142.250.138.101"):
         self.ip_dst = ip_dst
@@ -30,18 +26,15 @@ to 4 ascii characters while using a patsy."
         self.read_data = ""
 
     def ingest(self, data):
-        """Ingests and formats data into 32-bit binary string groups in a
-        list."""
+        """Ingests and formats data into 32-bit binary string groups in a list."""
         if isinstance(data, str):
             # Prepare groups of four characters for sending later
-            # First, convert the string into the binary equivalent of the
-            #  characters in ASCII
+            # First, convert the string into the binary equivalent of the characters in ASCII
             ordlist = [bin(ord(i))[2:].zfill(8) for i in data]
             # Combine that into a giant binary string
             datastring = "".join(ordlist)
             # Turn into an array of 32-bit groups, left-justified with zeros
-            self.data = [(datastring[i:i+32].ljust(32, '0'))
-                         for i in range(0, len(datastring), 32)]
+            self.data = [(datastring[i:i+32].ljust(32, '0')) for i in range(0, len(datastring), 32)]
             debug(self.data)
         else:
             raise TypeError("'data' must be of type 'str'")
@@ -49,12 +42,9 @@ to 4 ascii characters while using a patsy."
     def send_EOT(self):
         """Sends an end-of-transmission packet to signal the end of
         transmission."""
-        # EOT packet sends to patsy w/ src of destination, don't fragment, SYN
-        #  flag, no payload.
+        # EOT packet sends to patsy w/ src of destination, don't fragment, SYN flag, no payload.
         # no payload will be interpreted as pkt.load == b''
-        pkt = IP(dst=self.ip_patsy, src=self.ip_dst, flags="DF") / \
-            TCP(flags=0x02) / \
-            ""
+        pkt = IP(dst=self.ip_patsy, src=self.ip_dst, flags="DF") / TCP(flags=0x02) / ""
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -62,13 +52,10 @@ to 4 ascii characters while using a patsy."
 
     def send_packet(self, num):
         """Sends packets based on TCP sequence number."""
-        # We will use random data in a packet to indicate that there is an
-        #  active message.
+        # We will use random data in a packet to indicate that there is an active message.
         payload = urandom(randint(15, 100))
         # Packet w/ SYN Flag, don't fragment, payload of random bytes.
-        pkt = IP(dst=self.ip_patsy, src=self.ip_dst, flags="DF") / \
-            TCP(flags=0x02, seq=num) / \
-            payload
+        pkt = IP(dst=self.ip_patsy, src=self.ip_dst, flags="DF") / TCP(flags=0x02, seq=num) / payload
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -93,44 +80,29 @@ to 4 ascii characters while using a patsy."
         return True
 
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the TCP
-        Patsy Cloak."""
+        """Specifies the packet handler for receiving information via the TCP Patsy Cloak."""
         if pkt.haslayer(TCP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["IP"].flags != 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags != 0x06:
                 self.read_data += chr(pkt["TCP"].seq)
                 debug("Received a '{}'".format(chr(pkt["TCP"].seq)))
                 info("String: {}".format(self.read_data))
 
     def recv_EOT(self, pkt):
-        """Specifies the end-of-transmission packet that signals the end of
-        transmission."""
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["IP"].src == self.ip_patsy and \
-                    pkt.load == b'':
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_patsy and pkt.load == b'':
                 info("Received EOT")
                 return True
         return False
 
-    def recv_packets(self, timeout=None, max_count=None, iface=None,
-                     in_file=None, out_file=None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the TCP Patsy Cloak."""
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
-            packets = sniff(timeout=timeout,
-                            count=max_count,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout=timeout,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         info("String decoded: {}".format(self.read_data))

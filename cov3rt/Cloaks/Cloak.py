@@ -63,8 +63,7 @@ class Cloak(ABC):
 
     @abstractmethod
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the
-        defined covert channel."""
+        """Specifies the packet handler for receiving information via the defined covert channel."""
         pass
 
     def recv_packets(self):
@@ -72,13 +71,11 @@ class Cloak(ABC):
         pass
 
     def recv_EOT(self, pkt):
-        """Specifies the end-of-transmission packet that signals the end of
-        transmission."""
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
         pass
 
     def recv_delimiter(self, pkt):
-        """Specifies the delimiter packet that signals the end of a specified
-        data stream."""
+        """Specifies the delimiter packet that signals the end of a specified data stream."""
         pass
 
     # Getters and Setters
@@ -97,8 +94,7 @@ class Cloak(ABC):
             for line in d.split("\n"):
                 # Line too long
                 if len(line) >= 53:
-                    raise ValueError("'description' lines must be less than 53\
-                        characters long")
+                    raise ValueError("'description' lines must be less than 53 characters long")
             # Set the description
             self._description = d
         else:

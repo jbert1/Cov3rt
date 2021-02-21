@@ -10,17 +10,13 @@ from cov3rt.Cloaks.Cloak import Cloak
 class IPReservedBit(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.RESERVED_UNUSED
     name = "IP Reserved Bit"
-    description = "A cloak based on modulating the reserved bit in \n\
-the IP header field."
+    description = "A cloak based on modulating the reserved bit in \nthe IP header field."
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.ip_dst = ip_dst
@@ -35,8 +31,7 @@ the IP header field."
             raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
-        """Sends an end-of-transmission packet to signal the end of
-        transmission."""
+        """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst=self.ip_dst, flags=0x06)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
@@ -80,8 +75,7 @@ the IP header field."
         return True
 
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the IP
-        Reserved Bit Cloak."""
+        """Specifies the packet handler for receiving information via the IP Reserved Bit Cloak."""
         if pkt.haslayer(IP):
             if pkt["IP"].dst == self.ip_dst:
                 if pkt["IP"].flags == 0x00:
@@ -93,33 +87,21 @@ the IP header field."
                 info("Binary string: {}".format(self.read_data))
 
     def recv_EOT(self, pkt):
-        """Specifies the end-of-transmission packet that signals the end of
-        transmission."""
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["IP"].flags == 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags == 0x06:
                 info("Received EOT")
                 return True
         return False
 
-    def recv_packets(self, timeout=None, max_count=None, iface=None,
-                     in_file=None, out_file=None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the IP Reserved Bit Cloak."""
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
-            packets = sniff(timeout=timeout,
-                            count=max_count,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout=timeout,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         # Decode read data

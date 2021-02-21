@@ -31,8 +31,7 @@ while True:
                 exit()
             # Run with Powershell for windows systems
             if OS_NAME == "nt":
-                command.insert(0, "C:\\Windows\\System32\\Windows\
-Powershell\\v1.0\\powershell.exe")
+                command.insert(0, "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe")
         # Handle oddity of an Attribute Error by just continuing
         except AttributeError:
             continue

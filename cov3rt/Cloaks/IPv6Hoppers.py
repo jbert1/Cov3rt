@@ -10,26 +10,13 @@ from cov3rt.Cloaks.Cloak import Cloak
 class IPv6Hoppers(Cloak):
 
     # Regular expression to verify IP
-    IPv6_REGEX = "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|\
-([0-9a-fA-F]{1,4}:){1,7}:|\
-([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|\
-([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|\
-([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|\
-([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|\
-([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|\
-[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:\
-[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|\
-::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.)\
-{3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:\
-((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|\
-(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
+    IPv6_REGEX = "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
     name = "IPv6 Hoppers"
-    description = "A covert channel using the hop limit in IPv6 \n\
-packets to transmit messages."
+    description = "A covert channel using the hop limit in IPv6 \npackets to transmit messages."
 
     def __init__(self, EOT_hl=69, ip_dst="ff02::1:ffad:317"):
         self.ip_dst = ip_dst
@@ -43,8 +30,7 @@ packets to transmit messages."
             debug(self.data)
 
     def send_EOT(self):
-        """Sends an end-of-transmission packet to signal the end of
-        transmission."""
+        """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IPv6(dst=self.ip_dst, hlim=self.EOT_hl)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
@@ -78,41 +64,28 @@ packets to transmit messages."
         return True
 
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the IPv6
-        Hoppers Cloak."""
+        """Specifies the packet handler for receiving information via the IPv6 Hoppers Cloak."""
         if pkt.haslayer(IPv6):
             if pkt["IPv6"].dst == self.ip_dst:
                 self.read_data.append(pkt.hlim)
                 debug("Received {}".format(pkt.hlim))
 
     def recv_EOT(self, pkt):
-        """Specifies the end-of-transmission packet that signals the end of
-        transmission."""
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IPv6):
-            if pkt["IPv6"].dst == self.ip_dst and \
-                    pkt["IPv6"].hlim == self.EOT_hl:
+            if pkt["IPv6"].dst == self.ip_dst and pkt["IPv6"].hlim == self.EOT_hl:
                 info("Received EOT")
                 return True
         return False
 
-    def recv_packets(self, timeout=None, max_count=None, iface=None,
-                     in_file=None, out_file=None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the IPv6 Hoppers Cloak."""
         info("Receiving packets...")
         self.read_data = []
         if max_count:
-            packets = sniff(timeout=timeout,
-                            count=max_count,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout=timeout,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         # Decode read data
@@ -139,8 +112,7 @@ packets to transmit messages."
             if search(self.IPv6_REGEX, ip_dst):
                 self._ip_dst = ip_dst
             else:
-                raise ValueError(
-                    "Invalid IP address provided: {}".format(ip_dst))
+                raise ValueError("Invalid IP address provided: {}".format(ip_dst))
         else:
             raise TypeError("'ip_dst' must be of type 'str'")
 
@@ -158,8 +130,7 @@ packets to transmit messages."
             if search(self.IPv6_REGEX, ip_src):
                 self._ip_src = ip_src
             else:
-                raise ValueError(
-                    "Invalid IP address provided: {}".format(ip_src))
+                raise ValueError("Invalid IP address provided: {}".format(ip_src))
         else:
             raise TypeError("'ip_src' must be of type 'str'")
 

@@ -27,10 +27,7 @@ def runApplication():
     WINDOW_LINES = 22
     WINDOW_COLUMNS = 80
     # Store cloak classifications
-    cloaks = {classvar[1]: []
-              for classvar in getmembers(Cloaks.Cloak.Cloak)
-              if isinstance(classvar[1], str) and
-              classvar[0] != "__module__"}
+    cloaks = {classvar[1]: [] for classvar in getmembers(Cloaks.Cloak.Cloak) if isinstance(classvar[1], str) and classvar[0] != "__module__"}
 
     # Stores the classname and description of each cloak
     cloak_names = []
@@ -65,60 +62,46 @@ def runApplication():
             # Start the element one line higher
             self.nextrely -= 1
             # Header with our fresh mouse logo
-            self.header = self.add(npyscreen.Pager,
-                                   relx=20,
-                                   color="DANGER",
-                                   editable=False,
-                                   height=5,
-                                   values=[
-                                    "                 ╭───╮       │",
-                                    "           ╱╲_╱╲     │      ─┼──",
-                                    "╭─── ╭───╮ ╲╷ ╷╱  ───┤ ╭───╮ │  ",
-                                    "│    │   │ >╲ ╱<     │ │     │  ",
-                                    "╰─── ╰───╯   v   ╰───╯ ╵     ╰──"])
+            self.header = self.add(npyscreen.Pager, relx=20, color="DANGER", editable=False, height=5,
+                values=[
+                    "                 ╭───╮       │",
+                    "           ╱╲_╱╲     │      ─┼──",
+                    "╭─── ╭───╮ ╲╷ ╷╱  ───┤ ╭───╮ │  ",
+                    "│    │   │ >╲ ╱<     │ │     │  ",
+                    "╰─── ╰───╯   v   ╰───╯ ╵     ╰──"
+                ]
+            )
             # Start the next element 2 lines down
             self.nextrely += 2
             # Disclaimer for the malicious idiots
-            self.disclaimer = self.add(npyscreen.Pager,
-                                       height=5,
-                                       relx=5,
-                                       editable=False,
-                                       values=[
-                                        "This tool should only be used to \
-enhance the effectiveness of",
-                                        "communication policy. You should \
-not misuse this tool to gain",
-                                        "access into computer systems or to \
-circumvent communication policy",
-                                        "on networks you do not own. We are \
-not responsible for any direct",
-                                        "or indirect damages caused due to \
-the improper usage of this tool."])
+            self.disclaimer = self.add(npyscreen.Pager, height=5, relx=5, editable=False,
+                values=[
+                    "This tool should only be used to enhance the effectiveness of",
+                    "communication policy. You should not misuse this tool to gain",
+                    "access into computer systems or to circumvent communication policy",
+                    "on networks you do not own. We are not responsible for any direct",
+                    "or indirect damages caused due to the improper usage of this tool."
+                ]
+            )
             # Start the next element 1 line down
             self.nextrely += 1
             # Classification, name, and description fields
-            self.cloak_classification = self.add(npyscreen.TitleFixedText,
-                                                 relx=5,
-                                                 begin_entry_at=18,
-                                                 editable=False,
-                                                 name="Classification:",
-                                                 value="")
-            self.cloak_name = self.add(npyscreen.TitleFixedText,
-                                       relx=5,
-                                       begin_entry_at=18,
-                                       editable=False,
-                                       name="Name:",
-                                       value="")
-            self.cloak_description = self.add(npyscreen.TitlePager,
-                                              relx=5,
-                                              begin_entry_at=18,
-                                              editable=False,
-                                              name="Description:",
-                                              values=["Press CTRL+X to open \
-the menu."])
+            self.cloak_classification = self.add(npyscreen.TitleFixedText, relx=5, begin_entry_at=18, editable=False, 
+                name="Classification:",
+                value=""
+            )
+            self.cloak_name = self.add(npyscreen.TitleFixedText, relx=5, begin_entry_at=18, editable=False, 
+                name="Name:",
+                value=""
+            )
+            self.cloak_description = self.add(npyscreen.TitlePager, relx=5, begin_entry_at=18, editable=False, 
+                name="Description:",
+                values=[
+                    "Press CTRL+X to open the menu."
+                ]
+            )
             # Create a menu to store cloaks
-            self.menu = self.new_menu(name="Cloak Selection",
-                                      shortcut='^X')
+            self.menu = self.new_menu(name="Cloak Selection", shortcut='^X')
             # Loop over the cloak classifications
             for cloak_classification in cloaks:
                 # Temporarily store the submenu to populate it
@@ -126,17 +109,11 @@ the menu."])
                 # Loop over each cloak
                 for cloak in cloaks[cloak_classification]:
                     # Add the cloak name to the submenu
-                    submenu.addItem(text=cloak.name,
-                                    onSelect=self.populateScreen,
-                                    arguments=[cloak])
+                    submenu.addItem(text=cloak.name, onSelect=self.populateScreen, arguments=[cloak])
                 # Add close menu at the bottom for convenience
-                submenu.addItem("Close Menu",
-                                self.close_menu,
-                                "^X")
+                submenu.addItem("Close Menu", self.close_menu, "^X")
             # Add close menu at the bottom for convenience
-            self.menu.addItem("Close Menu",
-                              self.close_menu,
-                              "^X")
+            self.menu.addItem("Close Menu", self.close_menu, "^X")
 
         # Closes the menu
         def close_menu(self):
@@ -161,14 +138,12 @@ the menu."])
                 self.parentApp.switchForm("CloakOptions")
             # No element selected
             else:
-                npyscreen.notify_wait("Please select a cloak before \
-proceeding.", "Invalid Cloak", "DANGER")
+                npyscreen.notify_wait("Please select a cloak before proceeding.", "Invalid Cloak", "DANGER")
 
         # Runs when the user cancels the form
         def on_cancel(self):
             # Ensure the user wants to exit
-            exit_choice = npyscreen.notify_yes_no("Are you sure you want to \
-exit cov3rt?")
+            exit_choice = npyscreen.notify_yes_no("Are you sure you want to exit cov3rt?")
             if exit_choice:
                 # Send them away with a smile
                 npyscreen.notify_confirm("Thank you for using cov3rt!")
@@ -180,20 +155,16 @@ exit cov3rt?")
         # Defines the elements on the page
         def create(self):
             # Name and Description
-            self.cloak_name = self.add(npyscreen.TitleFixedText,
-                                       relx=5,
-                                       begin_entry_at=18,
-                                       editable=False,
-                                       name="Name:",
-                                       value="")
-            self.cloak_description = self.add(npyscreen.TitlePager,
-                                              relx=5,
-                                              begin_entry_at=18,
-                                              editable=False,
-                                              height=2,
-                                              name="Description:",
-                                              values=["Press CTRL+X to open \
-the menu."])
+            self.cloak_name = self.add(npyscreen.TitleFixedText, relx=5, begin_entry_at=18, editable=False, 
+                name="Name:",
+                value=""
+            )
+            self.cloak_description = self.add(npyscreen.TitlePager, relx=5, begin_entry_at=18, editable=False, height=2, 
+                name="Description:",
+                values=[
+                    "Press CTRL+X to open the menu."
+                ]
+            )
 
         # Populates the screen
         def populateScreen(self):
@@ -205,39 +176,33 @@ the menu."])
             # Start the next element 1 line down
             self.nextrely += 1
             # Get the parameters for the constructor
-            self.parameter_list = dict(
-                signature(self.instance.__init__).parameters)
+            self.parameter_list = dict(signature(self.instance.__init__).parameters)
             self.parameters = []
             # Loop over the parameters
             for p in self.parameter_list:
                 # Add the field to our list
-                self.parameters.append(self.add(npyscreen.TitleText,
-                                       relx=5,
-                                       begin_entry_at=18,
-                                       name=p,
-                                       value=str(
-                                        self.parameter_list[p].default)))
+                self.parameters.append(self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name=p,
+                    value=str(self.parameter_list[p].default)
+                ))
             # Start the next element 1 line down
             self.nextrely += 1
             # Add the sender / receiver SelectOne element
-            self.send_or_recv = self.add(npyscreen.TitleSelectOne,
-                                         relx=5,
-                                         begin_entry_at=18,
-                                         scroll_exit=True,
-                                         height=2,
-                                         name="Sender/Receiver",
-                                         values=["Sender", "Receiver"])
+            self.send_or_recv = self.add(npyscreen.TitleSelectOne, relx=5, begin_entry_at=18, scroll_exit=True, height=2, 
+                name="Sender/Receiver",
+                values=[
+                    "Sender",
+                    "Receiver"
+                ]
+            )
 
         # Runs when the user completes the form
         def on_ok(self):
             # Sender / Receiver not selected
             if len(self.send_or_recv.value) == 0:
-                npyscreen.notify_wait("Please pick Sender or Receiver.",
-                                      "Sender or Receiver",
-                                      "DANGER")
+                npyscreen.notify_wait("Please pick Sender or Receiver.", "Sender or Receiver", "DANGER")
             else:
-                # Create a variable to determine if we have correct values for
-                #  all parameters
+                # Create a variable to determine if we have correct values for all parameters
                 editing = False
                 # Loop over the parameters
                 for element in self.parameters:
@@ -249,52 +214,38 @@ the menu."])
                         try:
                             exec("self.instance.{} = '{}'".format(p, new_val))
                         except ValueError as err:
-                            npyscreen.notify_wait(str(err),
-                                                  title="Value Error!")
+                            npyscreen.notify_wait(str(err), title="Value Error!")
                             editing = True
                         except TypeError as err:
-                            npyscreen.notify_wait(str(err),
-                                                  title="Type Error!")
+                            npyscreen.notify_wait(str(err), title="Type Error!")
                             editing = True
                     # Integer parameter
                     elif isinstance(self.parameter_list[p].default, int):
                         try:
                             if new_val.isdigit():
-                                exec("self.instance.{} = int({})"
-                                     .format(p, new_val))
+                                exec("self.instance.{} = int({})".format(p, new_val))
                             else:
-                                npyscreen.notify_wait("Parameter '{}' must be \
-an integer."
-                                                      .format(p),
-                                                      title="Type Error!")
+                                npyscreen.notify_wait("Parameter '{}' must be an integer.".format(p), title="Type Error!")
                                 editing = True
                         except ValueError as err:
-                            npyscreen.notify_wait(str(err),
-                                                  title="Value Error!")
+                            npyscreen.notify_wait(str(err), title="Value Error!")
                             editing = True
                         except TypeError as err:
-                            npyscreen.notify_wait(str(err),
-                                                  title="Type Error!")
+                            npyscreen.notify_wait(str(err), title="Type Error!")
                             editing = True
                     # Float parameter
                     elif isinstance(self.parameter_list[p].default, float):
                         try:
                             if new_val.replace('.', '', 1).isdigit():
-                                exec("self.instance.{} = float({})"
-                                     .format(p, new_val))
+                                exec("self.instance.{} = float({})".format(p, new_val))
                             else:
-                                npyscreen.notify_wait("Parameter '{}' must be \
-an integer or float."
-                                                      .format(p),
-                                                      title="Type Error!")
+                                npyscreen.notify_wait("Parameter '{}' must be an integer or float.".format(p), title="Type Error!")
                                 editing = True
                         except ValueError as err:
-                            npyscreen.notify_wait(str(err),
-                                                  title="Value Error!")
+                            npyscreen.notify_wait(str(err), title="Value Error!")
                             editing = True
                         except TypeError as err:
-                            npyscreen.notify_wait(str(err),
-                                                  title="Type Error!")
+                            npyscreen.notify_wait(str(err), title="Type Error!")
                             editing = True
                 # Correct values for all parameters
                 if not editing:
@@ -315,8 +266,7 @@ an integer or float."
         # Runs when the user cancels the form
         def on_cancel(self):
             # Ensure the user wants to exit
-            exit_choice = npyscreen.notify_yes_no("Are you sure you want to \
-exit cov3rt?")
+            exit_choice = npyscreen.notify_yes_no("Are you sure you want to exit cov3rt?")
             if exit_choice:
                 # Send them away with a smile
                 npyscreen.notify_confirm("Thank you for using cov3rt!")
@@ -328,11 +278,9 @@ exit cov3rt?")
         # Defines the elements on the page
         def create(self):
             # Cloak Name
-            self.cloak_name = self.add(npyscreen.FixedText,
-                                       relx=5,
-                                       begin_entry_at=18,
-                                       editable=False,
-                                       name="Cloak: ")
+            self.cloak_name = self.add(npyscreen.FixedText, relx=5, begin_entry_at=18, editable=False, 
+                name="Cloak: "
+            )
 
         # Populates the screen
         def populateScreen(self):
@@ -341,29 +289,26 @@ exit cov3rt?")
                 # Start the next element 1 line down
                 self.nextrely += 1
                 # Create a SelectOne type to determine message type
-                self.whattosend = self.add(npyscreen.TitleSelectOne,
-                                           relx=5,
-                                           begin_entry_at=18,
-                                           scroll_exit=True,
-                                           height=2,
-                                           name="Message Type:",
-                                           values=["File Input", "Text Input"])
+                self.whattosend = self.add(npyscreen.TitleSelectOne, relx=5, begin_entry_at=18, scroll_exit=True, height=2, 
+                    name="Message Type:",
+                    values=[
+                        "File Input",
+                        "Text Input"
+                    ]
+                )
                 # Function that runs when the user selects one
                 self.whattosend.when_value_edited = self.handleValueChange
                 # Start the next element 1 line down
                 self.nextrely += 1
                 # Filename input option
-                self.filename = self.add(npyscreen.TitleFilenameCombo,
-                                         relx=5,
-                                         begin_entry_at=18,
-                                         name="Filename:",
-                                         label=True)
+                self.filename = self.add(npyscreen.TitleFilenameCombo, relx=5, begin_entry_at=18, label=True,
+                    name="Filename:"
+                )
                 # Text input option
-                self.inputtext = self.add(npyscreen.TitleText,
-                                          relx=5,
-                                          begin_entry_at=18,
-                                          name="Text Input:",
-                                          value="")
+                self.inputtext = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Text Input:",
+                    value=""
+                )
                 # Hide both of the elements
                 self.filename.hidden = True
                 self.inputtext.hidden = True
@@ -372,57 +317,47 @@ exit cov3rt?")
                 # Start the next element 1 line down
                 self.nextrely += 1
                 # Timeout
-                self.timeout = self.add(npyscreen.TitleText,
-                                        relx=5,
-                                        begin_entry_at=18,
-                                        name="Timeout:",
-                                        value="None")
+                self.timeout = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Timeout:",
+                    value="None"
+                )
                 # Max Count
-                self.maxcount = self.add(npyscreen.TitleText,
-                                         relx=5,
-                                         begin_entry_at=18,
-                                         name="Max Count:",
-                                         value="∞")
+                self.maxcount = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Max Count:",
+                    value="∞"
+                )
                 # Interface
-                self.iface = self.add(npyscreen.TitleText,
-                                      relx=5,
-                                      begin_entry_at=18,
-                                      name="Interface:",
-                                      value="eth0" if OS_NAME != "nt"
-                                      else "Wi-Fi")
+                self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Interface:",
+                    value="eth0" if OS_NAME != "nt" else "Wi-Fi"
+                )
                 # Input File
-                self.in_file = self.add(npyscreen.TitleFilenameCombo,
-                                        relx=5,
-                                        begin_entry_at=18,
-                                        name="Input File:",
-                                        label=True)
+                self.in_file = self.add(npyscreen.TitleFilenameCombo, relx=5, begin_entry_at=18, label=True,
+                    name="Input File:"
+                )
                 # Output Message
-                self.out_file = self.add(npyscreen.TitleText,
-                                         relx=5,
-                                         begin_entry_at=18,
-                                         name="Output Message:",
-                                         value="None")
+                self.out_file = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Output Message:",
+                    value="None"
+                )
                 # Output Capture
-                self.out_capture = self.add(npyscreen.TitleText,
-                                            relx=5,
-                                            begin_entry_at=18,
-                                            name="Output Capture:",
-                                            value="None")
+                self.out_capture = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Output Capture:",
+                    value="None"
+                )
 
         # Function to handle change in SelectOne element
         def handleValueChange(self):
             # Only run if something has been selected
             if len(self.whattosend.value) != 0:
                 # File input selected
-                if self.whattosend.values[self.whattosend.value[0]]\
-                        == "File Input":
+                if self.whattosend.values[self.whattosend.value[0]] == "File Input":
                     # Show File Input
                     self.filename.hidden = False
                     # Hide Text Input
                     self.inputtext.hidden = True
                 # Text input selected
-                elif self.whattosend.values[self.whattosend.value[0]]\
-                        == "Text Input":
+                elif self.whattosend.values[self.whattosend.value[0]] == "Text Input":
                     # Hide File Input
                     self.filename.hidden = True
                     # Show Text Input
@@ -433,8 +368,7 @@ exit cov3rt?")
 
         # Runs when the user completes the form
         def on_ok(self):
-            # Create a variable to determine if we have correct values for all
-            #  parameters
+            # Create a variable to determine if we have correct values for all parameters
             editing = False
             # Sender options
             if (self.sor == "Sender"):
@@ -442,16 +376,14 @@ exit cov3rt?")
                 if not self.inputtext.hidden:
                     # Empty value
                     if (self.inputtext.value == ""):
-                        npyscreen.notify_wait("Message must not be empty.",
-                                              title="No Message Error")
+                        npyscreen.notify_wait("Message must not be empty.", title="No Message Error")
                         editing = True
                     else:
                         self.message = self.inputtext.value
                 # File input option
                 elif not self.filename.hidden:
                     if self.filename.value is None:
-                        npyscreen.notify_wait("You must select a file.",
-                                              title="No File Selected")
+                        npyscreen.notify_wait("You must select a file.", title="No File Selected")
                         editing = True
                     else:
                         # Ensure we can read the file
@@ -463,35 +395,25 @@ exit cov3rt?")
 
                         # File not found error
                         except FileNotFoundError:
-                            npyscreen.notify_wait("Input file ({}) does not \
-exist."
-                                                  .format(self.filename.value),
-                                                  title="Input Filename Error")
+                            npyscreen.notify_wait("Input file ({}) does not exist.".format(self.filename.value), title="Input Filename Error")
                             editing = True
                         # Other file error
                         except FileExistsError:
-                            npyscreen.notify_wait("Cannot read input file \
-({})."
-                                                  .format(self.filename.value),
-                                                  title="Input Filename Error")
+                            npyscreen.notify_wait("Cannot read input file ({}).".format(self.filename.value), title="Input Filename Error")
                             editing = True
                 else:
-                    npyscreen.notify_wait("Please Pick Input File or Input Text",
-                                          title="Input Not Selected")
+                    npyscreen.notify_wait("Please Pick Input File or Input Text", title="Input Not Selected")
                     editing = True
                 # Correct values for all parameters
                 if not (editing):
                     # Ingest the message in our cloak
                     self.cloak.ingest(self.message)
                     # Notify the user before the message is about to send
-                    npyscreen.notify_wait("Sending the message...",
-                                          title="Message Status")
+                    npyscreen.notify_wait("Sending the message...", title="Message Status")
                     # Send the message
                     self.cloak.send_packets()
                     # Notify the user the message has been sent
-                    npyscreen.notify_wait("Packets have been sent. Thank you \
-for using cov3rt!",
-                                          title="Message Sent Successfully")
+                    npyscreen.notify_wait("Packets have been sent. Thank you for using cov3rt!", title="Message Sent Successfully")
                     self.parentApp.setNextForm(None)
 
             # Receiver options
@@ -505,9 +427,7 @@ for using cov3rt!",
                     if (self.timeout.value.replace(".", "", 1).isdigit()):
                         self.timeoutval = float(self.timeout.value)
                     else:
-                        npyscreen.notify_wait("Timeout Value must be an \
-integer or float.",
-                                              title="Timeout Value Error")
+                        npyscreen.notify_wait("Timeout Value must be an integer or float.", title="Timeout Value Error")
                         editing = True
 
                 # Max Count
@@ -519,21 +439,16 @@ integer or float.",
                     if (self.maxcount.value.isdigit()):
                         self.maxcountval = int(self.maxcount.value)
                     else:
-                        npyscreen.notify_wait("Max Count Value must be an \
-integer.",
-                                              title="Max Count Value Error")
+                        npyscreen.notify_wait("Max Count Value must be an integer.", title="Max Count Value Error")
                         editing = True
 
                 # Interface
                 if (self.iface.value == "eth0" or self.iface.value == "Wi-Fi"):
                     # Set the default value
-                    self.ifaceval = "eth0" \
-                        if self.iface.value == "eth0" \
-                        else "Wi-Fi"
+                    self.ifaceval = "eth0" if self.iface.value == "eth0" else "Wi-Fi"
                 # Ensure the interface is not blank
                 elif (self.iface.value == ""):
-                    npyscreen.notify_wait("Interface must not be empty.",
-                                          title="Interface Value Error")
+                    npyscreen.notify_wait("Interface must not be empty.", title="Interface Value Error")
                     editing = True
                 else:
                     self.ifaceval = self.iface.value
@@ -551,15 +466,11 @@ integer.",
                         self.infileval = self.in_file.value
                     # File not found error
                     except FileNotFoundError:
-                        npyscreen.notify_wait("Input file ({}) does not exist."
-                                              .format(self.in_file.value),
-                                              title="Input Filename Error")
+                        npyscreen.notify_wait("Input file ({}) does not exist.".format(self.in_file.value), title="Input Filename Error")
                         editing = True
                     # Other file error
                     except FileExistsError:
-                        npyscreen.notify_wait("Cannot read input file ({})."
-                                              .format(self.in_file.value),
-                                              title="Input Filename Error")
+                        npyscreen.notify_wait("Cannot read input file ({}).".format(self.in_file.value), title="Input Filename Error")
                         editing = True
 
                 # Output message
@@ -568,8 +479,7 @@ integer.",
                     self.outfile = None
                 # Ensure the output file is not blank
                 elif (self.out_captout_fileure.value == ""):
-                    npyscreen.notify_wait("Output Capture must not be empty.",
-                                          title="Output Filename Value Error")
+                    npyscreen.notify_wait("Output Capture must not be empty.", title="Output Filename Value Error")
                     editing = True
                 else:
                     # Ensure we can write to the file
@@ -581,10 +491,7 @@ integer.",
                         self.outfile = self.out_file.value
                     # Other file error
                     except FileExistsError:
-                        npyscreen.notify_wait("Cannot write to output capture \
-file ({})."
-                                              .format(self.out_file.value),
-                                              title="Output Filename Error")
+                        npyscreen.notify_wait("Cannot write to output capture file ({}).".format(self.out_file.value), title="Output Filename Error")
                         editing = True
 
                 # Output capture
@@ -593,8 +500,7 @@ file ({})."
                     self.outcapfile = None
                 # Ensure the output file is not blank
                 elif (self.out_capture.value == ""):
-                    npyscreen.notify_wait("Output Capture must not be empty.",
-                                          title="Output Filename Value Error")
+                    npyscreen.notify_wait("Output Capture must not be empty.", title="Output Filename Value Error")
                     editing = True
                 else:
                     # Ensure we can write to the file
@@ -606,67 +512,34 @@ file ({})."
                         self.outcapfile = self.out_capture.value
                     # Other file error
                     except FileExistsError:
-                        npyscreen.notify_wait("Cannot write to output capture \
-file ({})."
-                                              .format(self.out_capture.value),
-                                              title="Output Filename Error")
+                        npyscreen.notify_wait("Cannot write to output capture file ({}).".format(self.out_capture.value), title="Output Filename Error")
                         editing = True
 
                 # Correct values for all parameters
                 if not editing:
                     # Notify the user before the message is about to send
-                    npyscreen.notify_wait("Listening for the message...",
-                                          title="Message Status")
+                    npyscreen.notify_wait("Listening for the message...", title="Message Status")
                     if (self.outfile):
-                        self.cloak.recv_packets(self.timeoutval,
-                                                self.maxcountval,
-                                                self.ifaceval,
-                                                self.infileval,
-                                                self.outcapfile)
+                        self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
                         # Notify the user the message has been received
                         if self.outcapfile:
-                            npyscreen.notify_wait("Your message has been saved \
-to {} and your capture has been saved to {}. Thank you for using cov3rt!"
-                                                  .format(self.outfile,
-                                                          self.outcapfile),
-                                                  title="Message Received \
-Successfully")
+                            npyscreen.notify_wait("Your message has been saved to {} and your capture has been saved to {}. Thank you for using cov3rt!".format(self.outfile, self.outcapfile), title="Message Received Successfully")
                         else:
-                            npyscreen.notify_wait("Your message has been saved \
-to {}. Thank you for using cov3rt!"
-                                                  .format(self.outfile),
-                                                  title="Message Received \
-Successfully")
+                            npyscreen.notify_wait("Your message has been saved to {}. Thank you for using cov3rt!".format(self.outfile), title="Message Received Successfully")
                     else:
-                        self.decoded = self.cloak\
-                            .recv_packets(self.timeoutval,
-                                          self.maxcountval,
-                                          self.ifaceval,
-                                          self.infileval,
-                                          self.outcapfile)
+                        self.decoded = self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
                         # Notify the user the message has been received
                         if self.outcapfile:
-                            npyscreen.notify_wait("Your capture has been saved \
-to {}. Your secret message is '{}'. Thank you for using cov3rt!"
-                                                  .format(self.outcapfile,
-                                                          self.decoded),
-                                                  title="Message Received \
-Successfully")
+                            npyscreen.notify_wait("Your capture has been saved to {}. Your secret message is '{}'. Thank you for using cov3rt!".format(self.outcapfile, self.decoded), title="Message Received Successfully")
                         else:
-                            npyscreen.notify_wait("Your secret message is '{}'\
-. Thank you for using cov3rt!"
-                                                  .format(self.decoded),
-                                                  title="Message Received \
-Successfully")
+                            npyscreen.notify_wait("Your secret message is '{}'. Thank you for using cov3rt!".format(self.decoded), title="Message Received Successfully")
                     self.parentApp.setNextForm(None)
             else:
-                npyscreen.notify_wait("You messed up somewhere. Try again.",
-                                      title="What did you even do?")
+                npyscreen.notify_wait("You messed up somewhere. Try again.", title="What did you even do?")
         # Runs when the user cancels the form
         def on_cancel(self):
             # Ensure the user wants to exit
-            exit_choice = npyscreen.notify_yes_no("Are you sure you want to \
-exit cov3rt?")
+            exit_choice = npyscreen.notify_yes_no("Are you sure you want to exit cov3rt?")
             if exit_choice:
                 # Send them away with a smile
                 npyscreen.notify_confirm("Thank you for using cov3rt!")
@@ -683,19 +556,15 @@ exit cov3rt?")
         # Loop over the filenames
         for filename in files:
             # Ignore these files and accept only python files
-            if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and \
-                    filename[-3:] == ".py":
+            if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and filename[-3:] == ".py":
                 # Grab the module name
                 module_name = package_name + '.' + filename[:-3]
                 # Get each class name and class in the file
-                for classname, cls in getmembers(import_module(module_name),
-                                                 isclass):
+                for classname, cls in getmembers(import_module(module_name), isclass):
                     # Try-catch for odd imports
                     try:
                         # Create the class import path
-                        module_path = "{}.{}.{}".format(package_name,
-                                                        classname,
-                                                        classname)
+                        module_path = "{}.{}.{}".format(package_name, classname, classname)
                         # Get the class object path
                         imprt = str(cls).split("'")[1]
                         # Compare the paths and ignore the "Cloak" import
@@ -755,10 +624,7 @@ exit cov3rt?")
         print("Available Cloaks:")
         # Loop over the cloak names sorted by the key value
         for i in range(len(cloak_names)):
-            print("  {} -> {}: {}".format(i,
-                                          cloak_names[i].name,
-                                          cloak_names[i].description
-                                          .replace("\n", "\n\t")))
+            print("  {} -> {}: {}".format(i, cloak_names[i].name, cloak_names[i].description.replace("\n", "\n\t")))
 
     # OPTIONS
     SENDING = False
@@ -816,17 +682,14 @@ exit cov3rt?")
                             # Save cloak_type
                             cloak_type = cloak_names[int(temp)]
                         else:
-                            error("Invalid cloak type!\nUse the '-l' option to \
-view valid cloak types.")
+                            error("Invalid cloak type!\nUse the '-l' option to view valid cloak types.")
                             exit()
                     else:
-                        error("Invalid cloak type!\nUse the '-l' option to \
-view valid cloak types.")
+                        error("Invalid cloak type!\nUse the '-l' option to view valid cloak types.")
                         exit()
                 # Missing following positional argument
                 except IndexError:
-                    error("Missing cloak type argument!\nUse the '-l' option \
-to view valid cloak types.")
+                    error("Missing cloak type argument!\nUse the '-l' option to view valid cloak types.")
                     exit()
             else:
                 error("Please specify cloak type!")
@@ -1073,9 +936,7 @@ to view valid cloak types.")
                 parameters = dict(signature(cloak.__init__).parameters)
                 for p in parameters:
                     # Ask for user input
-                    new_val = input("Value for {} (leave blank for default \
-'{}'): "
-                                    .format(p, parameters[p].default))
+                    new_val = input("Value for {} (leave blank for default '{}'): ".format(p, parameters[p].default))
                     # User entered a new value
                     if new_val != "":
                         # String parameter
@@ -1092,8 +953,7 @@ to view valid cloak types.")
                         elif isinstance(parameters[p].default, int):
                             if new_val.isdigit():
                                 try:
-                                    exec("cloak.{} = int({})"
-                                         .format(p, new_val))
+                                    exec("cloak.{} = int({})".format(p, new_val))
                                 except ValueError as err:
                                     error(err)
                                     exit()
@@ -1108,8 +968,7 @@ to view valid cloak types.")
                         elif isinstance(parameters[p].default, float):
                             if new_val.replace('.', '', 1).isdigit():
                                 try:
-                                    exec("cloak.{} = float({})"
-                                         .format(p, new_val))
+                                    exec("cloak.{} = float({})".format(p, new_val))
                                 except ValueError as err:
                                     error(err)
                                     exit()
@@ -1117,8 +976,7 @@ to view valid cloak types.")
                                     error(err)
                                     exit()
                             else:
-                                error("{} must be of type 'float'!"
-                                      .format(new_val))
+                                error("{} must be of type 'float'!".format(new_val))
                                 exit()
             if SENDING:
                 # Ingest data
@@ -1128,17 +986,9 @@ to view valid cloak types.")
             elif RECEIVING:
                 # Receive packets
                 if OUTPUT_PCAP:
-                    cloak.recv_packets(TIMEOUT,
-                                       MAX_COUNT,
-                                       INTERFACE,
-                                       INPUT_FILE,
-                                       PCAP_FILENAME)
+                    cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, PCAP_FILENAME)
                 else:
-                    m = cloak.recv_packets(TIMEOUT,
-                                           MAX_COUNT,
-                                           INTERFACE,
-                                           INPUT_FILE,
-                                           PCAP_FILENAME)
+                    m = cloak.recv_packets(TIMEOUT, MAX_COUNT, INTERFACE, INPUT_FILE, PCAP_FILENAME)
                     # Output to file
                     if OUTPUT_MESSAGE:
                         f = open(MESSAGE_FILENAME, "w")

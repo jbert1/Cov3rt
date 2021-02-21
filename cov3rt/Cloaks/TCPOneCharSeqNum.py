@@ -7,20 +7,16 @@ from time import sleep
 from cov3rt.Cloaks.Cloak import Cloak
 
 
-class TCPSequenceNumber(Cloak):
+class TCPOneCharSeqNum(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.\
-(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
     name = "TCP One Character Seq Number"
-    description = "A cloak based on changing the TCP sequence number \n\
-ASCII values."
+    description = "A cloak based on changing the TCP sequence number \nASCII values."
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.ip_dst = ip_dst
@@ -35,8 +31,7 @@ ASCII values."
             raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
-        """Sends an end-of-transmission packet to signal the end of
-        transmission."""
+        """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst=self.ip_dst, flags=0x06)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
@@ -45,8 +40,7 @@ ASCII values."
 
     def send_packet(self, num):
         """Sends packets based on TCP sequence number."""
-        pkt = IP(dst=self.ip_dst) / \
-            TCP(seq=num)
+        pkt = IP(dst=self.ip_dst) / TCP(seq=num)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -71,43 +65,29 @@ ASCII values."
         return True
 
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the TCP
-        Sequence Number Cloak."""
+        """Specifies the packet handler for receiving information via the TCP Sequence Number Cloak."""
         if pkt.haslayer(TCP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["IP"].flags != 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags != 0x06:
                 self.read_data += chr(pkt["TCP"].seq)
                 debug("Received a '{}'".format(chr(pkt["TCP"].seq)))
                 info("String: {}".format(self.read_data))
 
     def recv_EOT(self, pkt):
-        """Specifies the end-of-transmission packet that signals the end of
-        transmission."""
+        """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and \
-                    pkt["IP"].flags == 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags == 0x06:
                 info("Received EOT")
                 return True
         return False
 
-    def recv_packets(self, timeout=None, max_count=None, iface=None,
-                     in_file=None, out_file=None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the TCP Sequence Number Cloak."""
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
-            packets = sniff(timeout=timeout,
-                            count=max_count,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout=timeout,
-                            iface=iface,
-                            offline=in_file,
-                            stop_filter=self.recv_EOT,
-                            prn=self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         info("String decoded: {}".format(self.read_data))

@@ -16,22 +16,10 @@ files = listdir(COV3RT_PATH)
 # Loop over the filenames
 for filename in files:
     # Ignore these files and accept only python files
-    if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and \
-            filename[-3:] == ".py":
+    if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and filename[-3:] == ".py":
         # Grab the module name
         module_name = filename[:-3]
         # Add the file to our locals
-        locals()[module_name] = getattr(
-            import_module("cov3rt.Cloaks.{}".format(module_name)),
-            module_name)
+        locals()[module_name] = getattr(import_module("cov3rt.Cloaks.{}".format(module_name)), module_name)
 
-del COV3RT_PATH, \
-    OS_NAME, \
-    filename, \
-    files, \
-    getmembers, \
-    import_module, \
-    isclass, \
-    listdir, \
-    module_name, \
-    CloakLocation
+del COV3RT_PATH, OS_NAME, filename, files, getmembers, import_module, isclass, listdir, module_name, CloakLocation
