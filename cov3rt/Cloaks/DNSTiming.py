@@ -91,10 +91,10 @@ class DNSTiming(Cloak):
     def packet_handler(self, pkt):
         '''Specifies the packet handler for receiving info via the DNS Timing Cloak.'''
         if (pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR)):
-            if (pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaindelim.lower().encode()):
+            if (pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == 53 and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaindelim.lower().encode()):
                 self.read_data.append(pkt)
                 info("Eligible packet received")
-            elif (pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaincont.lower().encode()):
+            elif (pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == 53 and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaincont.lower().encode()):
                 self.read_data.append(pkt)
                 info("Eligible packet received")
         
