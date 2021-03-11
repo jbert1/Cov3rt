@@ -212,7 +212,7 @@ def runApplication():
                     # String parameter
                     if isinstance(self.parameter_list[p].default, str):
                         try:
-                            exec("self.instance.{} = '{}'".format(p, new_val))
+                            setattr(self.instance, p, str(new_val))
                         except ValueError as err:
                             npyscreen.notify_wait(str(err), title="Value Error!")
                             editing = True
@@ -223,7 +223,7 @@ def runApplication():
                     elif isinstance(self.parameter_list[p].default, int):
                         try:
                             if new_val.isdigit():
-                                exec("self.instance.{} = int({})".format(p, new_val))
+                                setattr(self.instance, p, int(new_val))
                             else:
                                 npyscreen.notify_wait("Parameter '{}' must be an integer.".format(p), title="Type Error!")
                                 editing = True
@@ -237,7 +237,7 @@ def runApplication():
                     elif isinstance(self.parameter_list[p].default, float):
                         try:
                             if new_val.replace('.', '', 1).isdigit():
-                                exec("self.instance.{} = float({})".format(p, new_val))
+                                setattr(self.instance, p, float(new_val))
                             else:
                                 npyscreen.notify_wait("Parameter '{}' must be an integer or float.".format(p), title="Type Error!")
                                 editing = True
@@ -942,7 +942,7 @@ def runApplication():
                         # String parameter
                         if isinstance(parameters[p].default, str):
                             try:
-                                exec("cloak.{} = '{}'".format(p, new_val))
+                                setattr(cloak, p, str(new_val))
                             except ValueError as err:
                                 error(err)
                                 exit()
@@ -953,7 +953,7 @@ def runApplication():
                         elif isinstance(parameters[p].default, int):
                             if new_val.isdigit():
                                 try:
-                                    exec("cloak.{} = int({})".format(p, new_val))
+                                    setattr(cloak, p, int(new_val))
                                 except ValueError as err:
                                     error(err)
                                     exit()
@@ -968,7 +968,7 @@ def runApplication():
                         elif isinstance(parameters[p].default, float):
                             if new_val.replace('.', '', 1).isdigit():
                                 try:
-                                    exec("cloak.{} = float({})".format(p, new_val))
+                                    setattr(cloak, p, float(new_val))
                                 except ValueError as err:
                                     error(err)
                                     exit()
