@@ -66,6 +66,7 @@ class Cloak(ABC):
         """Specifies the packet handler for receiving information via the defined covert channel."""
         pass
 
+    @abstractmethod
     def recv_packets(self):
         """Receives packets which use the Case Modulated DNS Cloak."""
         pass
