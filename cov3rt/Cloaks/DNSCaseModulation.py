@@ -21,7 +21,7 @@ class DNSCaseModulation(Cloak):
 
     def __init__(self, ip_dst="8.8.8.8", domain="www.google.com"):
         self.ip_dst = ip_dst
-        self.domain = domain + '.'
+        self.domain = domain
         self.read_data = ''
 
     def ingest(self, data):
@@ -81,13 +81,13 @@ class DNSCaseModulation(Cloak):
         # Ensure this is a DNS packet
         if pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR):
             # Check for correct options
-            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domain.lower().encode():
+            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == "{}.".format(self.domain.lower()).encode():
                 # Binary zero value
-                if pkt["DNSQR"].qname == self.domain.lower().encode():
+                if pkt["DNSQR"].qname == "{}.".format(self.domain.lower()).encode():
                     self.read_data += '0'
                     debug("Received a '0'")
                 # Binary one value
-                elif pkt["DNSQR"].qname == self.domain.upper().encode():
+                elif pkt["DNSQR"].qname == "{}.".format(self.domain.upper()).encode():
                     self.read_data += '1'
                     debug("Received a '1'")
                 info("Binary string: {}".format(self.read_data))
@@ -98,7 +98,7 @@ class DNSCaseModulation(Cloak):
         # Ensure this is a DNS packet
         if pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR):
             # Correct Options
-            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname == self.domain.capitalize().encode():
+            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname == "{}.".format(self.domain.capitalize()).encode():
                 info("Received EOT")
                 return True
         return False

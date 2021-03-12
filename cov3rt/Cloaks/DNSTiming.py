@@ -19,10 +19,10 @@ class DNSTiming(Cloak):
     name = "DNS Timing"
     description = "A cloak based on delays between DNS requests to \ndomains."
 
-    def __init__(self, ip_dst="8.8.8.8", domaindelim="wikipedia.org", domaincont="twitter.com", zerotiming=2.0, onetiming=10.0):
+    def __init__(self, ip_dst="8.8.8.8", domaindelim="wikipedia.org", domaincont="twitter.com", zerotiming=1.0, onetiming=5.0):
         self.ip_dst = ip_dst
-        self.domaindelim = domaindelim + "."
-        self.domaincont = domaincont + "."
+        self.domaindelim = domaindelim
+        self.domaincont = domaincont
         self.zerotiming = zerotiming
         self.onetiming = onetiming
         self.read_data = []
@@ -53,6 +53,7 @@ class DNSTiming(Cloak):
             else:
                 send(pkt, verbose=False)
         elif databit == '1':
+            sleep(self.onetiming)
             pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domaincont.capitalize()))
             if self.LOGLEVEL == DEBUG:
                 send(pkt, verbose=True)
@@ -89,10 +90,10 @@ class DNSTiming(Cloak):
         '''Specifies the packet handler for receiving info via the DNS
         Timing Cloak.'''
         if pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR):
-            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaindelim.lower().encode():
+            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == "{}.".format(self.domaindelim.lower()).encode():
                 self.read_data.append(pkt)
                 info("Eligible packet received")
-            elif pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaincont.lower().encode():
+            elif pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == "{}.".format(self.domaincont.lower()).encode():
                 self.read_data.append(pkt)
                 info("Eligible packet received")
 
@@ -100,7 +101,7 @@ class DNSTiming(Cloak):
         '''Specifies the EOT packet, singaling the end of transmission.'''
         if pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR):
             # Correct Options
-            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname == self.domaindelim.capitalize().encode():
+            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname == "{}.".format(self.domaindelim.capitalize()).encode():
                 info("Received EOT")
                 return True
         return False
