@@ -329,7 +329,7 @@ def runApplication():
                 # Interface
                 self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Interface:",
-                    value="eth0" if OS_NAME != "nt" else "Wi-Fi"
+                    value="Default"
                 )
                 # Input File
                 self.in_file = self.add(npyscreen.TitleFilenameCombo, relx=5, begin_entry_at=18, label=True,
@@ -443,9 +443,9 @@ def runApplication():
                         editing = True
 
                 # Interface
-                if (self.iface.value == "eth0" or self.iface.value == "Wi-Fi"):
+                if (self.iface.value == "Default"):
                     # Set the default value
-                    self.ifaceval = "eth0" if self.iface.value == "eth0" else "Wi-Fi"
+                    self.ifaceval = None
                 # Ensure the interface is not blank
                 elif (self.iface.value == ""):
                     npyscreen.notify_wait("Interface must not be empty.", title="Interface Value Error")
@@ -895,7 +895,7 @@ def runApplication():
                         index = argv.index("--iface")
                     # Ensure the next positional argument is correct
                     try:
-                        INTERFACE = float(argv[index + 1])
+                        INTERFACE = argv[index + 1]
                     # Missing following positional argument
                     except IndexError:
                         error("Missing interface value!")
