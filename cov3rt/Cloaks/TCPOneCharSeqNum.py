@@ -1,5 +1,8 @@
+from os import urandom
+from random import randint
 from logging import info, debug, DEBUG, WARNING
 from re import search
+from scapy.all import Raw
 from scapy.layers.inet import IP, TCP
 from scapy.sendrecv import send, sniff
 from scapy.utils import wrpcap
@@ -18,8 +21,10 @@ class TCPOneCharSeqNum(Cloak):
     name = "TCP One Character Seq Number"
     description = "A cloak based on changing the TCP sequence number \nASCII values."
 
-    def __init__(self, ip_dst="8.8.8.8"):
+    def __init__(self, ip_dst="8.8.8.8", send_port=25565, dest_port=25577):
         self.ip_dst = ip_dst
+        self.send_port = send_port
+        self.dest_port = dest_port
         self.read_data = ""
 
     def ingest(self, data):
@@ -32,7 +37,11 @@ class TCPOneCharSeqNum(Cloak):
 
     def send_EOT(self):
         """Sends an end-of-transmission packet to signal the end of transmission."""
-        pkt = IP(dst=self.ip_dst, flags=0x06)
+        # Generate random  string to go into packet payload
+        packet_string = urandom(randint(25, 50))
+
+        # Create packet w/ fluff payload and checkum of all 0
+        pkt = IP(dst=self.ip_dst, flags=0x06) / TCP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -40,7 +49,11 @@ class TCPOneCharSeqNum(Cloak):
 
     def send_packet(self, num):
         """Sends packets based on TCP sequence number."""
-        pkt = IP(dst=self.ip_dst) / TCP(seq=num)
+        
+        # generate random string to go into packet payload
+        packet_string = urandom(randint(25, 50))
+
+        pkt = IP(dst=self.ip_dst) / TCP(sport=self.send_port, dport=self.dest_port, seq=num) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
@@ -67,7 +80,7 @@ class TCPOneCharSeqNum(Cloak):
     def packet_handler(self, pkt):
         """Specifies the packet handler for receiving information via the TCP Sequence Number Cloak."""
         if pkt.haslayer(TCP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags != 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["TCP"].sport == self.send_port and pkt["TCP"].dport == self.dest_port and pkt["IP"].flags != 0x06:
                 self.read_data += chr(pkt["TCP"].seq)
                 debug("Received a '{}'".format(chr(pkt["TCP"].seq)))
                 info("String: {}".format(self.read_data))
@@ -75,7 +88,7 @@ class TCPOneCharSeqNum(Cloak):
     def recv_EOT(self, pkt):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags == 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["TCP"].sport == self.send_port and pkt["TCP"].dport == self.dest_port and pkt["IP"].flags == 0x06:
                 info("Received EOT")
                 return True
         return False
@@ -112,3 +125,39 @@ class TCPOneCharSeqNum(Cloak):
                 raise ValueError("Invalid IP '{}'".format(ip_dst))
         else:
             raise TypeError("'ip_dst' must be of type 'str'")
+
+    # Getter for send_port
+    @property
+    def send_port(self):
+        return self._send_port
+
+    # Setter for send_port
+    @send_port.setter
+    def send_port(self, send_port):
+        # Ensure valid type int
+        if isinstance(send_port, int):
+            # Ensure valid range
+            if 1 <= send_port <= 65535:
+                self._send_port = send_port
+            else:
+                raise ValueError("'send_port' must be within valid port range (1-65535)")
+        else:
+            raise TypeError("'send_port' must be of type 'int'")
+
+    # Getter for dest_port
+    @property
+    def dest_port(self):
+        return self._dest_port
+
+    # Setter for dest_port
+    @dest_port.setter
+    def dest_port(self, dest_port):
+        # Ensure valid type int
+        if isinstance(dest_port, int):
+            # Ensure valid range
+            if 1 <= dest_port <= 65535:
+                self._dest_port = dest_port
+            else:
+                raise ValueError("'dest_port' must be within valid port range (1-65535)")
+        else:
+            raise TypeError("'dest_port' must be of type 'int'")
