@@ -59,6 +59,8 @@ def runApplication():
 
         # Defines the elements on the page
         def create(self):
+            # Add CTRL+C Handler
+            self.add_handlers({"^C": self.exit_application})
             # Start the element one line higher
             self.nextrely -= 1
             # Header with our fresh mouse logo
@@ -115,6 +117,11 @@ def runApplication():
             # Add close menu at the bottom for convenience
             self.menu.addItem("Close Menu", self.close_menu, "^X")
 
+        # Function to exit on CTRL+C
+        def exit_application(self, _):
+            self.parentApp.setNextForm(None)
+            self.editing = False
+
         # Closes the menu
         def close_menu(self):
             self.parentApp.setNextForm(None)
@@ -154,6 +161,8 @@ def runApplication():
 
         # Defines the elements on the page
         def create(self):
+            # Add CTRL+C Handler
+            self.add_handlers({"^C": self.exit_application})
             # Name and Description
             self.cloak_name = self.add(npyscreen.TitleFixedText, relx=5, begin_entry_at=18, editable=False, 
                 name="Name:",
@@ -165,6 +174,11 @@ def runApplication():
                     "Press CTRL+X to open the menu."
                 ]
             )
+        
+        # Function to exit on CTRL+C
+        def exit_application(self, _):
+            self.parentApp.setNextForm(None)
+            self.editing = False
 
         # Populates the screen
         def populateScreen(self):
@@ -277,10 +291,17 @@ def runApplication():
 
         # Defines the elements on the page
         def create(self):
+            # Add CTRL+C Handler
+            self.add_handlers({"^C": self.exit_application})
             # Cloak Name
             self.cloak_name = self.add(npyscreen.FixedText, relx=5, begin_entry_at=18, editable=False, 
                 name="Cloak: "
             )
+        
+        # Function to exit on CTRL+C
+        def exit_application(self, _):
+            self.parentApp.setNextForm(None)
+            self.editing = False
 
         # Populates the screen
         def populateScreen(self):
