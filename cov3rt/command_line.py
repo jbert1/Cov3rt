@@ -335,6 +335,8 @@ def runApplication():
                 self.in_file = self.add(npyscreen.TitleFilenameCombo, relx=5, begin_entry_at=18, label=True,
                     name="Input File:"
                 )
+                # After selection, clear the screen
+                self.in_file.when_value_edited = self.clearscreen
                 # Output Message
                 self.out_file = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Output Message:",
@@ -345,6 +347,10 @@ def runApplication():
                     name="Output Capture:",
                     value="None"
                 )
+
+        # Clear npyscreen terminal
+        def clearscreen(self):
+            npyscreen.blank_terminal()
 
         # Function to handle change in SelectOne element
         def handleValueChange(self):
