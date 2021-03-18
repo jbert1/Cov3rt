@@ -635,6 +635,11 @@ def runApplication():
     -of, --outFile        Output received message to a file
     -op, --outPcap        Output packets to a capture file (pcap)
 
+    Delays:
+    -pd, --packetDelay    Delay between packets
+    -dd, --delimitDelay   Delay before each packet delimiter
+    -ed, --endDelay       Delay before EOT packet
+
     Other Arguments:
     -h,  --help           Show this help screen
     -l,  --listCloaks     List available cloaks
@@ -642,16 +647,7 @@ def runApplication():
     -d,  --default        Use the default parameters for the cloak
     -v,  --verbose        Increase verbosity
     -vv, --veryVerbose    Further increase verbosity"""
-
-              # For a later day:
-              # Options:
-              #   -pd, --packetDelay    Delay between packets
-              #   -dd, --delimitDelay   Delay before each packet delimiter
-              #   -ed, --endDelay       Delay before EOT packet
-              #   -d,  --default        Use the default options for the cloak
-              #   -v,  --verbose        Increase verbosity
-              #   -vv, --veryVerbose    Maximum verbosity"""
-              )
+)
 
     # Prints a list of available cloaks for the user to choose from
     def print_list():
