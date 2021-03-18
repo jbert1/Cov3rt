@@ -21,9 +21,10 @@ class TCPPatsySeqNumber(Cloak):
     name = "TCP Patsy using Sequence Number"
     description = "A cloak based on four characters per sequence number. Sender --> SYN w/ src ip of actual dst, seq = 4 chars --> patsy --> SYN RST seq++ --> Receiver seq--, extract message"
     
-    def __init__(self, ip_dst="8.8.8.8", ip_patsy = "142.250.138.101"):
+    def __init__(self, ip_dst="8.8.8.8", ip_patsy = "142.250.138.101", patsy_port = 80):
         self.ip_dst = ip_dst
         self.ip_patsy = ip_patsy
+        self.patsy_port = patsy_port
         self.read_data = ""
         
     def ingest(self,data):
@@ -44,7 +45,7 @@ class TCPPatsySeqNumber(Cloak):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         # EOT packet sends to patsy w/ src of destination, don't fragment, SYN flag, no payload.
         # no payload will be interpreted as pkt.load == b''
-        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02)/""
+        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, dport=self.patsy_port)/""
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose = True)
         else:
@@ -55,7 +56,7 @@ class TCPPatsySeqNumber(Cloak):
         # We will use random data in a packet to indicate that there is an active message.
         payload = urandom(randint(15,100))
         # Packet w/ SYN Flag, don't fragment, payload of random bytes.
-        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, seq = num)/payload
+        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, seq = num, dport = self.patsy_port)/payload
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose = True)
         else:
@@ -82,16 +83,21 @@ class TCPPatsySeqNumber(Cloak):
     def packet_handler(self,pkt):
         """Specifies the packet handler for receiving information via the TCP Patsy Cloak."""
         if pkt.haslayer(TCP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].flags != 0x06:
-                self.read_data += chr(pkt["TCP"].seq)
-                debug("Received a '{}'".format(chr(pkt["TCP"].seq)))
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_patsy and pkt["IP"].flags != 0x06 and pkt["TCP"].ack != 1:
+                fourcharstring = bin((pkt["TCP"].ack - 100))[2:].zfill(32)
+                print("Fourcharstring: {}".format(fourcharstring))
+                fourchars = [fourcharstring[i:i+8] for i in range(0, 32, 8)]
+                print("fourchar arr: {}".format(fourchars))
+                for item in fourchars:
+                    self.read_data += chr(int(item,2))
+                #debug("Received a '{}'".format(chr(pkt["TCP"].seq)))
                 info("String: {}".format(self.read_data))
 
 
     def recv_EOT(self,pkt):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
-        if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_pasty and pkt.load == b'':
+        if pkt.haslayer(TCP):
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_patsy and pkt["TCP"].ack == 1:
                 info("Received EOT")
                 return True
         return False
@@ -147,3 +153,22 @@ class TCPPatsySeqNumber(Cloak):
                 raise ValueError("Invalid IP '{}'".format(ip_patsy))
         else:
             raise TypeError("'ip_patsy' must be of type 'str'")
+
+    # Getter for 'patsy_port'
+    @property
+    def patsy_port(self):
+        return self._patsy_port
+
+    # Setter for 'patsy_port'
+    @patsy_port.setter
+    def patsy_port(self, patsy_port):
+        # Check type
+        if isinstance(patsy_port, int):
+            # Now check if valid range
+            if 0 <= patsy_port <= 65535:
+                self._patsy_port = patsy_port
+            # Not valid port range
+            else:
+                raise ValueError("Invalid port number '{}'".format(patsy_port))
+        else:
+            raise TypeError("'patsy_port' must be of type 'int'")
