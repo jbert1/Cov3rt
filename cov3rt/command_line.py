@@ -307,8 +307,24 @@ def runApplication():
         def populateScreen(self):
             # Sender options
             if (self.sor == "Sender"):
+                # Packet Delay Option
+                self.packetdelay = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Packet Delay:",
+                    value="None"
+                )
+                # End Delay Option
+                self.enddelay = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="End Delay:",
+                    value="None"
+                )
+                # Delimeter Delay Option
+                self.delimitdelay = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Delimit Delay:",
+                    value="None"
+                )
+
                 # Start the next element 1 line down
-                self.nextrely += 1
+                self.nextrely += 1    
                 # Create a SelectOne type to determine message type
                 self.whattosend = self.add(npyscreen.TitleSelectOne, relx=5, begin_entry_at=18, scroll_exit=True, height=2, 
                     name="Message Type:",
@@ -319,6 +335,7 @@ def runApplication():
                 )
                 # Function that runs when the user selects one
                 self.whattosend.when_value_edited = self.handleValueChange
+                
                 # Start the next element 1 line down
                 self.nextrely += 1
                 # Filename input option
@@ -329,10 +346,11 @@ def runApplication():
                 self.inputtext = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Text Input:",
                     value=""
-                )
+                )   
                 # Hide both of the elements
                 self.filename.hidden = True
                 self.inputtext.hidden = True
+            
             # Receiver options
             else:
                 # Start the next element 1 line down
@@ -399,6 +417,42 @@ def runApplication():
             editing = False
             # Sender options
             if (self.sor == "Sender"):
+                # Checks for Valid Packet Delay
+                if self.packetdelay.value == "None":
+                    # Set the default value
+                    self.packetdelayval = None
+                else:
+                    # Ensure the timeout is a float / integer
+                    if (self.packetdelay.value.replace(".", "", 1).isdigit()):
+                        self.packetdelayval = float(self.packetdelay.value)
+                    else:
+                        npyscreen.notify_wait("Packet Delay must be an integer or float.", title="Packet Delay Value Error")
+                        editing = True
+                
+                # Checks for Valid End Delay
+                if self.enddelay.value == "None":
+                    # Set the default value
+                    self.enddelayval = None
+                else:
+                    # Ensure the timeout is a float / integer
+                    if (self.enddelay.value.replace(".", "", 1).isdigit()):
+                        self.enddelayval = float(self.enddelay.value)
+                    else:
+                        npyscreen.notify_wait("End Delay must be an integer or float.", title="End Delay Value Error")
+                        editing = True
+                
+                # Checks for Valid Delimeter Delay
+                if self.delimitdelay.value == "None":
+                    # Set the default value
+                    self.delimitdelayval = None
+                else:
+                    # Ensure the timeout is a float / integer
+                    if (self.delimitdelay.value.replace(".", "", 1).isdigit()):
+                        self.delimitdelayval = float(self.delimitdelay.value)
+                    else:
+                        npyscreen.notify_wait("End Delay must be an integer or float.", title="End Delay Value Error")
+                        editing = True
+                
                 # Text input option
                 if not self.inputtext.hidden:
                     # Empty value
@@ -438,7 +492,7 @@ def runApplication():
                     # Notify the user before the message is about to send
                     npyscreen.notify_wait("Sending the message...", title="Message Status")
                     # Send the message
-                    self.cloak.send_packets()
+                    self.cloak.send_packets(self.packetdelayval, self.enddelayval, self.delimitdelayval)
                     # Notify the user the message has been sent
                     npyscreen.notify_wait("Packets have been sent. Thank you for using cov3rt!", title="Message Sent Successfully")
                     self.parentApp.setNextForm(None)
