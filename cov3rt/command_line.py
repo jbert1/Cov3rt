@@ -586,14 +586,23 @@ def runApplication():
             if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and filename[-3:] == ".py":
                 # Grab the module name
                 module_name = package_name + '.' + filename[:-3]
-                # Get each class name and class in the file
-                for classname, cls in getmembers(import_module(module_name), isclass):
-                    # Try-catch for odd imports
-                    try:
+                # Catch general import errors within the cloak files
+                try:
+                    module = import_module(module_name)
+                except:
+                    module = ""
+                # Module exists
+                if module != "":
+                    # Get each class name and class in the file
+                    for classname, cls in getmembers(module, isclass):
                         # Create the class import path
                         module_path = "{}.{}.{}".format(package_name, classname, classname)
-                        # Get the class object path
-                        imprt = str(cls).split("'")[1]
+                        # Try-catch for imports that don't follow the standard
+                        try:
+                            # Get the class object path
+                            imprt = str(cls).split("'")[1]
+                        except IndexError:
+                            imprt = ""
                         # Compare the paths and ignore the "Cloak" import
                         if (module_path == imprt) and (classname != "Cloak"):
                             # Check for the classification
@@ -602,8 +611,6 @@ def runApplication():
                                 cloaks[cls.classification].append(cls)
                                 # Add to the list of cloaks
                                 cloak_names.append(cls)
-                    except:
-                        pass
         # Sort the list of cloak names
         cloak_names.sort(key=nameSort)
 
