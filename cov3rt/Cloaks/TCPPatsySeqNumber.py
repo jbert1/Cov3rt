@@ -2,6 +2,7 @@ from scapy.sendrecv import send, sniff
 from scapy.layers.inet import IP, TCP
 from scapy.utils import wrpcap
 
+import sys
 from logging import info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
@@ -26,6 +27,7 @@ class TCPPatsySeqNumber(Cloak):
         self.ip_patsy = ip_patsy
         self.patsy_port = patsy_port
         self.read_data = ""
+        self.packets_recv = []
         
     def ingest(self,data):
         """Ingests and formats data into 32-bit binary string groups in a list."""
@@ -56,7 +58,8 @@ class TCPPatsySeqNumber(Cloak):
         # We will use random data in a packet to indicate that there is an active message.
         payload = urandom(randint(15,100))
         # Packet w/ SYN Flag, don't fragment, payload of random bytes.
-        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, seq = num, sport = randint(20,3000), dport = self.patsy_port)/payload
+        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, seq = num, sport = randint(20,300), dport = self.patsy_port)/payload
+        sleep(1)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose = True)
         else:
@@ -84,13 +87,13 @@ class TCPPatsySeqNumber(Cloak):
         """Specifies the packet handler for receiving information via the TCP Patsy Cloak."""
         if pkt.haslayer(TCP):
             if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_patsy and pkt["IP"].flags != 0x06 and pkt["TCP"].ack != 1:
+                if pkt in self.packets_recv: # If we've already received this packet, it is a retransmit and we should ignore it
+                    return
+                self.packets_recv.append(pkt) # If we have not already received it, add it to our packet array
                 fourcharstring = bin((pkt["TCP"].ack - 1))[2:].zfill(32)
-                print("Fourcharstring: {}".format(fourcharstring))
                 fourchars = [fourcharstring[i:i+8] for i in range(0, 32, 8)]
-                print("fourchar arr: {}".format(fourchars))
                 for item in fourchars:
                     self.read_data += chr(int(item,2))
-                #debug("Received a '{}'".format(chr(pkt["TCP"].seq)))
                 info("String: {}".format(self.read_data))
 
 
@@ -106,6 +109,7 @@ class TCPPatsySeqNumber(Cloak):
         """Receives packets which use the TCP Patsy Cloak."""  
         info("Receiving packets...")
         self.read_data = ''
+        self.packets_recv = []
         if max_count:
             packets = sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
         else:
