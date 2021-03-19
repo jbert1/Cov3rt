@@ -45,7 +45,7 @@ class TCPPatsySeqNumber(Cloak):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         # EOT packet sends to patsy w/ src of destination, don't fragment, SYN flag, no payload.
         # no payload will be interpreted as pkt.load == b''
-        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, dport=self.patsy_port)/""
+        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, sport=21, dport=self.patsy_port)/""
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose = True)
         else:
@@ -56,7 +56,7 @@ class TCPPatsySeqNumber(Cloak):
         # We will use random data in a packet to indicate that there is an active message.
         payload = urandom(randint(15,100))
         # Packet w/ SYN Flag, don't fragment, payload of random bytes.
-        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, seq = num, dport = self.patsy_port)/payload
+        pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, seq = num, sport = randint(20,3000), dport = self.patsy_port)/payload
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose = True)
         else:
@@ -84,7 +84,7 @@ class TCPPatsySeqNumber(Cloak):
         """Specifies the packet handler for receiving information via the TCP Patsy Cloak."""
         if pkt.haslayer(TCP):
             if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_patsy and pkt["IP"].flags != 0x06 and pkt["TCP"].ack != 1:
-                fourcharstring = bin((pkt["TCP"].ack - 100))[2:].zfill(32)
+                fourcharstring = bin((pkt["TCP"].ack - 1))[2:].zfill(32)
                 print("Fourcharstring: {}".format(fourcharstring))
                 fourchars = [fourcharstring[i:i+8] for i in range(0, 32, 8)]
                 print("fourchar arr: {}".format(fourchars))
