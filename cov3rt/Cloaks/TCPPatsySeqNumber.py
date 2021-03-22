@@ -7,7 +7,7 @@ from logging import info, debug, DEBUG, WARNING
 from re import search
 from time import sleep
 from os import urandom
-from random import randint
+from random import randint, random
 
 from cov3rt.Cloaks.Cloak import Cloak
 
@@ -59,7 +59,7 @@ class TCPPatsySeqNumber(Cloak):
         payload = urandom(randint(15,100))
         # Packet w/ SYN Flag, don't fragment, payload of random bytes.
         pkt = IP(dst = self.ip_patsy, src = self.ip_dst, flags = "DF")/TCP(flags = 0x02, seq = num, sport = randint(20,300), dport = self.patsy_port)/payload
-        sleep(1)
+        sleep(random())
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose = True)
         else:
@@ -117,6 +117,13 @@ class TCPPatsySeqNumber(Cloak):
         if out_file:
             wrpcap(out_file, packets)
         info("String decoded: {}".format(self.read_data))
+        # trim off excess \x00 if required, up to 3
+        if self.read_data.endswith('\x00\x00\x00'):
+            self.read_data = self.read_data[:-3]
+        elif self.read_data.endswith('\x00\x00'):
+            self.read_data = self.read_data[:-2]
+        elif self.read_data.endswith('\x00'):
+            self.read_data = self.read_data[:-1] 
         return self.read_data
 
     ## Getters and Setters ##
