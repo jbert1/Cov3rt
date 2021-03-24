@@ -47,7 +47,7 @@ class ICMPEchoFullPayload(Cloak):
         else:
             send(pkt, verbose=False, iface=iface)
 
-    def send_packets(self, iface=iface, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
