@@ -307,6 +307,12 @@ def runApplication():
         def populateScreen(self):
             # Sender options
             if (self.sor == "Sender"):
+                
+                # Interface Option
+                self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
+                    name="Interface:",
+                    value="Default"
+                )
                 # Packet Delay Option
                 self.packetdelay = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Packet Delay:",
@@ -417,6 +423,17 @@ def runApplication():
             editing = False
             # Sender options
             if (self.sor == "Sender"):
+                # Checks for Valid Interface
+                if (self.iface.value == "Default"):
+                    # Set the default value
+                    self.ifaceval = None
+                # Ensure the interface is not blank
+                elif (self.iface.value == ""):
+                    npyscreen.notify_wait("Interface must not be empty.", title="Interface Value Error")
+                    editing = True
+                else:
+                    self.ifaceval = self.iface.value
+
                 # Checks for Valid Packet Delay
                 if self.packetdelay.value == "None":
                     # Set the default value
@@ -492,7 +509,7 @@ def runApplication():
                     # Notify the user before the message is about to send
                     npyscreen.notify_wait("Sending the message...", title="Message Status")
                     # Send the message
-                    self.cloak.send_packets(self.packetdelayval, self.enddelayval, self.delimitdelayval)
+                    self.cloak.send_packets(self.ifaceval, self.packetdelayval, self.enddelayval, self.delimitdelayval)
                     # Notify the user the message has been sent
                     npyscreen.notify_wait("Packets have been sent. Thank you for using cov3rt!", title="Message Sent Successfully")
                     self.parentApp.setNextForm(None)
@@ -780,19 +797,6 @@ def runApplication():
                 exit()
 
             # Optional arguments
-            # Interface
-            if ("-if" in argv or "--iface" in argv):
-                try:
-                    index = argv.index("-if")
-                except:
-                    index = argv.index("--iface")
-                # Ensure the next positional argument is correct
-                try:
-                    INTERFACE = argv[index + 1]
-                # Missing following positional argument
-                except IndexError:
-                    error("Missing interface value!")
-                    exit()
             # Packet delay
             if ("-pd" in argv or "--packetDelay" in argv):
                 try:
@@ -984,6 +988,19 @@ def runApplication():
                     except IndexError:
                         error("Missing max packet count value!")
                         exit()
+                # Interface
+                if ("-if" in argv or "--iface" in argv):
+                    try:
+                        index = argv.index("-if")
+                    except:
+                        index = argv.index("--iface")
+                    # Ensure the next positional argument is correct
+                    try:
+                        INTERFACE = argv[index + 1]
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing interface value!")
+                        exit()
                 # Input file
                 if ("-in" in argv or "--inFile" in argv):
                     try:
@@ -1005,6 +1022,7 @@ def runApplication():
                     except IndexError:
                         error("Missing input filename!")
                         exit()
+
             # Send / Receive not selected
             else:
                 error("Please specify send/receive!")
@@ -1065,7 +1083,7 @@ def runApplication():
                 # Ingest data
                 cloak.ingest(message)
                 # Send packets
-                cloak.send_packets(INTERFACE, PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
+                cloak.send_packets(PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
             elif RECEIVING:
                 # Receive packets
                 if OUTPUT_PCAP:
