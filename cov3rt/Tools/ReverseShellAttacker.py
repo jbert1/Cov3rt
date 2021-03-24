@@ -3,8 +3,8 @@ from cov3rt.Cloaks.ICMPEchoFullPayload import ICMPEchoFullPayload
 TIMEOUT = 5
 SENDER_IP = "10.0.1.2"
 RECEIVER_IP = "10.0.1.1"
-sender = ICMPEchoFullPayload(ip_dst = SENDER_IP)
-receiver = ICMPEchoFullPayload(ip_dst = RECEIVER_IP)
+sender = ICMPEchoFullPayload(ip_dst=SENDER_IP)
+receiver = ICMPEchoFullPayload(ip_dst=RECEIVER_IP)
 
 while True:
     try:
@@ -17,7 +17,7 @@ while True:
         if command == "exit":
             break
         # Print the response from the receiver
-        print(receiver.recv_packets(timeout = TIMEOUT))
+        print(receiver.recv_packets(timeout=TIMEOUT))
     # Exit on CTRL-C
     except KeyboardInterrupt:
         break

@@ -9,22 +9,24 @@ from time import sleep
 from cov3rt.Cloaks.Cloak import Cloak
 
 
-class UDPSizeModulation(Cloak):
+class UDPFlood(Cloak):
 
     # Regular expression to verify IP
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
-    classification = Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED
-    name = "UDP Payload"
-    description = "A cloak based on modulation of the UDP payload."
+    classification = Cloak.NUMBER_OF_ELEMENTS
+    name = "UDP Number of Elements"
+    description = "A very simple cloak based on a packet per ASCII\ncharacter."
 
     def __init__(self, ip_dst="192.168.1.101", send_port=25565, dest_port=25577):
         self.ip_dst = ip_dst
         self.send_port = send_port
         self.dest_port = dest_port
-        self.read_data = ""
+        self.test = 0
+        self.read_data = [0]
+        self.charnum = 0
 
     def ingest(self, data):
         '''Ingests and formats data as a binary stream.'''
@@ -39,16 +41,16 @@ class UDPSizeModulation(Cloak):
         # Create short random string of four characters for final packet
         packet_string = urandom(4)
         # Create packet and send
-        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
+        pkt = IP(dst=self.ip_dst, flags=0x04) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True)
         else:
             send(pkt, verbose=False)
 
-    def send_packet(self, number):
-        '''Sends single packet based on the number in stream.'''
+    def send_delimiter(self):
+        """Sends a delimiter to signal the end of a specified data stream."""
         # Generate random string to go into packet based on number
-        packet_string = urandom(number)
+        packet_string = urandom(512)
         # Create packet and send
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
@@ -56,16 +58,33 @@ class UDPSizeModulation(Cloak):
         else:
             send(pkt, verbose=False)
 
+    def send_packet(self, number, packetDelay):
+        '''Sends packets based on the given number.'''
+        for i in range(0, number):
+            # Generate random string to go into packet based on number
+            packet_string = urandom(1024)
+            # Create packet and send
+            pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
+            if self.LOGLEVEL == DEBUG:
+                send(pkt, verbose=True)
+            else:
+                send(pkt, verbose=False)
+            # Packet delay
+            if isinstance(packetDelay, int) or isinstance(packetDelay, float):
+                debug("Packet delay sleep for {}s".format(packetDelay))
+                sleep(packetDelay)
+
     def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item)
-            # Packet delay
-            if isinstance(packetDelay, int) or isinstance(packetDelay, float):
-                debug("Packet delay sleep for {}s".format(packetDelay))
-                sleep(packetDelay)
+            self.send_packet(item, packetDelay)
+            # Delimiter delay
+            if isinstance(delimitDelay, int) or isinstance(delimitDelay, float):
+                debug("Delimit delay sleep for {}s".format(delimitDelay))
+                sleep(delimitDelay)
+            self.send_delimiter()
 
         # End delay
         if isinstance(endDelay, int) or isinstance(endDelay, float):
@@ -80,10 +99,15 @@ class UDPSizeModulation(Cloak):
             # Check for correct options
             if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
                 length = len(pkt["Raw"].load)
-                if length != 4:
-                    self.read_data += chr(length)
-                    debug("Received a '{}'".format(chr(length)))
-                    info("String: {}".format(self.read_data))
+                # Data received
+                if length == 1024:
+                    self.read_data[self.charnum] += 1
+                # Delimiter received
+                elif length == 512:
+                    self.read_data[self.charnum] = chr(self.read_data[self.charnum])
+                    debug("Received a '{}'".format(self.read_data[self.charnum]))
+                    self.charnum += 1
+                    self.read_data.append(0)
 
     def recv_EOT(self, pkt):
         '''Specifies the EOT packet, signaling the end of transmission.'''
@@ -92,6 +116,7 @@ class UDPSizeModulation(Cloak):
             if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
                 length = len(pkt["Raw"].load)
                 if length == 4:
+                    removedelement = self.read_data.pop(self.charnum)
                     info("Received EOT")
                     return True
         return False
@@ -99,13 +124,14 @@ class UDPSizeModulation(Cloak):
     def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the UDP Size Modulation Cloak."""
         info("Receiving packets...")
-        self.read_data = ''
+        self.read_data = [0]
         if max_count:
             packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
             packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
+        self.read_data = "".join([str(i) for i in self.read_data])
         info("String decoded: {}".format(self.read_data))
         return self.read_data
 

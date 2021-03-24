@@ -1,31 +1,30 @@
-from scapy.sendrecv import send, sniff
-from scapy.layers.dns import DNS, DNSQR
-from scapy.layers.inet import IP, UDP
-from scapy.utils import wrpcap
-
 from logging import info, debug, DEBUG, WARNING
 from re import search
+from scapy.layers.dns import DNS, DNSQR
+from scapy.layers.inet import IP, UDP
+from scapy.sendrecv import send, sniff
+from scapy.utils import wrpcap
 from time import sleep
-
 from cov3rt.Cloaks.Cloak import Cloak
+
 
 class DNSTiming(Cloak):
 
     # Regular expression to verify IP
-    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"    
+    IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
 
     # Classification, name, and description
     classification = Cloak.INTER_PACKET_TIMING
     name = "DNS Timing"
     description = "A cloak based on delays between DNS requests to \ndomains."
-    
-    def __init__(self, ip_dst = "8.8.8.8", domain_delim = "wikipedia.org", domain_cont = "twitter.com", zero_timing = 2, one_timing = 10):
+
+    def __init__(self, ip_dst="8.8.8.8", domaindelim="wikipedia.org", domaincont="twitter.com", zerotiming=1.0, onetiming=5.0):
         self.ip_dst = ip_dst
-        self.domaindelim = domain_delim + "."
-        self.domaincont = domain_cont + "."
-        self.zerotiming = zero_timing
-        self.onetiming = one_timing
+        self.domaindelim = domaindelim
+        self.domaincont = domaincont
+        self.zerotiming = zerotiming
+        self.onetiming = onetiming
         self.read_data = []
 
     def ingest(self, data):
@@ -37,51 +36,50 @@ class DNSTiming(Cloak):
             raise TypeError("'data' must be of type 'str'")
 
     def send_EOT(self):
-        '''Send an end-of-transmission packet to signal end of transmission.'''
-        pkt = IP(dst = self.ip_dst)/UDP(dport = 53)/DNS(rd = 1, qd = DNSQR(qname = self.domaindelim.capitalize()))
+        """Sends an end-of-transmission packet to signal the end of transmission."""
+        pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domaindelim.capitalize()))
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose = True)
+            send(pkt, verbose=True)
         else:
-            send(pkt, verbose = False)
+            send(pkt, verbose=False)
 
     def send_packet(self, databit):
-        '''Sends single packet with corresponding delay based on databit (0/1).'''
+        '''Sends single packet with corresponding delay based on databit'''
         if databit == '0':
-            
             sleep(self.zerotiming)
-            pkt = IP(dst = self.ip_dst)/UDP(dport = 53)/DNS(rd = 1, qd = DNSQR(qname = self.domaincont.capitalize()))
+            pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domaincont.capitalize()))
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose = True)
+                send(pkt, verbose=True)
             else:
-                send(pkt, verbose = False)
+                send(pkt, verbose=False)
         elif databit == '1':
             sleep(self.onetiming)
-            pkt = IP(dst = self.ip_dst)/UDP(dport = 53)/DNS(rd = 1, qd = DNSQR(qname = self.domaincont.capitalize()))
+            pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domaincont.capitalize()))
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose = True)
+                send(pkt, verbose=True)
             else:
-                send(pkt, verbose = False)
+                send(pkt, verbose=False)
 
-    def send_packets(self, packetDelay = None, delimitDelay = None, endDelay = None):
+    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Send an initial packet in order to start a baseline for delays.
-        initpkt = IP(dst = self.ip_dst)/UDP(dport = 53)/DNS(rd = 1, qd = DNSQR(qname = self.domaincont.capitalize()))
+        initpkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domaincont.capitalize()))
         if self.LOGLEVEL == DEBUG:
-            send(initpkt, verbose = False)
+            send(initpkt, verbose=True)
         else:
-            send(initpkt, verbose = True)
-        
+            send(initpkt, verbose=False)
+
         # Sends actual data.
         for item in self.data:
             self.send_packet(item)
             # Packet delay
-            if (isinstance(packetDelay, int) or isinstance(packetDelay, float)):
+            if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
                 sleep(packetDelay)
-        
+
         # End delay
-        if (isinstance(endDelay, int) or isinstance(endDelay, float)):
+        if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
         # Sends EOT to confirm end of transmission.
@@ -89,32 +87,33 @@ class DNSTiming(Cloak):
         return True
 
     def packet_handler(self, pkt):
-        '''Specifies the packet handler for receiving info via the DNS Timing Cloak.'''
-        if (pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR)):
-            if (pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaindelim.lower().encode()):
+        '''Specifies the packet handler for receiving info via the DNS
+        Timing Cloak.'''
+        if pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR):
+            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == "{}.".format(self.domaindelim.lower()).encode():
                 self.read_data.append(pkt)
                 info("Eligible packet received")
-            elif (pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == self.domaincont.lower().encode()):
+            elif pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname.lower() == "{}.".format(self.domaincont.lower()).encode():
                 self.read_data.append(pkt)
                 info("Eligible packet received")
-        
+
     def recv_EOT(self, pkt):
         '''Specifies the EOT packet, singaling the end of transmission.'''
-        if (pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR)):
+        if pkt.haslayer(IP) and pkt.haslayer(UDP) and pkt.haslayer(DNS) and pkt.haslayer(DNSQR):
             # Correct Options
-            if (pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname == self.domaindelim.capitalize().encode()):
+            if pkt["IP"].dst == self.ip_dst and pkt["DNS"].rd == 1 and pkt["DNSQR"].qname == "{}.".format(self.domaindelim.capitalize()).encode():
                 info("Received EOT")
                 return True
         return False
 
-    def recv_packets(self, timeout = None, max_count = None, iface = None, in_file = None, out_file = None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         '''Receives packets which use the DNS Timing Cloak.'''
         info("Receiving packets...")
         self.read_data = []
         if max_count:
-            packets = sniff(timeout = timeout, count = max_count, iface = iface, offline = in_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+            packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
-            packets = sniff(timeout = timeout, iface = iface, offline = in_file, stop_filter = self.recv_EOT, prn = self.packet_handler)
+            packets = sniff(timeout=timeout, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         if out_file:
             wrpcap(out_file, packets)
         # Decode the data collected, based on timings between packets
@@ -122,7 +121,7 @@ class DNSTiming(Cloak):
         current_time = None
         prev_time = None
         pktdif = 0
-        
+
         # Loop over our data, ignoring last packet as it does not contain "data"
         for item in self.read_data[:-1]:
             # Set the prev_time to the last updated current_time (as it is now one behind)
@@ -130,7 +129,7 @@ class DNSTiming(Cloak):
             # Now, replace current_time with data from packet
             current_time = item.time
             # Compare difference, unless this is the first packet
-            if prev_time == None:
+            if prev_time is None:
                 continue
             # Otherwise, this means we have a valid prev_time and can take delays
             pktdif = current_time - prev_time
@@ -157,7 +156,7 @@ class DNSTiming(Cloak):
         info("String decoded: {}".format(output_string))
         return output_string
 
-    ## Getters and Setters ##
+    # Getters and Setters
     # Getter for 'ip_dst'
     @property
     def ip_dst(self):
@@ -181,12 +180,12 @@ class DNSTiming(Cloak):
     @property
     def zerotiming(self):
         return self._zerotiming
-    
+
     # Setter for 'zerotiming'
     @zerotiming.setter
     def zerotiming(self, zerotiming):
         # Ensure valid type of int/float
-        if (isinstance(zerotiming, float) or isinstance(zerotiming, int)):
+        if isinstance(zerotiming, float) or isinstance(zerotiming, int):
             self._zerotiming = zerotiming
         else:
             raise TypeError("'zerotiming' must be of type 'float' or 'int'")
@@ -195,7 +194,7 @@ class DNSTiming(Cloak):
     @property
     def onetiming(self):
         return self._onetiming
-    
+
     # Setter for 'onetiming'
     @onetiming.setter
     def onetiming(self, onetiming):
