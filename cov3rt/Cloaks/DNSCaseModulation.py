@@ -32,37 +32,37 @@ class DNSCaseModulation(Cloak):
         else:
             raise TypeError("'data' must be of type 'str'")
 
-    def send_EOT(self):
+    def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domain.capitalize()))
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packet(self, databit):
+    def send_packet(self, databit, iface=None):
         """Sends packets based on case modulation encoding."""
         if databit == '0':
             # Binary zero sends a lowercase domain name
             pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domain.lower()))
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose=True)
+                send(pkt, verbose=True, iface=iface)
             else:
-                send(pkt, verbose=False)
+                send(pkt, verbose=False, iface=iface)
         elif databit == '1':
             # Binary one sends an uppercase domain name
             pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domain.upper()))
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose=True)
+                send(pkt, verbose=True, iface=iface)
             else:
-                send(pkt, verbose=False)
+                send(pkt, verbose=False, iface=iface)
 
-    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item)
+            self.send_packet(item, iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
@@ -72,7 +72,7 @@ class DNSCaseModulation(Cloak):
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
-        self.send_EOT()
+        self.send_EOT(iface)
         return True
 
     def packet_handler(self, pkt):
