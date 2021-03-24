@@ -780,6 +780,19 @@ def runApplication():
                 exit()
 
             # Optional arguments
+            # Interface
+            if ("-if" in argv or "--iface" in argv):
+                try:
+                    index = argv.index("-if")
+                except:
+                    index = argv.index("--iface")
+                # Ensure the next positional argument is correct
+                try:
+                    INTERFACE = argv[index + 1]
+                # Missing following positional argument
+                except IndexError:
+                    error("Missing interface value!")
+                    exit()
             # Packet delay
             if ("-pd" in argv or "--packetDelay" in argv):
                 try:
@@ -971,19 +984,6 @@ def runApplication():
                     except IndexError:
                         error("Missing max packet count value!")
                         exit()
-                # Interface
-                if ("-if" in argv or "--iface" in argv):
-                    try:
-                        index = argv.index("-if")
-                    except:
-                        index = argv.index("--iface")
-                    # Ensure the next positional argument is correct
-                    try:
-                        INTERFACE = argv[index + 1]
-                    # Missing following positional argument
-                    except IndexError:
-                        error("Missing interface value!")
-                        exit()
                 # Input file
                 if ("-in" in argv or "--inFile" in argv):
                     try:
@@ -1005,7 +1005,6 @@ def runApplication():
                     except IndexError:
                         error("Missing input filename!")
                         exit()
-
             # Send / Receive not selected
             else:
                 error("Please specify send/receive!")
@@ -1066,7 +1065,7 @@ def runApplication():
                 # Ingest data
                 cloak.ingest(message)
                 # Send packets
-                cloak.send_packets(PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
+                cloak.send_packets(INTERFACE, PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
             elif RECEIVING:
                 # Receive packets
                 if OUTPUT_PCAP:
