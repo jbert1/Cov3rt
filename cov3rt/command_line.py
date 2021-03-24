@@ -22,6 +22,7 @@ def runApplication():
     from os import name as OS_NAME
     from sys import argv, stdin
     from cov3rt import Cloaks
+    from psutil import net_if_stats
 
     # Sizing for forms
     WINDOW_LINES = 22
@@ -287,7 +288,7 @@ def runApplication():
                 self.parentApp.setNextForm(None)
 
     # Form that shows send/receive options for the selected cloak
-    class SendReceive(npyscreen.ActionForm):
+    class SendReceive(npyscreen.ActionForm, npyscreen.FormWithMenus):
 
         # Defines the elements on the page
         def create(self):
@@ -297,7 +298,29 @@ def runApplication():
             self.cloak_name = self.add(npyscreen.FixedText, relx=5, begin_entry_at=18, editable=False, 
                 name="Cloak: "
             )
-        
+            # Start the next element 1 line down
+            self.nextrely += 1
+            # Interface
+            self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, editable=False,
+                name="Interface:",
+                value="Default"
+            )
+            self.menu = self.new_menu(name="Interface Selection", shortcut="^X")
+            # Loop over the possible network interfaces
+            for netiface in sorted(list(net_if_stats().keys())):
+                self.menu.addItem(text=netiface, onSelect=self.selectInterface, arguments=[netiface])
+            # Add close menu at the bottom for convenience
+            self.menu.addItem("Close Menu", self.close_menu, "^X")
+
+        # Add the interface name to the on-screen element
+        def selectInterface(self, interface):
+            # Populate on-screen interface
+            self.iface.value = interface
+
+        # Closes the menu
+        def close_menu(self):
+            self.parentApp.setNextForm(None)
+
         # Function to exit on CTRL+C
         def exit_application(self, _):
             self.parentApp.setNextForm(None)
@@ -307,12 +330,6 @@ def runApplication():
         def populateScreen(self):
             # Sender options
             if (self.sor == "Sender"):
-                
-                # Interface Option
-                self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
-                    name="Interface:",
-                    value="Default"
-                )
                 # Packet Delay Option
                 self.packetdelay = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Packet Delay:",
@@ -359,8 +376,6 @@ def runApplication():
             
             # Receiver options
             else:
-                # Start the next element 1 line down
-                self.nextrely += 1
                 # Timeout
                 self.timeout = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Timeout:",
@@ -370,11 +385,6 @@ def runApplication():
                 self.maxcount = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Max Count:",
                     value="∞"
-                )
-                # Interface
-                self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
-                    name="Interface:",
-                    value="Default"
                 )
                 # Input File
                 self.in_file = self.add(npyscreen.TitleFilenameCombo, relx=5, begin_entry_at=18, label=True,
