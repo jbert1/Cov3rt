@@ -2,7 +2,7 @@ from os import listdir
 
 # This will need to be changed when used in actual cov3rt
 from cov3rt import UserDefinedCloaks 
-from inspect import getmembers, isclass, isfunction
+from inspect import getmembers, isclass
 from logging import error
 from importlib import import_module
 
@@ -51,31 +51,29 @@ def testChosenCloak(cloak_list, num):
         error("Syntax error")
 
     cls = getmembers(module, isclass)
-
+    
     # Second Test 
-    # Check how many public classes are in the file
-    if len(cls) > 1:
-        error("Too many classes defined")
-    elif len(cls) < 1:
-        error("No class defined")
+    # Check to see if there is a cloak class
+    if len(cls) < 1:
+        error("No cloak class defined")
     else:
         
+        nameCheck = 0
+
         # Third Test
-        # Make sure that file name and class name match
-        if moduleName[:-3] != cls[0][0]:
-            error("File name and class name must match")
+        for clsName in cls:
+            if clsName[0] == moduleName[:-3]:
+                nameCheck = 1
+        
+        if not nameCheck:
+            error("Please make sure that class name matches file name.")
+
         else:
-           
-            if len(getmembers(module, isfunction)) > 0:
-                error("Do not define any functions outside of cloak class.")
-
-            else:
-
-                print("Success")
-
-
+            print("Success")
 
 # Test function for Sam
+
 # Haha :)
 def run():
-    testChosenCloak(get_cloaks(),2)
+    list_cloaks(get_cloaks())
+    testChosenCloak(get_cloaks(),1)
