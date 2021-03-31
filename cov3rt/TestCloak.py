@@ -5,8 +5,10 @@ from cov3rt import Cloaks
 from inspect import getmembers, isclass
 from logging import error
 from importlib import import_module
+from sys import argv
 
 module_path = "cov3rt.Cloaks."
+cloak_list = {}
 
 # Get filepath to user defined cloaks folder
 def get_filepath():
@@ -15,9 +17,8 @@ def get_filepath():
 
 # Create a dictionary with all User Defined Cloaks
 def get_cloaks():
-    
+    global cloak_list
     files = listdir(get_filepath())
-    cloak_list = {}
     counter = 0
 
     for i in range(len(files)):
@@ -28,8 +29,8 @@ def get_cloaks():
     return cloak_list
 
 # List out all user defined cloaks
-def list_cloaks(cloak_list):
-
+def list_cloaks():
+    global cloak_list
     print("User Defined Cloaks:")
     for i in cloak_list:
         print("{} -> {}".format(i,cloak_list[i]))
@@ -91,18 +92,62 @@ def testChosenCloak(cloak_list, num):
 
             # Test if ingest function works properly for UTF-8 characters 
             try:
-                testCloak.ingest("🐭 🧀")    
+                testCloak.ingest("🐭 🧀")
             except:
                 # Yo justin you might have to change this... haha :)...
                 error("No cheess for the packet rat :(")
 
-            
+# Prints a typical help screen for usage information
+def print_help():
+    print("""Usage: python3 TestCloak.py [-h] [-l] -c cloak_id 
+    Primary Arguments:
+    -c,  --cloak          Selected covert channel implementation
 
+    Other Arguments:
+    -h,  --help           Show this help screen
+    -l,  --listCloaks     List available cloaks"""
+)
 
+# Hand written parser because argparse sucks
+if ("-h" in argv or "--help" in argv or "?" in argv):
+    print_help()
+else:
+    # Populate the cloak list
+    cloak_list = get_cloaks()
+    # List files
+    if ("-l" in argv or "--list-cloaks" in argv):
+        list_cloaks()
+    # Cloak type
+    elif ("-c" in argv or "--cloak" in argv):
+        # Get the index in the arglist
+        try:
+            index = argv.index("-c")
+        except:
+            index = argv.index("--cloak")
+        # Ensure the next positional argument is correct
+        try:
+            temp = argv[index + 1]
+            # Check encoding
+            if temp.isdigit():
+                # Check range
+                if 0 <= int(temp) <= len(cloak_list):
+                    # Save cloak_type
+                    cloak_type = int(temp)
+                else:
+                    error("Invalid cloak type!\nUse the '-l' option to view valid cloak types.")
+                    exit()
+            else:
+                error("Invalid cloak type!\nUse the '-l' option to view valid cloak types.")
+                exit()
+        # Missing following positional argument
+        except IndexError:
+            error("Missing cloak type argument!\nUse the '-l' option to view valid cloak types.")
+            exit()
+        
+        # Test the chosen cloak
+        testChosenCloak(cloak_list, cloak_type)
 
-# Test function for Sam
+    else:
+        error("Please specify cloak type!")
+        exit()
 
-# Haha :)
-def run():
-    list_cloaks(get_cloaks())
-    testChosenCloak(get_cloaks(),8)
