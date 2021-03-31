@@ -40,6 +40,7 @@ class IPID(Cloak):
     def send_packet(self, var_id, iface=None):
         """Sends packets based on IP Identification Field."""
         pkt = IP(dst="10.10.10.10")
+        # Set the IP ID field of the packet as our falsified ID
         pkt.id = var_id
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)

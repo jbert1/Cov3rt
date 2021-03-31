@@ -17,7 +17,7 @@ class ICMPEchoMultiPayload(Cloak):
     # Classification, name, and description
     classification = Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED
     name = "ICMP Echo Binary Payloads"
-    description = "A cloak based on splitting the message into \nmultiple packets in the ICMP echo payload"
+    description = "A cloak based on splitting the message into \nmultiple packets in the ICMP echo payload."
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.ip_dst = ip_dst
@@ -82,8 +82,7 @@ class ICMPEchoMultiPayload(Cloak):
                 return True
         return False
 
-    def recv_packets(self, timeout=None, max_count=None, iface=None,
-                     in_file=None, out_file=None):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the IP Reserved Bit Cloak."""
         info("Receiving packets...")
         self.read_data = ''
