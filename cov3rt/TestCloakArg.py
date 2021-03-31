@@ -1,29 +1,18 @@
-from os import listdir
-from logging import basicConfig, error, DEBUG, INFO
+from logging import error
 from sys import argv
-from cov3rt import UserDefinedCloaks 
 
 cloak_list = {}
 
+# Prints a typical help screen for usage information
+def print_help():
+    print("""Usage: python3 TestCloak.py [-h] [-l] -c cloak_id 
+    Primary Arguments:
+    -c,  --cloak          Selected covert channel implementation
 
-# Get filepath to user defined cloaks folder
-def get_filepath():
-    filepath = UserDefinedCloaks.__file__
-    return filepath[:-12]
-
-# Create a dictionary with all User Defined Cloaks
-def get_cloaks():
-    global cloak_list
-    files = listdir(get_filepath())
-    counter = 0
-
-    for i in range(len(files)):
-        filename = files[i]
-        if filename not in ["__init__.py", "__pycache__"] and filename[-3:] == ".py":
-            cloak_list[counter] = filename
-            counter += 1
-    return cloak_list
-
+    Other Arguments:
+    -h,  --help           Show this help screen
+    -l,  --listCloaks     List available cloaks"""
+)
 
 # Hand written parser because argparse sucks
 if ("-h" in argv or "--help" in argv or "?" in argv):
@@ -32,6 +21,7 @@ if ("-h" in argv or "--help" in argv or "?" in argv):
 else:
     # List files
     if ("-l" in argv or "--list-cloaks" in argv):
+        # list_cloaks()
         pass
     # Cloak type
     elif ("-c" in argv or "--cloak" in argv):
@@ -59,6 +49,10 @@ else:
         except IndexError:
             error("Missing cloak type argument!\nUse the '-l' option to view valid cloak types.")
             exit()
+        
+        # Continue with testing
+
     else:
         error("Please specify cloak type!")
         exit()
+    
