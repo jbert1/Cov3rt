@@ -19,7 +19,6 @@ def runApplication():
     from logging import basicConfig, error, DEBUG, INFO
     import npyscreen
     from os import listdir
-    from os import name as OS_NAME
     from sys import argv, stdin
     from cov3rt import Cloaks
     from psutil import net_if_stats
@@ -756,11 +755,7 @@ def runApplication():
         print_help()
     else:
         # Get path for cov3rt
-        if OS_NAME == "nt":
-            # Windows path
-            COV3RT_PATH = "\\".join(Cloaks.__file__.split("\\")[:-1])
-        else:
-            COV3RT_PATH = '/'.join(Cloaks.__file__.split('/')[:-1])
+        COV3RT_PATH = '/'.join(Cloaks.__file__.replace("\\", "/").split('/')[:-1])
 
         # Add the existing cloaks to our classifications
         add_classes(COV3RT_PATH, "cov3rt.Cloaks")
