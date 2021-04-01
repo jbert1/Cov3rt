@@ -43,13 +43,16 @@ class IPMorse(Cloak):
         """Ingests and encodes data into Morse Code."""
         if isinstance(data, str):
             uppercase = data.upper()
+            allowable_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890?()/.,"
             self.data = []
             for character in uppercase:
+                if character in allowable_chars:
+                    self.data.append(morse_code[character])
                 #Space Case
-                if character == " ":
+                elif character == " ":
                     self.data.append(" ")
                 else:
-                    self.data.append(morse_code[character])
+                    raise ValueError("Invalid Character Entered: {}".format(character))
             debug(self.data)
 
     def send_EOT(self, iface=None):
