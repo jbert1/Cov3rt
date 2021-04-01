@@ -3,12 +3,13 @@ from os import listdir
 # This will need to be changed when used in actual cov3rt
 from cov3rt import Cloaks 
 from inspect import getmembers, isclass
-from logging import error
+from logging import basicConfig, error, warning, info
 from importlib import import_module
 from sys import argv
 
 module_path = "cov3rt.Cloaks."
 cloak_list = {}
+basicConfig(level=20)
 
 # Get filepath to user defined cloaks folder
 def get_filepath():
@@ -73,29 +74,38 @@ def testChosenCloak(cloak_list, num):
                 break
 
         if not nameCheck:
-            error("Please make sure that class name matches file name.")
+            warning("Please make sure that class name matches file name.")
             exit(0)
 
         else:
+           
+            # Test to see if you can instantiate an instance of the class
+            try:
+                testCloak = classInstance()
             
-            testCloak = classInstance()
+            except:
+                # Relatively big error
+                error("Unable to instantiate class")
             
+
             # Test to see if ingest function works properly for ASCII characters
             # Test with smallest and lowest printable ASCII characters
             try:
                 testCloak.ingest(" ")
                 testCloak.ingest("~")
-
             except:
                 # Yo Justin you know how to write these better than me... <-----
-                error("Ingest function does not work with ASCII characters.")
+                warning("Ingest function does not work with ASCII characters.")
+            
 
             # Test if ingest function works properly for UTF-8 characters 
             try:
                 testCloak.ingest("🐭 🧀")
             except:
                 # Yo justin you might have to change this... haha :)...
-                error("No cheess for the packet rat :(")
+                info("No cheese for the packet rat :(")
+            
+
 
 # Prints a typical help screen for usage information
 def print_help():
@@ -106,7 +116,7 @@ def print_help():
     Other Arguments:
     -h,  --help           Show this help screen
     -l,  --listCloaks     List available cloaks"""
-)
+)        
 
 # Hand written parser because argparse sucks
 if ("-h" in argv or "--help" in argv or "?" in argv):
