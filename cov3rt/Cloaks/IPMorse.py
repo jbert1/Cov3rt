@@ -6,36 +6,61 @@ from scapy.utils import wrpcap
 from time import sleep
 from cov3rt.Cloaks.Cloak import Cloak
 
+morse_code = { 'A':'.-', 'B':'-...', 
+                    'C':'-.-.', 'D':'-..', 'E':'.', 
+                    'F':'..-.', 'G':'--.', 'H':'....', 
+                    'I':'..', 'J':'.---', 'K':'-.-', 
+                    'L':'.-..', 'M':'--', 'N':'-.', 
+                    'O':'---', 'P':'.--.', 'Q':'--.-', 
+                    'R':'.-.', 'S':'...', 'T':'-', 
+                    'U':'..-', 'V':'...-', 'W':'.--', 
+                    'X':'-..-', 'Y':'-.--', 'Z':'--..', 
+                    '1':'.----', '2':'..---', '3':'...--', 
+                    '4':'....-', '5':'.....', '6':'-....', 
+                    '7':'--...', '8':'---..', '9':'----.', 
+                    '0':'-----', ', ':'--..--', '.':'.-.-.-', 
+                    '?':'..--..', '/':'-..-.', '-':'-....-', 
+                    '(':'-.--.', ')':'-.--.-'}
 
-class IPID(Cloak):
+
+class IPMorse(Cloak):
 
     # Regular expression to verify IP
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
     # Classification, name, and description
     classification = Cloak.RANDOM_VALUE
-    name = "IP Identification"
-    description = "A covert channel using the Identification Field in \nIP packets to transmit messages."
+    name = "IP ID Morse Code"
+    description = "A covert channel using Morse Code to transmit messages."
 
-    def __init__(self, EOT_ID=20, ip_dst="10.10.10.10"):
+    def __init__(self, EOT_ID=255, ip_dst="10.10.10.10"):
         self.ip_dst = ip_dst
         self.EOT_ID = EOT_ID
         self.read_data = []
 
+
     def ingest(self, data):
-        """Ingests and formats data as a binary stream."""
+        """Ingests and encodes data into Morse Code."""
         if isinstance(data, str):
-            self.data = [ord(i) for i in data]
+            uppercase = data.upper()
+            self.data = []
+            for character in uppercase:
+                #Space Case
+                if character == " ":
+                    self.data.append(" ")
+                else:
+                    self.data.append(morse_code[character])
             debug(self.data)
 
     def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
-        pkt = IP(dst="10.10.10.10")
+        pkt = IP(dst=self.ip_dst)
         pkt.id = self.EOT_ID
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
             send(pkt, verbose=False, iface=iface)
+        
 
     def send_packet(self, var_id, iface=None):
         """Sends packets based on IP Identification Field."""
@@ -81,7 +106,7 @@ class IPID(Cloak):
         return False
 
     def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
-        """Receives packets which use the IP Identification Cloak."""
+        """Receives packets which use the IP Identification Morse Code Cloak."""
         info("Receiving packets...")
         self.read_data = []
         if max_count:
@@ -133,4 +158,4 @@ class IPID(Cloak):
             else:
                 raise ValueError("'EOT_ID' must be between 0 and 65535")
         else:
-            raise TypeError("'EOT_ID' must be of type 'int'")
+            raise TypeError("'EOT_ID' must be of type 'int'") 
