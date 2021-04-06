@@ -128,9 +128,9 @@ class IPID(Cloak):
     @EOT_ID.setter
     def EOT_ID(self, EOT_ID):
         if isinstance(EOT_ID, int):
-            if EOT_ID > 0 and EOT_ID < 65535:
+            if EOT_ID > 255 and EOT_ID < 65535:
                 self._EOT_ID = EOT_ID
             else:
-                raise ValueError("'EOT_ID' must be between 0 and 65535")
+                raise ValueError("'EOT_ID' must be between 255 and 65535")
         else:
             raise TypeError("'EOT_ID' must be of type 'int'")
