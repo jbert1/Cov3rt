@@ -1,5 +1,4 @@
 from logging import info, debug, DEBUG, WARNING
-from os import urandom
 from re import search
 from scapy.layers.inet import IP
 from scapy.sendrecv import send, sniff
@@ -34,7 +33,7 @@ class IPMorse(Cloak):
     name = "IP ID Morse Code"
     description = "A covert channel using Morse Code to transmit messages."
 
-    def __init__(self, EOT_ID=255, ip_dst="10.10.10.10"):
+    def __init__(self, EOT_ID=2048, ip_dst="10.10.10.10"):
         self.ip_dst = ip_dst
         self.EOT_ID = EOT_ID
         self.read_data = []
