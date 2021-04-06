@@ -1,4 +1,5 @@
 from logging import info, debug, DEBUG, WARNING
+from os import urandom
 from re import search
 from scapy.layers.inet import IP
 from scapy.sendrecv import send, sniff
@@ -33,9 +34,10 @@ class IPMorse(Cloak):
     name = "IP ID Morse Code"
     description = "A covert channel using Morse Code to transmit messages."
 
-    def __init__(self, EOT_ID=2048, ip_dst="10.10.10.10"):
+    def __init__(self, ip_dst="10.10.10.10", send_port = 31337, dest_port = 12345):
         self.ip_dst = ip_dst
-        self.EOT_ID = EOT_ID
+        self.send_port = send_port
+        self.dest_port = dest_port
         self.read_data = []
 
 
@@ -57,30 +59,49 @@ class IPMorse(Cloak):
 
     def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
-        pkt = IP(dst=self.ip_dst)
-        pkt.id = self.EOT_ID
+        packet_string = urandom(82)
+        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)  
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
             send(pkt, verbose=False, iface=iface)
-        
+
+    def send_delimiter(self, iface=None):
+        """Sends delimiter packet to signify end of Morse Code character. """
+        packet_string = urandom(42)
+        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
+    
+        if self.LOGLEVEL == DEBUG:
+            send(pkt, verbose=True, iface=iface)
+        else:
+            send(pkt, verbose=False, iface=iface)    
 
     def send_packet(self, var_id, iface=None):
-        """Sends packets based on IP Identification Field."""
-        pkt = IP(dst=self.ip_dst)
-        # Set the IP ID field of the packet as our falsified ID
-        pkt.id = var_id
-        if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True, iface=iface)
-        else:
-            send(pkt, verbose=False, iface=iface)
+        """Sends packets based on the evil bit."""
+        if databit == '0':
+            # Binary zero sends a non-evil bit packet
+            pkt = IP(dst=self.ip_dst, flags=0x00)
+            if self.LOGLEVEL == DEBUG:
+                send(pkt, verbose=True, iface=iface)
+            else:
+                send(pkt, verbose=False, iface=iface)
+
+        elif databit == '1':
+            # Binary zero sends an evil bit packet
+            pkt = IP(dst=self.ip_dst, flags=0x04)
+            if self.LOGLEVEL == DEBUG:
+                send(pkt, verbose=True, iface=iface)
+            else:
+                send(pkt, verbose=False, iface=iface)
+
 
     def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item, iface)
+            for char in item:
+                self.send_packet(item, iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
@@ -146,19 +167,34 @@ class IPMorse(Cloak):
         else:
             raise TypeError("'ip_dst' must be of type 'str'")
 
-    # Getter for "EOT_ID"
-
+    # Getter for "send_port"
     @property
-    def EOT_ID(self):
-        return self._EOT_ID
+    def send_port(self):
+        return self._send_port
+  
+    # Getter for "dest_port"
+    @property
+    def dest_port(self):
+        return self._dest_port    
 
-    # Setter for "EOT_ID"
-    @EOT_ID.setter
-    def EOT_ID(self, EOT_ID):
-        if isinstance(EOT_ID, int):
-            if EOT_ID > 0 and EOT_ID < 65535:
-                self._EOT_ID = EOT_ID
+    # Setter for "send_port"
+    @send_port.setter
+    def send_port(self, send_port):
+        if isinstance(send_port, int):
+            if send_port > 0 and send_port < 65535:
+                self._send_port = send_port
             else:
-                raise ValueError("'EOT_ID' must be between 0 and 65535")
+                raise ValueError("'send_port' must be between 0 and 65535")
         else:
-            raise TypeError("'EOT_ID' must be of type 'int'") 
+            raise TypeError("'send_port' must be of type 'int'")
+    
+    # Setter for "dest_port"
+    @dest_port.setter
+    def dest_port(self, dest_port):
+        if isinstance(dest_port, int):
+            if dest_port > 0 and dest_port < 65535:
+                self._dest_port = dest_port
+            else:
+                raise ValueError("'dest_port' must be between 0 and 65535")
+        else:
+            raise TypeError("'dest_port' must be of type 'int'")
