@@ -1,4 +1,5 @@
 from logging import info, debug, DEBUG, WARNING
+from os import urandom
 from re import search
 from scapy.layers.inet import IP
 from scapy.sendrecv import send, sniff
