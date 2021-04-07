@@ -42,7 +42,7 @@ class TCPFourCharPatsySeqNum(Cloak):
     def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of
         transmission."""
-        # EOT packet sends to patsy w/ src of destination, don't fragment, SYN flag, no payload.
+        # EOT packet sends to patsy w/ src of destination, don't fragment, SYN flag, no payload
         # no payload will be interpreted as pkt.load == b''
         pkt = IP(dst=self.ip_patsy, src=self.ip_dst, flags="DF") / TCP(flags=0x02) / ""
         if self.LOGLEVEL == DEBUG:
@@ -52,9 +52,9 @@ class TCPFourCharPatsySeqNum(Cloak):
 
     def send_packet(self, num, iface=None):
         """Sends packets based on TCP sequence number."""
-        # We will use random data in a packet to indicate that there is an active message.
+        # We will use random data in a packet to indicate that there is an active message
         payload = urandom(randint(15, 100))
-        # Packet w/ SYN Flag, don't fragment, payload of random bytes.
+        # Packet w/ SYN Flag, don't fragment, payload of random bytes
         pkt = IP(dst=self.ip_patsy, src=self.ip_dst, flags="DF") / TCP(flags=0x02, seq=num) / payload
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)

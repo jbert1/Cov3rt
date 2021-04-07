@@ -40,7 +40,7 @@ class TCPOneCharSeqNum(Cloak):
         # Generate random  string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
-        # Create packet w/ fluff payload and checkum of all 0
+        # Create packet with fluff payload and checksum of all 0
         pkt = IP(dst=self.ip_dst, flags=0x06) / TCP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
@@ -50,7 +50,7 @@ class TCPOneCharSeqNum(Cloak):
     def send_packet(self, num, iface=None):
         """Sends packets based on TCP sequence number."""
         
-        # generate random string to go into packet payload
+        # Generate random string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
         pkt = IP(dst=self.ip_dst) / TCP(sport=self.send_port, dport=self.dest_port, seq=num) / Raw(packet_string)

@@ -44,7 +44,7 @@ class DNSTiming(Cloak):
             send(pkt, verbose=False, iface=iface)
 
     def send_packet(self, databit, iface=None):
-        '''Sends single packet with corresponding delay based on databit'''
+        '''Sends single packet with corresponding delay based on databit.'''
         if databit == '0':
             sleep(self.zerotiming)
             pkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domaincont.capitalize()))
@@ -63,14 +63,14 @@ class DNSTiming(Cloak):
     def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
-        # Send an initial packet in order to start a baseline for delays.
+        # Send an initial packet in order to start a baseline for delay measurements
         initpkt = IP(dst=self.ip_dst) / UDP(dport=53) / DNS(rd=1, qd=DNSQR(qname=self.domaincont.capitalize()))
         if self.LOGLEVEL == DEBUG:
             send(initpkt, verbose=True, iface=iface)
         else:
             send(initpkt, verbose=False, iface=iface)
 
-        # Sends actual data.
+        # Sends actual data
         for item in self.data:
             self.send_packet(item, iface)
             # Packet delay
@@ -82,7 +82,7 @@ class DNSTiming(Cloak):
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
-        # Sends EOT to confirm end of transmission.
+        # Sends EOT to confirm end of transmission
         self.send_EOT(iface)
         return True
 

@@ -40,7 +40,7 @@ class UDPChecksum(Cloak):
         # Generate random string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
-        # Create packet w/ fluff payload and checksum of all 0
+        # Create packet with fluff payload and checksum of all 0
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port, chksum=0x9999) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
@@ -52,7 +52,7 @@ class UDPChecksum(Cloak):
         # Generate random string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
-        # Create packet w/ fluff payload and checksum of "userdata"
+        # Create packet with fluff payload and checksum of userdata
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port, chksum=int(userdata)) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)

@@ -122,7 +122,7 @@ class IPv6Hoppers(Cloak):
         return self._ip_src
 
     # Setter for "ip_src"
-    @ip_dst.setter
+    @ip_src.setter
     def ip_src(self, ip_src):
         # Ensure valid type:str
         if isinstance(ip_src, str):

@@ -17,7 +17,7 @@ class ICMPEchoFullPayload(Cloak):
     # Classification, name, and description
     classification = Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED
     name = "ICMP Echo Full Payload"
-    description = "A cloak based on putting the entire message in \nthe ICMP echo payload field"
+    description = "A cloak based on putting the entire message in \nthe ICMP echo payload field."
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.ip_dst = ip_dst
