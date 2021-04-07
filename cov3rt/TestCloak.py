@@ -1,8 +1,9 @@
 from os import listdir
 
 # This will need to be changed when used in actual cov3rt
-from cov3rt import Cloaks 
-from inspect import getmembers, isclass
+from cov3rt import Cloaks
+from cov3rt.Cloaks import Cloak 
+from inspect import getmembers, isclass, ismethod, signature
 from logging import basicConfig, error, warning, info
 from importlib import import_module
 from sys import argv
@@ -86,17 +87,58 @@ def testChosenCloak(cloak_list, num):
             except:
                 # Relatively big error
                 error("Unable to instantiate class")
+                exit(0)
+
+            # Check to make sure that send_packets and recv_packets exist
+            funcs = getmembers(testCloak, ismethod)
+            counter = 0
             
+            for func in funcs:
+                if func[0] == "ingest":
+                    counter += 1
+                if func[0] == "send_packets":
+                    counter += 1
+                if func[0] == "recv_packets":
+                    counter += 1
+
+            if counter < 3:
+                error("Make sure to define the ingest, send_packets and recv_packets function.")
+                exit(0)
+            
+            # Get standard function parameters from cloak super class
+            cloakCls = getmembers(Cloak, isclass)
+
+            cloakIngestParams = str(signature(cloakCls[1][1].ingest).parameters)
+            cloakSendParams = str(signature(cloakCls[1][1].send_packets).parameters)
+            cloakRecvParams = str(signature(cloakCls[1][1].recv_packets).parameters)
+
+            # Check paramters of ingest function
+            testIngestParams = str(signature(classInstance.ingest).parameters)
+            
+            if testIngestParams != cloakIngestParams:
+                warning("Make sure that your ingest parameters match the cloak super class!")
+
+            # Check parameters of send_packets function
+            testSendParams = str(signature(classInstance.send_packets).parameters)             
+            
+            if testSendParams != cloakSendParams:
+                warning("Make sure that your send_packets parameters match the cloak super class!")
+
+            # Check parameters of recv_packets function
+            testRecvParams = str(signature(classInstance.recv_packets).parameters)
+
+            if testRecvParams != cloakRecvParams:
+                warning("Make sure that your recv_packets parameters match the cloak super class!")
 
             # Test to see if ingest function works properly for ASCII characters
             # Test with smallest and lowest printable ASCII characters
             try:
                 testCloak.ingest(" ")
                 testCloak.ingest("~")
+
             except:
                 # Yo Justin you know how to write these better than me... <-----
-                warning("Ingest function does not work with ASCII characters.")
-            
+                warning("Ingest function does not work with ASCII characters.")          
 
             # Test if ingest function works properly for UTF-8 characters 
             try:
