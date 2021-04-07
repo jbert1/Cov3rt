@@ -1,7 +1,8 @@
 from logging import info, debug, DEBUG, WARNING
 from os import urandom
 from re import search
-from scapy.layers.inet import IP
+from scapy.layers.inet import IP, UDP
+from scapy.all import Raw
 from scapy.sendrecv import send, sniff
 from scapy.utils import wrpcap
 from time import sleep
@@ -30,8 +31,8 @@ class IPMorse(Cloak):
     IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     LOGLEVEL = WARNING
     # Classification, name, and description
-    classification = Cloak.RANDOM_VALUE
-    name = "IP ID Morse Code"
+    classification = Cloak.RESERVED_UNUSED
+    name = "IP Morse Code"
     description = "A covert channel using Morse Code to transmit messages."
 
     def __init__(self, ip_dst="10.10.10.10", send_port = 31337, dest_port = 12345):
@@ -59,7 +60,7 @@ class IPMorse(Cloak):
 
     def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
-        packet_string = urandom(82)
+        packet_string = urandom(1738)
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)  
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
@@ -76,24 +77,33 @@ class IPMorse(Cloak):
         else:
             send(pkt, verbose=False, iface=iface)    
 
-    def send_packet(self, var_id, iface=None):
+    def send_packet(self, dotdashorspace, iface=None):
         """Sends packets based on the evil bit."""
-        if databit == '0':
-            # Binary zero sends a non-evil bit packet
-            pkt = IP(dst=self.ip_dst, flags=0x00)
+        if dotdashorspace == '.':
+            # "." or Binary zero sends a non-evil bit packet
+            pkt = IP(dst=self.ip_dst, flags=0x00) / UDP(sport=self.send_port, dport=self.dest_port)
             if self.LOGLEVEL == DEBUG:
                 send(pkt, verbose=True, iface=iface)
             else:
                 send(pkt, verbose=False, iface=iface)
 
-        elif databit == '1':
-            # Binary zero sends an evil bit packet
-            pkt = IP(dst=self.ip_dst, flags=0x04)
+        elif dotdashorspace == '-':
+            # "-" or Binary one sends an evil bit packet
+            pkt = IP(dst=self.ip_dst, flags=0x04) / UDP(sport=self.send_port, dport=self.dest_port)
             if self.LOGLEVEL == DEBUG:
                 send(pkt, verbose=True, iface=iface)
             else:
                 send(pkt, verbose=False, iface=iface)
-
+        
+        elif dotdashorspace == " ":
+            # If the character is a space, an arbitrary payload length will be chosen
+            packet_string = urandom(1337)
+            pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
+            
+            if self.LOGLEVEL == DEBUG:
+                send(pkt, verbose=True, iface=iface)
+            else:
+                send(pkt, verbose=False, iface=iface)
 
     def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
@@ -101,7 +111,8 @@ class IPMorse(Cloak):
         # Loop over the data
         for item in self.data:
             for char in item:
-                self.send_packet(item, iface)
+                self.send_packet(char, iface)
+            self.send_delimiter(iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
