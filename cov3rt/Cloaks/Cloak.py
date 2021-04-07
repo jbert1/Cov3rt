@@ -52,12 +52,12 @@ class Cloak(ABC):
         pass
 
     @abstractmethod
-    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         pass
 
     @abstractmethod
-    def send_packet(self, data):
+    def send_packet(self, data, iface=None):
         """Sends packet(s) via a defined covert channel."""
         pass
 
@@ -67,7 +67,7 @@ class Cloak(ABC):
         pass
 
     @abstractmethod
-    def recv_packets(self):
+    def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
         """Receives packets which use the Case Modulated DNS Cloak."""
         pass
 
