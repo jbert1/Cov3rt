@@ -57,7 +57,7 @@ class Cloak(ABC):
         pass
 
     @abstractmethod
-    def send_packet(self, data):
+    def send_packet(self, data, iface=None):
         """Sends packet(s) via a defined covert channel."""
         pass
 
