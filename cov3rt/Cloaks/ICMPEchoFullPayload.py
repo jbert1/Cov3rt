@@ -17,7 +17,7 @@ class ICMPEchoFullPayload(Cloak):
     # Classification, name, and description
     classification = Cloak.USER_DATA_VALUE_MODULATION_RESERVED_UNUSED
     name = "ICMP Echo Full Payload"
-    description = "A cloak based on putting the entire message in \nthe ICMP echo payload field"
+    description = "A cloak based on putting the entire message in \nthe ICMP echo payload field."
 
     def __init__(self, ip_dst="8.8.8.8"):
         self.ip_dst = ip_dst
@@ -31,28 +31,28 @@ class ICMPEchoFullPayload(Cloak):
         else:
             raise TypeError("'data' must be of type 'str'")
 
-    def send_EOT(self):
+    def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst=self.ip_dst) / ICMP(type=8) / Raw(load="\x04")
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packet(self, databit):
+    def send_packet(self, databit, iface=None):
         """Sends a packet with the message in the ICMP echo payload."""
         pkt = IP(dst=self.ip_dst) / ICMP(type=8) / Raw(load=self.data)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item)
+            self.send_packet(item, iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
@@ -62,7 +62,7 @@ class ICMPEchoFullPayload(Cloak):
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
-        self.send_EOT()
+        self.send_EOT(iface)
         return True
 
     def packet_handler(self, pkt):

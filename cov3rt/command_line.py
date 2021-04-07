@@ -19,9 +19,9 @@ def runApplication():
     from logging import basicConfig, error, DEBUG, INFO
     import npyscreen
     from os import listdir
-    from os import name as OS_NAME
     from sys import argv, stdin
     from cov3rt import Cloaks
+    from psutil import net_if_stats
 
     # Sizing for forms
     WINDOW_LINES = 22
@@ -287,7 +287,7 @@ def runApplication():
                 self.parentApp.setNextForm(None)
 
     # Form that shows send/receive options for the selected cloak
-    class SendReceive(npyscreen.ActionForm):
+    class SendReceive(npyscreen.ActionForm, npyscreen.FormWithMenus):
 
         # Defines the elements on the page
         def create(self):
@@ -297,7 +297,29 @@ def runApplication():
             self.cloak_name = self.add(npyscreen.FixedText, relx=5, begin_entry_at=18, editable=False, 
                 name="Cloak: "
             )
-        
+            # Start the next element 1 line down
+            self.nextrely += 1
+            # Interface
+            self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, editable=False,
+                name="Interface:",
+                value="Default"
+            )
+            self.menu = self.new_menu(name="Interface Selection", shortcut="^X")
+            # Loop over the possible network interfaces
+            for netiface in sorted(list(net_if_stats().keys())):
+                self.menu.addItem(text=netiface, onSelect=self.selectInterface, arguments=[netiface])
+            # Add close menu at the bottom for convenience
+            self.menu.addItem("Close Menu", self.close_menu, "^X")
+
+        # Add the interface name to the on-screen element
+        def selectInterface(self, interface):
+            # Populate on-screen interface
+            self.iface.value = interface
+
+        # Closes the menu
+        def close_menu(self):
+            self.parentApp.setNextForm(None)
+
         # Function to exit on CTRL+C
         def exit_application(self, _):
             self.parentApp.setNextForm(None)
@@ -353,8 +375,6 @@ def runApplication():
             
             # Receiver options
             else:
-                # Start the next element 1 line down
-                self.nextrely += 1
                 # Timeout
                 self.timeout = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Timeout:",
@@ -364,11 +384,6 @@ def runApplication():
                 self.maxcount = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Max Count:",
                     value="∞"
-                )
-                # Interface
-                self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
-                    name="Interface:",
-                    value="Default"
                 )
                 # Input File
                 self.in_file = self.add(npyscreen.TitleFilenameCombo, relx=5, begin_entry_at=18, label=True,
@@ -417,6 +432,17 @@ def runApplication():
             editing = False
             # Sender options
             if (self.sor == "Sender"):
+                # Checks for Valid Interface
+                if (self.iface.value == "Default"):
+                    # Set the default value
+                    self.ifaceval = None
+                # Ensure the interface is not blank
+                elif (self.iface.value == ""):
+                    npyscreen.notify_wait("Interface must not be empty.", title="Interface Value Error")
+                    editing = True
+                else:
+                    self.ifaceval = self.iface.value
+
                 # Checks for Valid Packet Delay
                 if self.packetdelay.value == "None":
                     # Set the default value
@@ -492,7 +518,7 @@ def runApplication():
                     # Notify the user before the message is about to send
                     npyscreen.notify_wait("Sending the message...", title="Message Status")
                     # Send the message
-                    self.cloak.send_packets(self.packetdelayval, self.enddelayval, self.delimitdelayval)
+                    self.cloak.send_packets(self.ifaceval, self.packetdelayval, self.enddelayval, self.delimitdelayval)
                     # Notify the user the message has been sent
                     npyscreen.notify_wait("Packets have been sent. Thank you for using cov3rt!", title="Message Sent Successfully")
                     self.parentApp.setNextForm(None)
@@ -729,11 +755,7 @@ def runApplication():
         print_help()
     else:
         # Get path for cov3rt
-        if OS_NAME == "nt":
-            # Windows path
-            COV3RT_PATH = "\\".join(Cloaks.__file__.split("\\")[:-1])
-        else:
-            COV3RT_PATH = '/'.join(Cloaks.__file__.split('/')[:-1])
+        COV3RT_PATH = '/'.join(Cloaks.__file__.replace("\\", "/").split('/')[:-1])
 
         # Add the existing cloaks to our classifications
         add_classes(COV3RT_PATH, "cov3rt.Cloaks")

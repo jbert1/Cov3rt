@@ -28,30 +28,31 @@ class IPID(Cloak):
             self.data = [ord(i) for i in data]
             debug(self.data)
 
-    def send_EOT(self):
+    def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         pkt = IP(dst="10.10.10.10")
         pkt.id = self.EOT_ID
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packet(self, var_id):
+    def send_packet(self, var_id, iface=None):
         """Sends packets based on IP Identification Field."""
-        pkt = IP(dst="10.10.10.10")
+        pkt = IP(dst=self.ip_dst)
+        # Set the IP ID field of the packet as our falsified ID
         pkt.id = var_id
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item)
+            self.send_packet(item, iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
@@ -61,7 +62,7 @@ class IPID(Cloak):
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
-        self.send_EOT()
+        self.send_EOT(iface)
         return True
 
     def packet_handler(self, pkt):
@@ -127,9 +128,9 @@ class IPID(Cloak):
     @EOT_ID.setter
     def EOT_ID(self, EOT_ID):
         if isinstance(EOT_ID, int):
-            if EOT_ID > 0 and EOT_ID < 65535:
+            if EOT_ID > 255 and EOT_ID < 65535:
                 self._EOT_ID = EOT_ID
             else:
-                raise ValueError("'EOT_ID' must be between 0 and 65535")
+                raise ValueError("'EOT_ID' must be between 255 and 65535")
         else:
             raise TypeError("'EOT_ID' must be of type 'int'")

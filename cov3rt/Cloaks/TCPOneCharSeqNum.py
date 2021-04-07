@@ -35,36 +35,36 @@ class TCPOneCharSeqNum(Cloak):
         else:
             raise TypeError("'data' must be of type 'str'")
 
-    def send_EOT(self):
+    def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         # Generate random  string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
-        # Create packet w/ fluff payload and checkum of all 0
+        # Create packet with fluff payload and checksum of all 0
         pkt = IP(dst=self.ip_dst, flags=0x06) / TCP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packet(self, num):
+    def send_packet(self, num, iface=None):
         """Sends packets based on TCP sequence number."""
         
-        # generate random string to go into packet payload
+        # Generate random string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
         pkt = IP(dst=self.ip_dst) / TCP(sport=self.send_port, dport=self.dest_port, seq=num) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item)
+            self.send_packet(item, iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
@@ -74,7 +74,7 @@ class TCPOneCharSeqNum(Cloak):
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
-        self.send_EOT()
+        self.send_EOT(iface)
         return True
 
     def packet_handler(self, pkt):

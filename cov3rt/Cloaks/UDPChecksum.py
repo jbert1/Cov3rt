@@ -35,36 +35,36 @@ class UDPChecksum(Cloak):
         else:
             raise TypeError("'data' must be of type 'str'")
 
-    def send_EOT(self):
+    def send_EOT(self, iface=None):
         '''Send an end-of-transmission packet (checksum 0x9999) to signal end of transmission.'''
         # Generate random string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
-        # Create packet w/ fluff payload and checksum of all 0
+        # Create packet with fluff payload and checksum of all 0
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port, chksum=0x9999) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packet(self, userdata):
+    def send_packet(self, userdata, iface=None):
         '''Sends single packet with checksum based on user data.'''
         # Generate random string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
-        # Create packet w/ fluff payload and checksum of "userdata"
+        # Create packet with fluff payload and checksum of userdata
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port, chksum=int(userdata)) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item)
+            self.send_packet(item, iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
@@ -74,7 +74,7 @@ class UDPChecksum(Cloak):
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
-        self.send_EOT()
+        self.send_EOT(iface)
         return True
 
     def packet_handler(self, pkt):

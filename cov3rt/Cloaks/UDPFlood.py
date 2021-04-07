@@ -36,29 +36,29 @@ class UDPFlood(Cloak):
         else:
             raise TypeError("'data' must be of type 'str'")
 
-    def send_EOT(self):
+    def send_EOT(self, iface=None):
         '''Send an end-of-transmission packet to signal end of transmission.'''
         # Create short random string of four characters for final packet
         packet_string = urandom(4)
         # Create packet and send
         pkt = IP(dst=self.ip_dst, flags=0x04) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_delimiter(self):
+    def send_delimiter(self, iface=None):
         """Sends a delimiter to signal the end of a specified data stream."""
         # Generate random string to go into packet based on number
         packet_string = urandom(512)
         # Create packet and send
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
-            send(pkt, verbose=True)
+            send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False)
+            send(pkt, verbose=False, iface=iface)
 
-    def send_packet(self, number, packetDelay):
+    def send_packet(self, number, packetDelay, iface=None):
         '''Sends packets based on the given number.'''
         for i in range(0, number):
             # Generate random string to go into packet based on number
@@ -66,31 +66,31 @@ class UDPFlood(Cloak):
             # Create packet and send
             pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
             if self.LOGLEVEL == DEBUG:
-                send(pkt, verbose=True)
+                send(pkt, verbose=True, iface=iface)
             else:
-                send(pkt, verbose=False)
+                send(pkt, verbose=False, iface=iface)
             # Packet delay
             if isinstance(packetDelay, int) or isinstance(packetDelay, float):
                 debug("Packet delay sleep for {}s".format(packetDelay))
                 sleep(packetDelay)
 
-    def send_packets(self, packetDelay=None, delimitDelay=None, endDelay=None):
+    def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
         # Loop over the data
         for item in self.data:
-            self.send_packet(item, packetDelay)
+            self.send_packet(item, packetDelay, iface)
             # Delimiter delay
             if isinstance(delimitDelay, int) or isinstance(delimitDelay, float):
                 debug("Delimit delay sleep for {}s".format(delimitDelay))
                 sleep(delimitDelay)
-            self.send_delimiter()
+            self.send_delimiter(iface)
 
         # End delay
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
             sleep(endDelay)
-        self.send_EOT()
+        self.send_EOT(iface)
         return True
 
     def packet_handler(self, pkt):
