@@ -152,7 +152,7 @@ class IPMorse(Cloak):
                     if pkt.haslayer(Raw):
                         length = len(pkt[Raw].load) 
                         if length == 42:
-                            self.read_data += "a"
+                            self.read_data += "/"
                         elif length == 1337:
                             self.read_data += " "   
                     else:
@@ -187,9 +187,9 @@ class IPMorse(Cloak):
         if out_file:
             wrpcap(out_file, packets)
 
-        print(self.read_data.split("a")[:-1])
+        print(self.read_data.split("/")[:-1])
         # Decode read data
-        decoded_string = ''
+        decoded_string = ""
         # Loop over the data
         for item in self.read_data.split("a")[:-1]:
             decoded_string += reverse_morse[item]            
@@ -203,7 +203,7 @@ class IPMorse(Cloak):
     def ip_dst(self):
         return self._ip_dst
 
-    # Setter for "ip_dst"
+    # Setter for "ip_dst" to error check IP Regex
     @ip_dst.setter
     def ip_dst(self, ip_dst):
         # Ensure valid type:str
