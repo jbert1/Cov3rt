@@ -6,11 +6,45 @@ from cov3rt.Cloaks import Cloak
 from inspect import getmembers, isclass, ismethod, signature
 from logging import basicConfig, error, warning, info
 from importlib import import_module
-from sys import argv
+from sys import argv, exc_info
+import threading
+from math import sqrt
 
 module_path = "cov3rt.Cloaks."
 cloak_list = {}
 basicConfig(level=20)
+
+# This class is to test out cloak functions
+# Specifically send and receive since they need to be run simultaneously
+class TestingThread(threading.Thread):
+    
+    def __init__(self, testCloak, function):
+
+        threading.Thread.__init__(self)
+        self.testCloak = testCloak
+        self.function = function
+
+    def run(self):
+
+        self.exc = None
+        
+        if self.function == "send":
+            try:
+                self.testCloak.send_packets()
+            
+            except:
+                self.exc = exc_info()
+
+        if self.function == "recv":
+            try:
+                self.testCloak.recv_packets()
+            
+            except:
+                self.exc = exc_info()
+
+    def join(self):
+        if self.exc:
+            raise self.exc
 
 # Get filepath to user defined cloaks folder
 def get_filepath():
@@ -129,6 +163,22 @@ def testChosenCloak(cloak_list, num):
 
             if testRecvParams != cloakRecvParams:
                 warning("Make sure that your recv_packets parameters match the cloak super class!")
+
+            ########################################################################################
+
+            # Test to see if send packets function works with no data
+            send = TestingThread(testCloak, "send")
+            recv = TestingThread(testCloak, "recv")
+            recv.start()
+            send.start()
+            
+            # List out any errors for send function
+            try:
+                send.join()
+            except:
+                error("Send_packets function unable to send nothing.")
+
+            ########################################################################################
 
             # Test to see if ingest function works properly for ASCII characters
             # Test with smallest and lowest printable ASCII characters
