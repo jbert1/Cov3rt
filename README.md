@@ -22,8 +22,7 @@ Christopher Rice
   * [Application](#application)
   * [Module](#module)
 * [Future](#future)
-  * [Network Analyzer](#network-analyzer)
-  * [Interpreter](#interpreter)
+  * [Passive Channels](#passive-channels)
 
 
 ## Cloaks
@@ -64,10 +63,6 @@ The cov3rt framework can be imported into your own scripts for covert communicat
 
 Here are our stretch-goals to integrate within the cov3rt framework!
 
-### Network Analyzer
+### Passive Channels
 
-The network analyzer will inspect the current network environment or capture file and determine the best Cloak for covert communication.
-
-### Interpreter
-
-The cov3rt framework will feature an on-the-go interpreter for immediate access with the framework in a Python interpreter
+The cov3rt framework currently only supports active network covert channels. As a future goal, we would like to implement a method for users to add their own passive covert channels to our framework. 
