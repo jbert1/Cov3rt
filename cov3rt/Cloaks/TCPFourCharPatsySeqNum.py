@@ -69,6 +69,7 @@ class TCPFourCharPatsySeqNum(Cloak):
         # Loop over the data 
         for item in self.data:
             self.send_packet(int(item, 2), iface)
+            sleep(0.1)
             # Packet delay
             if (isinstance(packetDelay, int) or isinstance(packetDelay, float)):
                 debug("Packet delay sleep for {}s".format(packetDelay))
