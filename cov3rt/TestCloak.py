@@ -8,7 +8,7 @@ from logging import basicConfig, error, warning, info
 from importlib import import_module
 from sys import argv, exc_info
 import threading
-from math import sqrt
+from time import sleep
 
 module_path = "cov3rt.Cloaks."
 cloak_list = {}
@@ -23,6 +23,7 @@ class TestingThread(threading.Thread):
         threading.Thread.__init__(self)
         self.testCloak = testCloak
         self.function = function
+        self.data = ""
 
     def run(self):
 
@@ -31,14 +32,14 @@ class TestingThread(threading.Thread):
         if self.function == "send":
             try:
                 self.testCloak.send_packets()
-            
+                 
             except:
                 self.exc = exc_info()
 
         if self.function == "recv":
             try:
-                self.testCloak.recv_packets()
-            
+                self.data = self.testCloak.recv_packets()
+
             except:
                 self.exc = exc_info()
 
@@ -164,19 +165,24 @@ def testChosenCloak(cloak_list, num):
             if testRecvParams != cloakRecvParams:
                 warning("Make sure that your recv_packets parameters match the cloak super class!")
 
+            # These are just here so I can find this section easier
+            # I will remove it once I figure out whats going on
+            # haha :)
             ########################################################################################
 
+            # Question: Do we really need to test recv no data?
+
             # Test to see if send packets function works with no data
+            # Weird and works sometimes but not others?
+            # A lot of our functions cannot send nothing?
             send = TestingThread(testCloak, "send")
-            recv = TestingThread(testCloak, "recv")
-            recv.start()
             send.start()
-            
+
             # List out any errors for send function
             try:
                 send.join()
             except:
-                error("Send_packets function unable to send nothing.")
+                warning("Send_packets function unable to send nothing.")
 
             ########################################################################################
 
@@ -189,6 +195,30 @@ def testChosenCloak(cloak_list, num):
             except:
                 # Yo Justin you know how to write these better than me... <-----
                 warning("Ingest function does not work with ASCII characters.")          
+            
+            # Testing send and receive functions for ASCII
+            recv = TestingThread(testCloak, "recv")
+            send = TestingThread(testCloak, "send")
+            recv.start()
+            sleep(1)
+            send.start()
+
+            # Checking send function
+            try:
+                send.join()
+
+            except:
+                error("send_packets function did not work")
+
+            # Checking recv function
+            try:
+                recv.join()
+                
+            except:
+                error("recv_packets function did not work")
+            
+            if recv.data != "~":
+                warning("The cloak was not able maintain the integrity of the data in the send/receive process")
 
             # Test if ingest function works properly for UTF-8 characters 
             try:
@@ -197,6 +227,7 @@ def testChosenCloak(cloak_list, num):
                 # Yo justin you might have to change this... haha :)...
                 info("No cheese for the packet rat :(")
             
+            # Copy the send and receive stuff I put above except now we're testing for UTF-8
 
 
 # Prints a typical help screen for usage information
