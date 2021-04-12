@@ -302,9 +302,10 @@ def runApplication():
             # Interface
             self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, editable=False,
                 name="Interface:",
-                value="Default"
+                value="Default (^X to change)"
             )
             self.menu = self.new_menu(name="Interface Selection", shortcut="^X")
+            self.menu.addItem(text="Default", onSelect=self.selectInterface, arguments=["Default"])
             # Loop over the possible network interfaces
             for netiface in sorted(list(net_if_stats().keys())):
                 self.menu.addItem(text=netiface, onSelect=self.selectInterface, arguments=[netiface])
@@ -433,7 +434,7 @@ def runApplication():
             # Sender options
             if (self.sor == "Sender"):
                 # Checks for Valid Interface
-                if (self.iface.value == "Default"):
+                if (self.iface.value == "Default" or self.iface.value == "Default (^X to change)"):
                     # Set the default value
                     self.ifaceval = None
                 # Ensure the interface is not blank
@@ -550,7 +551,7 @@ def runApplication():
                         editing = True
 
                 # Interface
-                if (self.iface.value == "Default"):
+                if (self.iface.value == "Default" or self.iface.value == "Default (^X to change)"):
                     # Set the default value
                     self.ifaceval = None
                 # Ensure the interface is not blank
