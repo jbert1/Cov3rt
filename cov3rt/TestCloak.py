@@ -273,8 +273,32 @@ def testChosenCloak(cloak_list, num):
                 # Yo justin you might have to change this... haha :)...
                 info("No cheese for the packet rat :(")
             
-            # Copy the send and receive stuff I put above except now we're testing for UTF-8
-            
+            # Testing send and receive functions for UTF-8
+            recvUTF = RecvThread(testCloak)
+            recvUTF.start()
+            sleep(2)
+
+            # Checking send_packets function
+            try:
+                testCloak.send_packets()
+            except:
+                warning("send_packets function did not function properly with UTF-8 data")
+
+            # Waiting for recv packets function to end
+            # I NEED TO ADD A TTL TO THIS PART
+            while(recvUTF.running):
+                sleep(1)
+
+            # Checking recv_packets function with UTF-8 data
+            try:
+                recvUTF.join()
+            except:
+                warning("recv_packets function did not work with UTF-8 data")
+
+            # Make sure that data sent is the same as data received
+            if recvUTF.data != "🐭 🧀":
+                warning("The cloak was not able maintain the integrity of the data in the send/receive process with UTF-8 data")
+            print(recvUTF.data)
 
 # Prints a typical help screen for usage information
 def print_help():
