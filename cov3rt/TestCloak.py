@@ -14,34 +14,26 @@ module_path = "cov3rt.Cloaks."
 cloak_list = {}
 basicConfig(level=20)
 
-# This class is to test out cloak functions
-# Specifically send and receive since they need to be run simultaneously
-class TestingThread(threading.Thread):
+# This class is to test out the recv_packets function in a cloak 
+class RecvThread(threading.Thread):
     
-    def __init__(self, testCloak, function):
+    def __init__(self, testCloak):
 
         threading.Thread.__init__(self)
         self.testCloak = testCloak
-        self.function = function
         self.data = ""
+        self.running = True
 
     def run(self):
 
         self.exc = None
-        
-        if self.function == "send":
-            try:
-                self.testCloak.send_packets()
-                 
-            except:
-                self.exc = exc_info()
+        try:
+            self.data = self.testCloak.recv_packets()
+            self.running = False    
 
-        if self.function == "recv":
-            try:
-                self.data = self.testCloak.recv_packets()
-
-            except:
-                self.exc = exc_info()
+        except:
+            self.exc = exc_info()
+            self.running = False
 
     def join(self):
         if self.exc:
@@ -142,83 +134,137 @@ def testChosenCloak(cloak_list, num):
             
             # Get standard function parameters from cloak super class
             cloakCls = getmembers(Cloak, isclass)
-
             cloakIngestParams = str(signature(cloakCls[1][1].ingest).parameters)
             cloakSendParams = str(signature(cloakCls[1][1].send_packets).parameters)
             cloakRecvParams = str(signature(cloakCls[1][1].recv_packets).parameters)
 
-            # Check paramters of ingest function
+            # Check paramters of ingest function compared to cloak super class
             testIngestParams = str(signature(classInstance.ingest).parameters)
-            
             if testIngestParams != cloakIngestParams:
                 warning("Make sure that your ingest parameters match the cloak super class!")
 
-            # Check parameters of send_packets function
+            # Check parameters of send_packets function compared to cloak super class
             testSendParams = str(signature(classInstance.send_packets).parameters)             
-            
             if testSendParams != cloakSendParams:
                 warning("Make sure that your send_packets parameters match the cloak super class!")
 
-            # Check parameters of recv_packets function
+            # Check parameters of recv_packets function compared to cloak super class
             testRecvParams = str(signature(classInstance.recv_packets).parameters)
-
             if testRecvParams != cloakRecvParams:
                 warning("Make sure that your recv_packets parameters match the cloak super class!")
-
-            # These are just here so I can find this section easier
-            # I will remove it once I figure out whats going on
-            # haha :)
-            ########################################################################################
-
-            # Question: Do we really need to test recv no data?
-
-            # Test to see if send packets function works with no data
-            # Weird and works sometimes but not others?
-            # A lot of our functions cannot send nothing?
-            send = TestingThread(testCloak, "send")
-            send.start()
-
-            # List out any errors for send function
-            try:
-                send.join()
-            except:
-                warning("Send_packets function unable to send nothing.")
-
-            ########################################################################################
 
             # Test to see if ingest function works properly for ASCII characters
             # Test with smallest and lowest printable ASCII characters
             try:
                 testCloak.ingest(" ")
                 testCloak.ingest("~")
-
             except:
                 # Yo Justin you know how to write these better than me... <-----
                 warning("Ingest function does not work with ASCII characters.")          
             
             # Testing send and receive functions for ASCII
-            recv = TestingThread(testCloak, "recv")
-            send = TestingThread(testCloak, "send")
+            recv = RecvThread(testCloak)
             recv.start()
-            sleep(1)
-            send.start()
-
-            # Checking send function
+            sleep(2)
+            
+            # Checking send_packets function
             try:
-                send.join()
-
+                testCloak.send_packets()
             except:
-                error("send_packets function did not work")
+                error("send_packets function did not function properly")
+                exit(0)
 
-            # Checking recv function
+            # Waiting for recv packets function to end
+            # I NEED TO ADD A TTL TO THIS PART
+            while(recv.running):
+                sleep(1)
+
+            # Checking recv_packets function
             try:
                 recv.join()
-                
             except:
                 error("recv_packets function did not work")
-            
+                exit(0)
+
+            # Make sure that data sent is the same as data received
             if recv.data != "~":
                 warning("The cloak was not able maintain the integrity of the data in the send/receive process")
+
+            # Starting recv_packets thread
+            # For packet delay test
+            recvPack = RecvThread(testCloak)
+            recvPack.start()
+            sleep(2)
+
+            # Testing the packet delay parameter in send_packets
+            try:
+                testCloak.send_packets(packetDelay=2)
+            except:
+                warning("send_packets did not work with a packet delay")
+
+            # I NEED TO ADD A TTL TO THIS PART
+            while(recvPack.running):
+                sleep(1)
+            
+            # Checking recv_packets function with a packet delay
+            try:
+                recvPack.join()
+            except:
+                warning("recv_packets function had an error when a packet delay was used in the send_packets function")
+            
+            # THIS MIGHT NEED TO GO IN THE TRY STATEMENT
+            if recvPack.data != "~":
+                warning("Data integrity was not maintained with a packet delay")
+            
+            # Starting recv_packets thread
+            # For delimit delay test
+            recvDelim = RecvThread(testCloak)
+            recvDelim.start()
+            sleep(2)
+            # Testing the delimiter delay parameter in send_packets
+            try:
+                testCloak.send_packets(delimitDelay=2)
+            except:
+                warning("send_packets did not work with a delimiter delay")
+
+            # I NEED TO ADD A TTL TO THIS PART
+            while(recvDelim.running):
+                sleep(1)
+
+            # Checking recv_packets function with a delimiter delay
+            try:
+                recvDelim.join()
+            except:
+                warning("recv_packets function had an error when a delimiter delay was used in the send_packets function")
+            
+            # THIS MIGHT NEED TO GO IN THE TRY STATEMENT
+            if recvDelim.data != "~":
+                warning("Data integrity was not maintained with a delimiter delay")
+
+            # Starting recv_packets thread
+            # For end delay test
+            recvEnd = RecvThread(testCloak)
+            recvEnd.start()
+            sleep(2)
+            # Testing the end delay parameter in send_packets
+            try:
+                testCloak.send_packets(endDelay=2)
+            except:
+                warning("send_packets did not work with an end delay")
+
+            # I NEED TO ADD A TTL TO THIS PART
+            while(recvEnd.running):
+                sleep(1)
+
+            # Checking recv_packets function with an end delay
+            try:
+                recvEnd.join()
+            except:
+                warning("recv_packets function had an error when an end delay was used in the send_packets function")
+
+            # THIS MIGHT NEED TO GO IN THE TRY STATEMENT
+            if recvEnd.data != "~":
+                warning("Data integrity was not maintained with an end delay")
 
             # Test if ingest function works properly for UTF-8 characters 
             try:
@@ -228,7 +274,7 @@ def testChosenCloak(cloak_list, num):
                 info("No cheese for the packet rat :(")
             
             # Copy the send and receive stuff I put above except now we're testing for UTF-8
-
+            
 
 # Prints a typical help screen for usage information
 def print_help():
