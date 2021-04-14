@@ -1,19 +1,16 @@
-# This file is part of the cov3rt project
-# Copyright (C) 2021 Justin Berthelot, Samuel Dominguez, Daniel Munger, Christopher Rice
+ #####################################################################
+#                                                                    #
+#                                   ╭───╮       │                    #
+#                             ╱╲_╱╲     │      ─┼──                  #
+#                  ╭─── ╭───╮ ╲╷ ╷╱  ───┤ ╭───╮ │                    #
+#                  │    │   │ >╲ ╱<     │ │     │                    #
+#                  ╰─── ╰───╯   v   ╰───╯ ╵     ╰──                  #
+#                                                                    #
+#             Authors: Justin Berthelot, Daniel Munger,              #
+#                      Christopher Rice, Samuel Dominguez            #
+#                                                                    #
+#####################################################################
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 def runApplication():
 
@@ -23,17 +20,11 @@ def runApplication():
     import npyscreen
     from os import listdir
     from sys import argv, stdin
-    from cov3rt import Cloaks
     from psutil import net_if_stats
 
     # Sizing for forms
     WINDOW_LINES = 22
     WINDOW_COLUMNS = 80
-    # Store cloak classifications
-    cloaks = {classvar[1]: [] for classvar in getmembers(Cloaks.Cloak.Cloak) if isinstance(classvar[1], str) and classvar[0] != "__module__"}
-
-    # Stores the classname and description of each cloak
-    cloak_names = []
 
     # Main application
     class App(npyscreen.NPSAppManaged):
@@ -305,10 +296,9 @@ def runApplication():
             # Interface
             self.iface = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, editable=False,
                 name="Interface:",
-                value="Default (^X to change)"
+                value="Default"
             )
             self.menu = self.new_menu(name="Interface Selection", shortcut="^X")
-            self.menu.addItem(text="Default", onSelect=self.selectInterface, arguments=["Default"])
             # Loop over the possible network interfaces
             for netiface in sorted(list(net_if_stats().keys())):
                 self.menu.addItem(text=netiface, onSelect=self.selectInterface, arguments=[netiface])
@@ -437,7 +427,7 @@ def runApplication():
             # Sender options
             if (self.sor == "Sender"):
                 # Checks for Valid Interface
-                if (self.iface.value == "Default" or self.iface.value == "Default (^X to change)"):
+                if (self.iface.value == "Default"):
                     # Set the default value
                     self.ifaceval = None
                 # Ensure the interface is not blank
@@ -554,7 +544,7 @@ def runApplication():
                         editing = True
 
                 # Interface
-                if (self.iface.value == "Default" or self.iface.value == "Default (^X to change)"):
+                if (self.iface.value == "Default"):
                     # Set the default value
                     self.ifaceval = None
                 # Ensure the interface is not blank
@@ -758,6 +748,13 @@ def runApplication():
     if ("-h" in argv or "--help" in argv or "?" in argv):
         print_help()
     else:
+        # Import Cloaks here for a quicker help screen
+        from cov3rt import Cloaks
+        
+        # Store cloak classifications
+        cloaks = {classvar[1]: [] for classvar in getmembers(Cloaks.Cloak.Cloak) if isinstance(classvar[1], str) and classvar[0] != "__module__"}
+        # Stores the classname and description of each cloak
+        cloak_names = []
         # Get path for cov3rt
         COV3RT_PATH = '/'.join(Cloaks.__file__.replace("\\", "/").split('/')[:-1])
 
