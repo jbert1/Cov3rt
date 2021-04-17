@@ -28,7 +28,7 @@ class RecvThread(threading.Thread):
 
         self.exc = None
         try:
-            self.data = self.testCloak.recv_packets()
+            self.data = self.testCloak.recv_packets(timeout=10)
             self.running = False    
 
         except:
@@ -38,7 +38,7 @@ class RecvThread(threading.Thread):
     def join(self):
         if self.exc:
             raise self.exc
-
+    
 # Get filepath to user defined cloaks folder
 def get_filepath():
     filepath = Cloaks.__file__
@@ -115,6 +115,16 @@ def testChosenCloak(cloak_list, num):
                 # Relatively big error
                 error("Unable to instantiate class")
                 exit(0)
+
+            testInitParams = list(signature(classInstance.__init__).parameters)
+            paramsToBeChecked = signature(classInstance.__init__).parameters
+
+            for param in testInitParams:
+                if param != "self":
+                    checkDefault = len(param)
+                    check = str(paramsToBeChecked[param])
+                    if check[checkDefault] != "=":
+                        warning("Init function does not have default values set for all parameters")
 
             # Check to make sure that send_packets and recv_packets exist
             funcs = getmembers(testCloak, ismethod)
@@ -284,6 +294,8 @@ def testChosenCloak(cloak_list, num):
             except:
                 warning("send_packets function did not function properly with UTF-8 data")
 
+            counter = 0
+
             # Waiting for recv packets function to end
             # I NEED TO ADD A TTL TO THIS PART
             while(recvUTF.running):
@@ -298,7 +310,29 @@ def testChosenCloak(cloak_list, num):
             # Make sure that data sent is the same as data received
             if recvUTF.data != "🐭 🧀":
                 warning("The cloak was not able maintain the integrity of the data in the send/receive process with UTF-8 data")
-            print(recvUTF.data)
+            
+            # "Long" run test
+            longRun = "The quick brown fox jumped over the lazy dog."
+            testCloak.ingest(longRun)
+            recvLong = RecvThread(testCloak)
+            recvLong.start()
+            sleep(2)
+
+            try:
+                testCloak.send_packets()
+            except:
+                warning("Long run was not able to be sent")
+
+            while(recvLong.running):
+                sleep(1)
+
+            try:
+                recvLong.join()
+            except:
+                warning("Long run was not able to be sent")
+
+            if recvLong.data != longRun:
+                warning("The cloak was not able to maintain the integrity of the data in the send/receive process with UTF-8 data")
 
 # Prints a typical help screen for usage information
 def print_help():
