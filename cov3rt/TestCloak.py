@@ -3,7 +3,7 @@ from os import listdir
 # This will need to be changed when used in actual cov3rt
 from cov3rt import Cloaks
 from cov3rt.Cloaks import Cloak 
-from inspect import getmembers, isclass, ismethod, signature
+from inspect import getmembers, isclass, ismethod, signature, Parameter
 from logging import basicConfig, error, warning, info
 from importlib import import_module
 from sys import argv, exc_info
@@ -70,7 +70,7 @@ def testChosenCloak(cloak_list, num):
     global module_path
     moduleName = cloak_list[num]
     module_path = module_path + moduleName[:-3] 
-    
+
     # First Test
     # Check if file is compileable
     try:
@@ -107,6 +107,29 @@ def testChosenCloak(cloak_list, num):
 
         else:
            
+            # Check the parameters required to instantiate class
+            # Make sure all parameters have a default
+            testInitParams = list(signature(classInstance.__init__).parameters)
+            params = signature(classInstance.__init__).parameters
+            paramTypes = []
+
+            # check if the parameter has a defualt value
+            # Get parameter types as well
+            # Add different type to list to be use later for test instantiation
+            for param in testInitParams:
+                if param != "self":
+                    if type(params[param]) == type(Parameter.empty):
+                        warning("Please make sure all parameters to the constructor have default values")
+                    else:
+                        if type(params[param].default) != type(False):
+                            paramTypes.append(False)
+                        else:
+                            paramTypes.append(0)
+
+            ###################################################################################
+            # No tested cloak worked with params of other types because we don't even do that.#
+            ###################################################################################
+
             # Test to see if you can instantiate an instance of the class
             try:
                 testCloak = classInstance()
@@ -115,16 +138,6 @@ def testChosenCloak(cloak_list, num):
                 # Relatively big error
                 error("Unable to instantiate class")
                 exit(0)
-
-            testInitParams = list(signature(classInstance.__init__).parameters)
-            paramsToBeChecked = signature(classInstance.__init__).parameters
-
-            for param in testInitParams:
-                if param != "self":
-                    checkDefault = len(param)
-                    check = str(paramsToBeChecked[param])
-                    if check[checkDefault] != "=":
-                        warning("Init function does not have default values set for all parameters")
 
             # Check to make sure that send_packets and recv_packets exist
             funcs = getmembers(testCloak, ismethod)
