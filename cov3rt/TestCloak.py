@@ -198,7 +198,6 @@ def testChosenCloak(cloak_list, num):
                 exit(0)
 
             # Waiting for recv packets function to end
-            # I NEED TO ADD A TTL TO THIS PART
             while(recv.running):
                 sleep(1)
 
@@ -225,19 +224,16 @@ def testChosenCloak(cloak_list, num):
             except:
                 warning("send_packets did not work with a packet delay")
 
-            # I NEED TO ADD A TTL TO THIS PART
             while(recvPack.running):
                 sleep(1)
             
             # Checking recv_packets function with a packet delay
             try:
                 recvPack.join()
+                if recvPack.data != "~":
+                    warning("Data integrity was not maintained with a packet delay")
             except:
                 warning("recv_packets function had an error when a packet delay was used in the send_packets function")
-            
-            # THIS MIGHT NEED TO GO IN THE TRY STATEMENT
-            if recvPack.data != "~":
-                warning("Data integrity was not maintained with a packet delay")
             
             # Starting recv_packets thread
             # For delimit delay test
@@ -250,20 +246,18 @@ def testChosenCloak(cloak_list, num):
             except:
                 warning("send_packets did not work with a delimiter delay")
 
-            # I NEED TO ADD A TTL TO THIS PART
             while(recvDelim.running):
                 sleep(1)
 
             # Checking recv_packets function with a delimiter delay
             try:
                 recvDelim.join()
+                if recvDelim.data != "~":
+                    warning("Data integrity was not maintained with a delimiter delay")
+
             except:
                 warning("recv_packets function had an error when a delimiter delay was used in the send_packets function")
-            
-            # THIS MIGHT NEED TO GO IN THE TRY STATEMENT
-            if recvDelim.data != "~":
-                warning("Data integrity was not maintained with a delimiter delay")
-
+        
             # Starting recv_packets thread
             # For end delay test
             recvEnd = RecvThread(testCloak)
@@ -275,19 +269,16 @@ def testChosenCloak(cloak_list, num):
             except:
                 warning("send_packets did not work with an end delay")
 
-            # I NEED TO ADD A TTL TO THIS PART
             while(recvEnd.running):
                 sleep(1)
 
             # Checking recv_packets function with an end delay
             try:
                 recvEnd.join()
+                if recvEnd.data != "~":
+                    warning("Data integrity was not maintained with an end delay")
             except:
                 warning("recv_packets function had an error when an end delay was used in the send_packets function")
-
-            # THIS MIGHT NEED TO GO IN THE TRY STATEMENT
-            if recvEnd.data != "~":
-                warning("Data integrity was not maintained with an end delay")
 
             # Test if ingest function works properly for UTF-8 characters 
             try:
@@ -323,7 +314,7 @@ def testChosenCloak(cloak_list, num):
             # Make sure that data sent is the same as data received
             if recvUTF.data != "🐭 🧀":
                 warning("The cloak was not able maintain the integrity of the data in the send/receive process with UTF-8 data")
-            
+
             # "Long" run test
             longRun = "The quick brown fox jumped over the lazy dog."
             testCloak.ingest(longRun)
@@ -341,11 +332,11 @@ def testChosenCloak(cloak_list, num):
 
             try:
                 recvLong.join()
-            except:
-                warning("Long run was not able to be sent")
+                if recvLong.data != longRun:
+                    warning("The cloak was not able to maintain the integrity of the data in the send/receive process with UTF-8 data")
 
-            if recvLong.data != longRun:
-                warning("The cloak was not able to maintain the integrity of the data in the send/receive process with UTF-8 data")
+            except:
+                warning("Long run was not able to be sent")                
 
 # Prints a typical help screen for usage information
 def print_help():
