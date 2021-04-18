@@ -59,12 +59,12 @@ class Cloak(ABC):
         """Ingests and formats data for the cloak to communicate."""
         pass
 
-    def send_EOT(self):
+    def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of
         transmission."""
         pass
 
-    def send_delimiter(self):
+    def send_delimiter(self, iface=None):
         """Sends a delimiter to signal the end of a specified data stream."""
         pass
 
