@@ -92,10 +92,6 @@ class Cloak(ABC):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
         pass
 
-    def recv_delimiter(self, pkt):
-        """Specifies the delimiter packet that signals the end of a specified data stream."""
-        pass
-
     # Getters and Setters
     # Getter for 'description'
 
