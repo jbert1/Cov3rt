@@ -78,7 +78,7 @@ class UDPChecksum(Cloak):
         return True
 
     def packet_handler(self, pkt):
-        '''Specifies the packet handler for receiving info via the UDP Size Modulation cloak.'''
+        '''Specifies the packet handler for receiving info via the UDP Checksum cloak.'''
         if pkt.haslayer(UDP) and pkt.haslayer(IP) and pkt.haslayer(Raw):
             # Check for correct options
             if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
@@ -97,7 +97,7 @@ class UDPChecksum(Cloak):
         return False
 
     def recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None):
-        """Receives packets which use the UDP Size Modulation Cloak."""
+        """Receives packets which use the UDP Checksum Cloak."""
         info("Receiving packets...")
         self.read_data = ''
         if max_count:
