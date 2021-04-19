@@ -139,6 +139,11 @@ def testChosenCloak(cloak_list, num):
                 error("Unable to instantiate class")
                 exit(0)
 
+            try:
+                testCloakRandArgs = classInstance(*paramTypes)
+            except:
+                warning("Could not instantiate class with variables of different types")
+
             # Check to make sure that send_packets and recv_packets exist
             funcs = getmembers(testCloak, ismethod)
             counter = 0
