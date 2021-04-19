@@ -24,7 +24,6 @@ class UDPFlood(Cloak):
         self.ip_dst = ip_dst
         self.send_port = send_port
         self.dest_port = dest_port
-        self.test = 0
         self.read_data = [0]
         self.charnum = 0
 
