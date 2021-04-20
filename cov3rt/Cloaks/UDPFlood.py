@@ -124,6 +124,7 @@ class UDPFlood(Cloak):
         """Receives packets which use the UDP Size Modulation Cloak."""
         info("Receiving packets...")
         self.read_data = [0]
+        self.charnum = 0
         if max_count:
             packets = sniff(timeout=timeout, count=max_count, iface=iface, offline=in_file, stop_filter=self.recv_EOT, prn=self.packet_handler)
         else:
