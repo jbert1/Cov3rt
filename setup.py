@@ -1,4 +1,17 @@
 from setuptools import setup, setuptools
+from os import path as os_path
+from io import open as io_open
+
+# Return our GitHub documentation
+def return_description():
+    # Get the path of our documentation
+    fpath = os_path.join(os_path.dirname(__file__), "cov3rt-documentation.md")
+    # Open and read the file contents
+    f = io_open(fpath, encoding="utf-8")
+    data = f.read()
+    f.close()
+    # Return the contents
+    return data
 
 setup(
     author='Justin Berthelot Sam Dominguez Daniel Munger Christopher Rice',
@@ -21,8 +34,6 @@ setup(
     url='https://github.com/jbert1/Cov3rt/',
     version='1.0.1',
     zip_safe=False,
-    long_description = """The cov3rt framework provides penetration testers and developers with a wide range of tools to manage, integrate, and deploy covert channel implementations.
-
-Documentation is online at https://github.com/jbert1/Cov3rt/blob/main/cov3rt-documentation.md
-"""
+    long_description_content_type='text/markdown',
+    long_description=return_description()
 )
