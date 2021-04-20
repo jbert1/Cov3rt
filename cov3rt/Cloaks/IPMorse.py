@@ -23,8 +23,7 @@ morse_code = { 'A':'.-', 'B':'-...',
                     '7':'--...', '8':'---..', '9':'----.', 
                     '0':'-----', ', ':'--..--', '.':'.-.-.-', 
                     '?':'..--..', '/':'-..-.', '-':'-....-', 
-                    '(':'-.--.', ')':'-.--.-'}
-
+                    '(':'-.--.', ')':'-.--.-', ' ': ' ', '!': '!'}
 reverse_morse = {'.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
                     '..-.': 'F', '--.': 'G', '....': 'H',
                     '..': 'I', '.---': 'J', '-.-': 'K',
@@ -38,7 +37,7 @@ reverse_morse = {'.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
                     '--...': '7', '---..': '8', '----.': '9',
                     '-----': '0', '--..--': ', ', '.-.-.-': '.',
                     '..--..': '?', '-..-.': '/', '-....-': '-',
-                    '-.--.': '(', '-.--.-': ')', ' ': ' '}
+                    '-.--.': '(', '-.--.-': ')', ' ': ' ', '!': '!'}
 
 class IPMorse(Cloak):
 
@@ -56,27 +55,22 @@ class IPMorse(Cloak):
         self.dest_port = dest_port
         self.read_data = ""
 
-
     def ingest(self, data):
         """Ingests and encodes data into Morse Code."""
         if isinstance(data, str):
             uppercase = data.upper()
-            allowable_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890?()/.,"
             self.data = []
             for character in uppercase:
-                if character in allowable_chars:
+                if character in morse_code:
                     self.data.append(morse_code[character])
-                #Space Case
-                elif character == " ":
-                    self.data.append(" ")
                 else:
-                    raise ValueError("Invalid Character Entered: {}".format(character))
+                    self.data.append('!')
             debug(self.data)
 
     def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
         packet_string = urandom(679)
-        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)  
+        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
@@ -89,7 +83,7 @@ class IPMorse(Cloak):
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
-            send(pkt, verbose=False, iface=iface)    
+            send(pkt, verbose=False, iface=iface)
 
     def send_packet(self, dotdashorspace, iface=None):
         """Sends packets based on the evil bit."""
@@ -108,12 +102,22 @@ class IPMorse(Cloak):
                 send(pkt, verbose=True, iface=iface)
             else:
                 send(pkt, verbose=False, iface=iface)
-        
+
         elif dotdashorspace == " ":
             # If the character is a space, an arbitrary payload length will be chosen
             packet_string = urandom(1337)
             pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
-            
+
+            if self.LOGLEVEL == DEBUG:
+                send(pkt, verbose=True, iface=iface)
+            else:
+                send(pkt, verbose=False, iface=iface)
+
+        elif dotdashorspace == "!":
+            # If the character is an undefined character (!), an arbitrary payload length will be chosen
+            packet_string = urandom(404)
+            pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
+
             if self.LOGLEVEL == DEBUG:
                 send(pkt, verbose=True, iface=iface)
             else:
@@ -122,7 +126,7 @@ class IPMorse(Cloak):
     def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None):
         """Sends the entire ingested data via the send_packet method."""
         info("Sending packets...")
-        
+
         # Loop over the data
         for item in self.data:
             for char in item:
@@ -134,11 +138,11 @@ class IPMorse(Cloak):
                 debug("Delimit delay sleep for {}s".format(delimitDelay))
                 sleep(delimitDelay)
             self.send_delimiter(iface)
-        
+
         # End delay
         if isinstance(endDelay, int) or isinstance(endDelay, float):
             debug("End delay sleep for {}s".format(endDelay))
-            sleep(endDelay) 
+            sleep(endDelay)
         self.send_EOT(iface)
 
         return True
@@ -150,11 +154,13 @@ class IPMorse(Cloak):
             if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
                     # Decipher character
                     if pkt.haslayer(Raw):
-                        length = len(pkt[Raw].load) 
+                        length = len(pkt[Raw].load)
                         if length == 42:
                             self.read_data += "/"
                         elif length == 1337:
-                            self.read_data += " "   
+                            self.read_data += " "
+                        elif length == 404:
+                            self.read_data += "!"
                     else:
                         if pkt["IP"].flags == 0x00:
                             self.read_data += "."
@@ -192,7 +198,7 @@ class IPMorse(Cloak):
         decoded_string = ""
         # Loop over the data
         for item in self.read_data.split("a")[:-1]:
-            decoded_string += reverse_morse[item]            
+            decoded_string += reverse_morse[item]
 
         info("String decoded: {}".format(decoded_string))
         return decoded_string
@@ -220,11 +226,11 @@ class IPMorse(Cloak):
     @property
     def send_port(self):
         return self._send_port
-  
+
     # Getter for "dest_port"
     @property
     def dest_port(self):
-        return self._dest_port    
+        return self._dest_port
 
     # Setter for "send_port"
     @send_port.setter
@@ -236,7 +242,7 @@ class IPMorse(Cloak):
                 raise ValueError("'send_port' must be between 0 and 65535")
         else:
             raise TypeError("'send_port' must be of type 'int'")
-    
+
     # Setter for "dest_port"
     @dest_port.setter
     def dest_port(self, dest_port):
