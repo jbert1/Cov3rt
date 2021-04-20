@@ -1,0 +1,29 @@
+from importlib import import_module
+from inspect import getmembers, isclass
+from os import listdir
+from os import name as OS_NAME
+import cov3rt.UserCloaks as CloakLocation
+
+# Get path for cov3rt
+if OS_NAME == "nt":
+    # Windows path
+    COV3RT_PATH = "\\".join(CloakLocation.__file__.split("\\")[:-1])
+else:
+    COV3RT_PATH = '/'.join(CloakLocation.__file__.split('/')[:-1])
+
+# Get all of the cloaks within the folder
+files = listdir(COV3RT_PATH)
+module_name = ""
+# Loop over the filenames
+for filename in files:
+    # Ignore these files and accept only python files
+    if filename not in ["__init__.py", "__pycache__"] and filename[-3:] == ".py":
+        # Grab the module name
+        module_name = filename[:-3]
+        try:
+            # Add the file to our locals
+            locals()[module_name] = getattr(import_module("cov3rt.UserCloaks.{}".format(module_name)), module_name)
+        except:
+            print("Could not import {}!".format(module_name))
+
+del COV3RT_PATH, OS_NAME, filename, files, getmembers, import_module, isclass, listdir, module_name, CloakLocation
