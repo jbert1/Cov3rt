@@ -685,8 +685,6 @@ def runApplication():
                                 cloaks[cls.classification].append(cls)
                                 # Add to the list of cloaks
                                 cloak_names.append(cls)
-        # Sort the list of cloak names
-        cloak_names.sort(key=nameSort)
 
     # Prints a typical help screen for usage information
     def print_help():
@@ -750,16 +748,22 @@ def runApplication():
     else:
         # Import Cloaks here for a quicker help screen
         from cov3rt import Cloaks
+        from cov3rt import UserCloaks
         
         # Store cloak classifications
         cloaks = {classvar[1]: [] for classvar in getmembers(Cloaks.Cloak.Cloak) if isinstance(classvar[1], str) and classvar[0] != "__module__"}
         # Stores the classname and description of each cloak
         cloak_names = []
-        # Get path for cov3rt
-        COV3RT_PATH = '/'.join(Cloaks.__file__.replace("\\", "/").split('/')[:-1])
 
         # Add the existing cloaks to our classifications
-        add_classes(COV3RT_PATH, "cov3rt.Cloaks")
+        add_classes('/'.join(Cloaks.__file__.replace("\\", "/").split('/')[:-1]), "cov3rt.Cloaks")
+
+        # Add user cloaks to our classifications
+        add_classes('/'.join(UserCloaks.__file__.replace("\\", "/").split('/')[:-1]), "cov3rt.UserCloaks")
+
+        # Sort the list of cloak names
+        cloak_names.sort(key=nameSort)
+
         # Delete empty classifications
         for empty in [cloak for cloak in cloaks if len(cloaks[cloak]) == 0]:
             del cloaks[empty]
