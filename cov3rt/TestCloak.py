@@ -14,9 +14,10 @@ cloak_list = {}
 
 # This threading function listens for specific data from the recv_packets function
 def recthread(recv_packets, checkdata):
+    global TIMEOUT
     # Try to receive data
     try:
-        data = recv_packets(timeout=10)
+        data = recv_packets(timeout=TIMEOUT)
     except:
         print("Could not receive data in 'recv_packets' function!")
         return False
@@ -388,7 +389,9 @@ def print_help():
 
     Other Arguments:
     -h,  --help           Show this help screen
-    -l,  --listCloaks     List available cloaks"""
+    -l,  --listCloaks     List available cloaks
+    -t,  --timeout        Specifify timeout for listener
+                          (could cause infinite loop!)"""
           )
 
 
@@ -396,6 +399,29 @@ def print_help():
 if ("-h" in argv or "--help" in argv or "?" in argv):
     print_help()
 else:
+    # Timeout
+    if ("-t" in argv or "--timeout" in argv):
+        # Get the index in the arglist
+        try:
+            index = argv.index("-t")
+        except:
+            index = argv.index("--timeout")
+        # Ensure the next positional argument is correct
+        try:
+            temp = argv[index + 1]
+            # Check type
+            if temp.isdigit():
+                TIMEOUT = int(temp)
+            else:
+                error("Timeout value must be of type 'float'!")
+                exit()
+        # Missing following positional argument
+        except IndexError:
+            error("Missing timeout value!")
+            exit()
+    else:
+        # Default to 10 seconds
+        TIMEOUT = 10
     # Populate the cloak list
     cloak_list = get_cloaks()
     # List files
