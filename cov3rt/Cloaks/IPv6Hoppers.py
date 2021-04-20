@@ -26,7 +26,7 @@ class IPv6Hoppers(Cloak):
     def ingest(self, data):
         """Ingests and formats data as a binary stream."""
         if isinstance(data, str):
-            self.data = [ord(i) if ord(i) < 255 else "@" for i in data]
+            self.data = [ord(i) + self.EOT_hl if (ord(i) + self.EOT_hl) < 255 else 64 for i in data]
             debug(self.data)
 
     def send_EOT(self, iface=None):
@@ -39,7 +39,7 @@ class IPv6Hoppers(Cloak):
 
     def send_packet(self, var_hl, iface=None):
         """Sends packets based on hop limit."""
-        pkt = IPv6(dst=self.ip_dst, hlim=var_hl+self.EOT_hl)
+        pkt = IPv6(dst=self.ip_dst, hlim=var_hl)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
