@@ -67,7 +67,6 @@ def testChosenCloak(cloak_list, num):
     module_path = "cov3rt.{}".format(cloak_list[num][1])
     moduleName = cloak_list[num][0]
     module_path = module_path + moduleName[:-3]
-    print(moduleName)
 
     # Check if module is importable
     try:
