@@ -58,7 +58,7 @@ def list_cloaks():
     global cloak_list
     print("User Defined Cloaks:")
     for i in cloak_list:
-        print("{} -> {}".format(i, cloak_list[i][0]))
+        print("  {} -> {}".format(i, cloak_list[i][0]))
 
 
 # Test user defined cloaks
