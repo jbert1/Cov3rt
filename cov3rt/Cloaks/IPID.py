@@ -24,7 +24,7 @@ class IPID(Cloak):
     def ingest(self, data):
         """Ingests and formats data as a binary stream."""
         if isinstance(data, str):
-            self.data = [ord(i) for i in data]
+            self.data = [ord(i) if ord(i) < 65535 else 144 for i in data]
             debug(self.data)
 
     def send_EOT(self, iface=None):
@@ -67,7 +67,8 @@ class IPID(Cloak):
         """Specifies the packet handler for receiving information via the IP Identification Cloak."""
         if pkt.haslayer(IP):
             if pkt["IP"].dst == self.ip_dst:
-                self.read_data.append(pkt.id)
+                if pkt.id != 144:
+                    self.read_data.append(pkt.id)
                 debug("Received {}".format(pkt.id))
 
     def recv_EOT(self, pkt):
