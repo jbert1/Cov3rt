@@ -1,44 +1,33 @@
-from os import listdir
 
-# This will need to be changed when used in actual cov3rt
-from cov3rt import Cloaks
-from cov3rt.Cloaks import Cloak 
-from inspect import getmembers, isclass, ismethod, signature, Parameter
+from inspect import getmembers, isclass, ismethod, signature
+from inspect import _empty as emptyParameter
 from logging import basicConfig, error, warning, info
 from importlib import import_module
+from os import listdir
 from sys import argv, exc_info
-import threading
+from threading import Thread
 from time import sleep
+from cov3rt import Cloaks
+from cov3rt.Cloaks import Cloak
 
-module_path = "cov3rt.Cloaks."
 cloak_list = {}
-basicConfig(level=20)
+# This threading function listens for specific data from the recv_packets function
+def recthread(recv_packets, checkdata):
+    # Try to receive data
+    try:
+        data = recv_packets(timeout=10)
+    except:
+        print("Could not receive data in 'recv_packets' function!")
+        return False
+    # Blank data
+    if data == "":
+        print("No data received!")
+    # Incorrect data
+    elif data != checkdata:
+        print("Data was not properly received. Received: '{}' instead of '{}'!".format(
+            ''.join([i if i.isprintable() else "?" for i in data]), checkdata))
+        return False
 
-# This class is to test out the recv_packets function in a cloak 
-class RecvThread(threading.Thread):
-    
-    def __init__(self, testCloak):
-
-        threading.Thread.__init__(self)
-        self.testCloak = testCloak
-        self.data = ""
-        self.running = True
-
-    def run(self):
-
-        self.exc = None
-        try:
-            self.data = self.testCloak.recv_packets(timeout=10)
-            self.running = False    
-
-        except:
-            self.exc = exc_info()
-            self.running = False
-
-    def join(self):
-        if self.exc:
-            raise self.exc
-    
 # Get filepath to user defined cloaks folder
 def get_filepath():
     filepath = Cloaks.__file__
@@ -67,281 +56,321 @@ def list_cloaks():
 # Test user defined cloaks
 def testChosenCloak(cloak_list, num):
 
-    global module_path
+    module_path = "cov3rt.Cloaks."
     moduleName = cloak_list[num]
-    module_path = module_path + moduleName[:-3] 
+    module_path = module_path + moduleName[:-3]
 
-    # First Test
-    # Check if file is compileable
+    # Check if module is importable
     try:
         module = import_module(module_path)
-    
+    # Could not import module
     except:
-        # JUSTIN WRITE SOMETHING HERE PLEASE, THANKS... haha :)...
-        error("Syntax error")
+        error("Could not import module '{}'! Exiting...".format(moduleName[:-3]))
         exit(0)
 
+    # Get the classes within the module
     cls = getmembers(module, isclass)
-    
-    # Second Test 
-    # Check to see if there is a cloak class
+    # Check to see if there are classes within the module
     if len(cls) < 1:
-        error("No cloak class defined")
+        error("No classes found within the module '{}'! Exiting...".format(moduleName[:-3]))
         exit(0)
+    # Classes exist in the module
     else:
-        
         nameCheck = False
-        
-        # Third Test
         # Make sure name of class is the same as the name of the file
         for clsName in cls:
+            # Class name is the same as the module name
             if clsName[0] == moduleName[:-3]:
+                # Save the module name
                 moduleName = clsName[0]
-                classInstance = clsName[1]
+                # Save the class itself
+                classvar = clsName[1]
+                # Set checker var to True
                 nameCheck = True 
                 break
-
+        # Class not found
         if not nameCheck:
-            warning("Please make sure that class name matches file name.")
+            error("Cloak class must have the same name as the file / module '{}'! Exiting...".format(moduleName[:-3]))
+            exit(0)
+        # Get the parameters for the class constructor
+        params = signature(classvar.__init__).parameters
+
+        # Get parameter types as well
+        # Add different type to list to be use later for test instantiation
+        for param in params.keys():
+            # Skip the 'self' parameter
+            if param != "self":
+                # Default value for the parameter is empty
+                if params[param] == emptyParameter:
+                    error("Parameter '{}' for the constructor has no default value! Exiting...".format(param))
+
+        # Create an instance of the class
+        try:
+            cloakInstance = classvar()
+        except:
+            error("Unable to instantiate class '{}'! Exiting...".format(moduleName))
             exit(0)
 
-        else:
-           
-            # Check the parameters required to instantiate class
-            # Make sure all parameters have a default
-            testInitParams = list(signature(classInstance.__init__).parameters)
-            params = signature(classInstance.__init__).parameters
-            paramTypes = []
-
-            # check if the parameter has a defualt value
-            # Get parameter types as well
-            # Add different type to list to be use later for test instantiation
-            for param in testInitParams:
-                if param != "self":
-                    if type(params[param]) == type(Parameter.empty):
-                        warning("Please make sure all parameters to the constructor have default values")
-                    else:
-                        if type(params[param].default) != type(False):
-                            paramTypes.append(False)
-                        else:
-                            paramTypes.append(0)
-
-            ###################################################################################
-            # No tested cloak worked with params of other types because we don't even do that.#
-            ###################################################################################
-
-            # Test to see if you can instantiate an instance of the class
-            try:
-                testCloak = classInstance()
-            
-            except:
-                # Relatively big error
-                error("Unable to instantiate class")
-                exit(0)
-
-            try:
-                testCloakRandArgs = classInstance(*paramTypes)
-            except:
-                warning("Could not instantiate class with variables of different types")
-
-            # Check to make sure that send_packets and recv_packets exist
-            funcs = getmembers(testCloak, ismethod)
-            counter = 0
-            
-            for func in funcs:
-                if func[0] == "ingest":
-                    counter += 1
-                if func[0] == "send_packets":
-                    counter += 1
-                if func[0] == "recv_packets":
-                    counter += 1
-
-            if counter < 3:
-                error("Make sure to define the ingest, send_packets and recv_packets function.")
-                exit(0)
-            
-            # Get standard function parameters from cloak super class
-            cloakCls = getmembers(Cloak, isclass)
-            cloakIngestParams = str(signature(cloakCls[1][1].ingest).parameters)
-            cloakSendParams = str(signature(cloakCls[1][1].send_packets).parameters)
-            cloakRecvParams = str(signature(cloakCls[1][1].recv_packets).parameters)
-
-            # Check paramters of ingest function compared to cloak super class
-            testIngestParams = str(signature(classInstance.ingest).parameters)
-            if testIngestParams != cloakIngestParams:
-                warning("Make sure that your ingest parameters match the cloak super class!")
-
-            # Check parameters of send_packets function compared to cloak super class
-            testSendParams = str(signature(classInstance.send_packets).parameters)             
-            if testSendParams != cloakSendParams:
-                warning("Make sure that your send_packets parameters match the cloak super class!")
-
-            # Check parameters of recv_packets function compared to cloak super class
-            testRecvParams = str(signature(classInstance.recv_packets).parameters)
-            if testRecvParams != cloakRecvParams:
-                warning("Make sure that your recv_packets parameters match the cloak super class!")
-
-            # Test to see if ingest function works properly for ASCII characters
-            # Test with smallest and lowest printable ASCII characters
-            try:
-                testCloak.ingest(" ")
-                testCloak.ingest("~")
-            except:
-                # Yo Justin you know how to write these better than me... <-----
-                warning("Ingest function does not work with ASCII characters.")          
-            
-            # Testing send and receive functions for ASCII
-            recv = RecvThread(testCloak)
-            recv.start()
-            sleep(2)
-            
-            # Checking send_packets function
-            try:
-                testCloak.send_packets()
-            except:
-                error("send_packets function did not function properly")
-                exit(0)
-
-            # Waiting for recv packets function to end
-            while(recv.running):
-                sleep(1)
-
-            # Checking recv_packets function
-            try:
-                recv.join()
-            except:
-                error("recv_packets function did not work")
-                exit(0)
-
-            # Make sure that data sent is the same as data received
-            if recv.data != "~":
-                warning("The cloak was not able maintain the integrity of the data in the send/receive process")
-
-            # Starting recv_packets thread
-            # For packet delay test
-            recvPack = RecvThread(testCloak)
-            recvPack.start()
-            sleep(2)
-
-            # Testing the packet delay parameter in send_packets
-            try:
-                testCloak.send_packets(packetDelay=2)
-            except:
-                warning("send_packets did not work with a packet delay")
-
-            while(recvPack.running):
-                sleep(1)
-            
-            # Checking recv_packets function with a packet delay
-            try:
-                recvPack.join()
-                if recvPack.data != "~":
-                    warning("Data integrity was not maintained with a packet delay")
-            except:
-                warning("recv_packets function had an error when a packet delay was used in the send_packets function")
-            
-            # Starting recv_packets thread
-            # For delimit delay test
-            recvDelim = RecvThread(testCloak)
-            recvDelim.start()
-            sleep(2)
-            # Testing the delimiter delay parameter in send_packets
-            try:
-                testCloak.send_packets(delimitDelay=2)
-            except:
-                warning("send_packets did not work with a delimiter delay")
-
-            while(recvDelim.running):
-                sleep(1)
-
-            # Checking recv_packets function with a delimiter delay
-            try:
-                recvDelim.join()
-                if recvDelim.data != "~":
-                    warning("Data integrity was not maintained with a delimiter delay")
-
-            except:
-                warning("recv_packets function had an error when a delimiter delay was used in the send_packets function")
+        # Check to make sure that send_packets and recv_packets exist
+        funcs = getmembers(cloakInstance, ismethod)
+        ingestBool = False
+        sendBool = False
+        recvBool = False
         
-            # Starting recv_packets thread
-            # For end delay test
-            recvEnd = RecvThread(testCloak)
-            recvEnd.start()
+        # Loop over the functions in the class
+        # Counter should equal 3 if all required functions exist
+        for func, _ in funcs:
+            if func == "ingest":
+                ingestBool = True
+            elif func == "send_packets":
+                sendBool = True
+            elif func == "recv_packets":
+                recvBool = True
+
+        # Function check
+        if not ingestBool:
+            error("'ingest' function not defined in the class '{}'! Exiting...".format(moduleName))
+            exit(0)
+        if not sendBool:
+            error("'send_packets' function not defined in the class '{}'! Exiting...".format(moduleName))
+            exit(0)
+        if not recvBool:
+            error("'recv_packets' function not defined in the class '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Get standard function parameters from cloak super class
+        cloakIngestParams = signature(Cloak.Cloak.ingest).parameters
+        cloakSendParams = signature(Cloak.Cloak.send_packets).parameters
+        cloakRecvParams = signature(Cloak.Cloak.recv_packets).parameters
+
+        # Check parameters of ingest function compared to cloak super class
+        testIngestParams = signature(classvar.ingest).parameters
+        missingparameter = False
+        extraparameter = False
+        # Loop over missing parameters
+        for p in set(cloakIngestParams).difference(testIngestParams):
+            print("Parameter '{}' not in ingest function!".format(p))
+            missingparameter = True
+
+        # Missing parameters exist
+        if missingparameter:
+            error("Parameters were missing in the ingest function for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Loop over extra parameters
+        for p in set(testIngestParams).difference(cloakIngestParams):
+            print("Parameter '{}' not in superclass ingest function!".format(p))
+            extraparameter = True
+
+        # Extra parameters exist
+        if extraparameter:
+            error("Extra parameters were included in the ingest function for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Check order of parameters
+        if str(testIngestParams) != str(cloakIngestParams):
+            error("Order inconsistent for ingest parameters for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Check parameters of send_packets function compared to cloak super class
+        testSendParams = signature(classvar.send_packets).parameters
+        missingparameter = False
+        extraparameter = False
+        # Loop over missing parameters
+        for p in set(cloakSendParams).difference(testSendParams):
+            print("Parameter '{}' not in send_packets function!".format(p))
+            missingparameter = True
+
+        # Missing parameters exist
+        if missingparameter:
+            error("Parameters were missing in the send_packets function for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Loop over extra parameters
+        for p in set(testSendParams).difference(cloakSendParams):
+            print("Parameter '{}' not in superclass ingest function!".format(p))
+            extraparameter = True
+
+        # Extra parameters exist
+        if extraparameter:
+            error("Extra parameters were included in the send_packets function for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Check order of parameters
+        if str(testSendParams) != str(cloakSendParams):
+            error("Order inconsistent for send_packets parameters for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Check parameters of recv_packets function compared to cloak super class
+        testRecvParams = signature(classvar.recv_packets).parameters
+        missingparameter = False
+        extraparameter = False
+        # Loop over missing parameters
+        for p in set(cloakRecvParams).difference(testRecvParams):
+            print("Parameter '{}' not in recv_packets function!".format(p))
+            missingparameter = True
+
+        # Missing parameters exist
+        if missingparameter:
+            error("Parameters were missing in the recv_packets function for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Loop over extra parameters
+        for p in set(testRecvParams).difference(cloakRecvParams):
+            print("Parameter '{}' not in superclass ingest function!".format(p))
+            extraparameter = True
+
+        # Extra parameters exist
+        if extraparameter:
+            error("Extra parameters were included in the recv_packets function for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Check order of parameters
+        if str(testRecvParams) != str(cloakRecvParams):
+            error("Order inconsistent for recv_packets parameters for '{}'! Exiting...".format(moduleName))
+            exit(0)
+
+        # Let user know the status of the test function
+        print("Status: Testing ASCII communication...")
+
+        # Test to see if ingest function works properly for ASCII characters
+        try:
+            # Low 'value' printable ascii character
+            cloakInstance.ingest(" ")
+            # High 'value' printable ascii character
+            cloakInstance.ingest("~")
+        except:
+            error("Ingest function failed with ascii characters! Exiting...")
+            exit(0)
+        
+        # Start thread to listen for packets
+        recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "~"], daemon=True)
+        recv.start()
+        # Give the receiver time to start up
+        sleep(2)
+
+        # Checking send_packets function
+        try:
+            cloakInstance.send_packets()
+        except:
+            error("Unable to send ascii characters! Exiting...")
+            exit(0)
+
+        # Wait for thread to complete
+        while(recv.is_alive()):
+            sleep(0.1)
+
+        # Let user know the status of the test function
+        print("\nStatus: Testing Packet Delay...")
+
+        # Start thread to listen for packets
+        recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "~"], daemon=True)
+        recv.start()
+        # Give the receiver time to start up
+        sleep(2)
+
+        # Testing the packet delay parameter in send_packets
+        try:
+            cloakInstance.send_packets(packetDelay=0.1)
+        except:
+            warning("'send_packets' function failed with packet delay!")
+
+        # Wait for thread to complete
+        while(recv.is_alive()):
+            sleep(0.1)
+
+        # Let user know the status of the test function
+        print("\nStatus: Testing Delimiter Delay...")
+
+        # Start thread to listen for packets
+        recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "~"], daemon=True)
+        recv.start()
+        # Give the receiver time to start up
+        sleep(2)
+
+        # Testing the delimiter delay parameter in send_packets
+        try:
+            cloakInstance.send_packets(delimitDelay=2)
+        except:
+            warning("send_packets did not work with a delimiter delay")
+
+        # Wait for thread to complete
+        while(recv.is_alive()):
+            sleep(0.1)
+
+        # Let user know the status of the test function
+        print("\nStatus: Testing End of Transmission Delay...")
+
+        # Start thread to listen for packets
+        recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "~"], daemon=True)
+        recv.start()
+        # Give the receiver time to start up
+        sleep(2)
+
+        # Testing the end delay parameter in send_packets
+        try:
+            cloakInstance.send_packets(endDelay=2)
+        except:
+            warning("send_packets did not work with an end delay")
+
+        # Wait for thread to complete
+        while(recv.is_alive()):
+            sleep(0.1)
+
+        # Let user know the status of the test function
+        print("\nStatus: Testing UTF-8 Encoded Data...")
+        skipUTF8 = False
+
+        # Test if ingest function works properly for UTF-8 characters 
+        try:
+            cloakInstance.ingest("🐭 🧀")
+        except:
+            warning("Unable to ingest UTF-8 encoded data!")
+            skipUTF8 = True
+
+        if not skipUTF8:
+            # Start thread to listen for packets
+            recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "🐭 🧀"], daemon=True)
+            recv.start()
+            # Give the receiver time to start up
             sleep(2)
-            # Testing the end delay parameter in send_packets
-            try:
-                testCloak.send_packets(endDelay=2)
-            except:
-                warning("send_packets did not work with an end delay")
-
-            while(recvEnd.running):
-                sleep(1)
-
-            # Checking recv_packets function with an end delay
-            try:
-                recvEnd.join()
-                if recvEnd.data != "~":
-                    warning("Data integrity was not maintained with an end delay")
-            except:
-                warning("recv_packets function had an error when an end delay was used in the send_packets function")
-
-            # Test if ingest function works properly for UTF-8 characters 
-            try:
-                testCloak.ingest("🐭 🧀")
-            except:
-                # Yo justin you might have to change this... haha :)...
-                info("No cheese for the packet rat :(")
-            
-            # Testing send and receive functions for UTF-8
-            recvUTF = RecvThread(testCloak)
-            recvUTF.start()
-            sleep(2)
-
             # Checking send_packets function
             try:
-                testCloak.send_packets()
+                cloakInstance.send_packets()
             except:
                 warning("send_packets function did not function properly with UTF-8 data")
+            # Wait for thread to complete
+            while(recv.is_alive()):
+                sleep(0.1)
 
-            counter = 0
+        # Let user know the status of the test function
+        print("\nStatus: Testing Long ASCII String...")
 
-            # Waiting for recv packets function to end
-            # I NEED TO ADD A TTL TO THIS PART
-            while(recvUTF.running):
-                sleep(1)
+        # "Long" string of data
+        try:
+            cloakInstance.ingest("The quick brown fox jumped over the lazy dog.")
+        except:
+            error("Ingest function failed with long ascii message! Exiting...")
+            exit(0)
 
-            # Checking recv_packets function with UTF-8 data
-            try:
-                recvUTF.join()
-            except:
-                warning("recv_packets function did not work with UTF-8 data")
+        # Start thread to listen for packets
+        recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "The quick brown fox jumped over the lazy dog."], daemon=True)
+        recv.start()
+        # Give the receiver time to start up
+        sleep(2)
 
-            # Make sure that data sent is the same as data received
-            if recvUTF.data != "🐭 🧀":
-                warning("The cloak was not able maintain the integrity of the data in the send/receive process with UTF-8 data")
+        # Checking send_packets function
+        try:
+            cloakInstance.send_packets()
+        except:
+            warning("Long run was not able to be sent")
 
-            # "Long" run test
-            longRun = "The quick brown fox jumped over the lazy dog."
-            testCloak.ingest(longRun)
-            recvLong = RecvThread(testCloak)
-            recvLong.start()
-            sleep(2)
+        # Wait for thread to complete
+        while(recv.is_alive()):
+            sleep(0.1)
 
-            try:
-                testCloak.send_packets()
-            except:
-                warning("Long run was not able to be sent")
+        print("\nFinished testing the '{}' cloak!".format(moduleName))
 
-            while(recvLong.running):
-                sleep(1)
-
-            try:
-                recvLong.join()
-                if recvLong.data != longRun:
-                    warning("The cloak was not able to maintain the integrity of the data in the send/receive process with UTF-8 data")
-
-            except:
-                warning("Long run was not able to be sent")                
 
 # Prints a typical help screen for usage information
 def print_help():
