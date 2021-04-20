@@ -1,20 +1,10 @@
 from importlib import import_module
 from inspect import getmembers, isclass
 from os import listdir
-from os import name as OS_NAME
-from cov3rt.Cloaks import Cloak as CloakLocation
+import cov3rt.Cloaks as CloakLocation
 
-# Get path for cov3rt
-if OS_NAME == "nt":
-    # Windows path
-    COV3RT_PATH = "\\".join(CloakLocation.__file__.split("\\")[:-1])
-else:
-    COV3RT_PATH = '/'.join(CloakLocation.__file__.split('/')[:-1])
-
-# Get all of the cloaks within the folder
-files = listdir(COV3RT_PATH)
-# Loop over the filenames
-for filename in files:
+# Loop over the filenames within the Cloaks folder
+for filename in listdir('/'.join(CloakLocation.__file__.replace("\\", "/").split('/')[:-1])):
     # Ignore these files and accept only python files
     if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and filename[-3:] == ".py":
         # Grab the module name
@@ -25,4 +15,4 @@ for filename in files:
         except:
             print("Could not import {}!".format(module_name))
 
-del COV3RT_PATH, OS_NAME, filename, files, getmembers, import_module, isclass, listdir, module_name, CloakLocation
+del filename, getmembers, import_module, isclass, listdir, module_name, CloakLocation
