@@ -48,7 +48,10 @@ class UDPSizeModulation(Cloak):
     def send_packet(self, number, iface=None):
         '''Sends single packet based on the number in stream.'''
         # Generate random string to go into packet based on number
-        packet_string = urandom(number)
+        if number < 65507:
+            packet_string = urandom(number)
+        else:
+            packet_string = urandom(144)
         # Create packet and send
         pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
@@ -80,7 +83,7 @@ class UDPSizeModulation(Cloak):
             # Check for correct options
             if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
                 length = len(pkt["Raw"].load)
-                if length != 4:
+                if length != 4 and length != 144:
                     self.read_data += chr(length)
                     debug("Received a '{}'".format(chr(length)))
                     info("String: {}".format(self.read_data))
