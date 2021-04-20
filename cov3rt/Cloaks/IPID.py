@@ -17,9 +17,8 @@ class IPID(Cloak):
     name = "IP Identification"
     description = "A covert channel using the Identification Field in \nIP packets to transmit messages."
 
-    def __init__(self, EOT_ID=20, ip_dst="10.10.10.10"):
+    def __init__(self, ip_dst="10.10.10.10"):
         self.ip_dst = ip_dst
-        self.EOT_ID = EOT_ID
         self.read_data = []
 
     def ingest(self, data):
@@ -30,8 +29,7 @@ class IPID(Cloak):
 
     def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
-        pkt = IP(dst="10.10.10.10")
-        pkt.id = self.EOT_ID
+        pkt = IP(dst = self.ip_dst, id = 4)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
@@ -39,7 +37,7 @@ class IPID(Cloak):
 
     def send_packet(self, var_id, iface=None):
         """Sends packets based on IP Identification Field."""
-        pkt = IP(dst=self.ip_dst)
+        pkt = IP(dst = self.ip_dst)
         # Set the IP ID field of the packet as our falsified ID
         pkt.id = var_id
         if self.LOGLEVEL == DEBUG:
@@ -75,7 +73,7 @@ class IPID(Cloak):
     def recv_EOT(self, pkt):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(IP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].id == self.EOT_ID:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].id == 4:
                 info("Received EOT")
                 return True
         return False
@@ -118,19 +116,3 @@ class IPID(Cloak):
         else:
             raise TypeError("'ip_dst' must be of type 'str'")
 
-    # Getter for "EOT_ID"
-
-    @property
-    def EOT_ID(self):
-        return self._EOT_ID
-
-    # Setter for "EOT_ID"
-    @EOT_ID.setter
-    def EOT_ID(self, EOT_ID):
-        if isinstance(EOT_ID, int):
-            if EOT_ID > 255 and EOT_ID < 65535:
-                self._EOT_ID = EOT_ID
-            else:
-                raise ValueError("'EOT_ID' must be between 255 and 65535")
-        else:
-            raise TypeError("'EOT_ID' must be of type 'int'")
