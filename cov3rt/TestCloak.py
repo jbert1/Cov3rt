@@ -331,14 +331,14 @@ def testChosenCloak(cloak_list, num):
 
         # Test if ingest function works properly for UTF-8 characters
         try:
-            cloakInstance.ingest("🐭 🧀")
+            cloakInstance.ingest("✅")
         except:
             warning("Unable to ingest UTF-8 encoded data!")
             skipUTF8 = True
 
         if not skipUTF8:
             # Start thread to listen for packets
-            recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "🐭 🧀"], daemon=True)
+            recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "✅"], daemon=True)
             recv.start()
             # Give the receiver time to start up
             sleep(2)
