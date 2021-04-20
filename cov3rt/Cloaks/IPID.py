@@ -29,7 +29,7 @@ class IPID(Cloak):
 
     def send_EOT(self, iface=None):
         """Sends an end-of-transmission packet to signal the end of transmission."""
-        pkt = IP(dst = self.ip_dst, id = 4)
+        pkt = IP(dst=self.ip_dst, id=4)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
@@ -64,7 +64,7 @@ class IPID(Cloak):
         return True
 
     def packet_handler(self, pkt):
-        """Specifies the packet handler for receiving information via the IP Identifiaction Cloak."""
+        """Specifies the packet handler for receiving information via the IP Identification Cloak."""
         if pkt.haslayer(IP):
             if pkt["IP"].dst == self.ip_dst:
                 self.read_data.append(pkt.id)
