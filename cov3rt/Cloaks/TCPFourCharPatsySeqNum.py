@@ -20,7 +20,7 @@ class TCPFourCharPatsySeqNum(Cloak):
     name = "TCP Patsy 4-Char Seq Number"
     description = "A cloak based on changing the TCP sequence number\nto 4 ascii characters while using a patsy."
 
-    def __init__(self, ip_dst="8.8.8.8", ip_patsy="142.250.138.101", patsy_port=80):
+    def __init__(self, ip_dst="192.168.1.3", ip_patsy="192.168.1.26", patsy_port=22):
         self.ip_dst = ip_dst
         self.ip_patsy = ip_patsy
         self.patsy_port = patsy_port
