@@ -631,9 +631,11 @@ def runApplication():
                         self.decoded = self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
                         # Notify the user the message has been received
                         if self.outcapfile:
-                            npyscreen.notify_wait("Your capture has been saved to {}. Your secret message is '{}'. Thank you for using cov3rt!".format(self.outcapfile, self.decoded), title="Message Received Successfully")
+                            npyscreen.notify_wait("Your capture has been saved to {}. Your secret message is '{}'. Thank you for using cov3rt!".format(self.outcapfile, 
+                                ''.join([i if i.isprintable() else "?" for i in self.decoded])), title="Message Received Successfully")
                         else:
-                            npyscreen.notify_wait("Your secret message is '{}'. Thank you for using cov3rt!".format(self.decoded), title="Message Received Successfully")
+                            npyscreen.notify_wait("Your secret message is '{}'. Thank you for using cov3rt!".format(
+                                ''.join([i if i.isprintable() else "?" for i in self.decoded])), title="Message Received Successfully")
                     self.parentApp.setNextForm(None)
             else:
                 npyscreen.notify_wait("You messed up somewhere. Try again.", title="What did you even do?")
@@ -1107,4 +1109,4 @@ def runApplication():
                         f.close()
                     # Simply print message
                     else:
-                        print(m)
+                        print(''.join([i if i.isprintable() else "?" for i in m]))
