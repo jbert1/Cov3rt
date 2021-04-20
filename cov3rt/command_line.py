@@ -1095,7 +1095,7 @@ def runApplication():
                 # Ingest data
                 cloak.ingest(message)
                 # Send packets
-                cloak.send_packets(PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
+                cloak.send_packets(INTERFACE, PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
             elif RECEIVING:
                 # Receive packets
                 if OUTPUT_PCAP:
