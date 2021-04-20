@@ -173,11 +173,8 @@ class IPMorse(Cloak):
         if pkt.haslayer(UDP) and pkt.haslayer(IP) and pkt.haslayer(Raw):
             # Check for correct options
             if pkt["IP"].dst == self.ip_dst and pkt["UDP"].sport == self.send_port and pkt["UDP"].dport == self.dest_port:
-                print("b")
                 length = len(pkt["Raw"].load)
-                print(length)
                 if length == 679:
-                    print("c")
                     info("Received EOT")
                     return True
         return False
@@ -193,11 +190,10 @@ class IPMorse(Cloak):
         if out_file:
             wrpcap(out_file, packets)
 
-        print(self.read_data.split("/")[:-1])
         # Decode read data
         decoded_string = ""
         # Loop over the data
-        for item in self.read_data.split("a")[:-1]:
+        for item in self.read_data.split("/")[:-1]:
             decoded_string += reverse_morse[item]
 
         info("String decoded: {}".format(decoded_string))
