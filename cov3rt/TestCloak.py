@@ -7,10 +7,11 @@ from os import listdir
 from sys import argv, exc_info
 from threading import Thread
 from time import sleep
-from cov3rt import Cloaks
+from cov3rt import Cloaks, UserCloaks
 from cov3rt.Cloaks import Cloak
 
 cloak_list = {}
+
 # This threading function listens for specific data from the recv_packets function
 def recthread(recv_packets, checkdata):
     # Try to receive data
@@ -20,7 +21,7 @@ def recthread(recv_packets, checkdata):
         print("Could not receive data in 'recv_packets' function!")
         return False
     # Blank data
-    if data == "":
+    if data == "" or data is None:
         print("No data received!")
     # Incorrect data
     elif data != checkdata:
@@ -28,37 +29,44 @@ def recthread(recv_packets, checkdata):
             ''.join([i if i.isprintable() else "?" for i in data]), checkdata))
         return False
 
-# Get filepath to user defined cloaks folder
-def get_filepath():
-    filepath = Cloaks.__file__
-    return filepath[:-12]
 
 # Create a dictionary with all User Defined Cloaks
 def get_cloaks():
     global cloak_list
-    files = listdir(get_filepath())
+
+    # Counter to enumerate the available cloaks
     counter = 0
 
-    for i in range(len(files)):
-        filename = files[i]
-        if filename not in ["__init__.py", "__pycache__","Cloak.py"] and filename[-3:] == ".py":
-            cloak_list[counter] = filename
+    # Loop over the files in the path
+    for filename in listdir(Cloaks.__file__[:-12]):
+        if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and filename[-3:] == ".py":
+            cloak_list[counter] = (filename, "Cloaks.")
             counter += 1
+
+    # Loop over the files in the path
+    for filename in listdir(UserCloaks.__file__[:-12]):
+        if filename not in ["__init__.py", "__pycache__", "Cloak.py"] and filename[-3:] == ".py":
+            cloak_list[counter] = (filename, "UserCloaks.")
+            counter += 1
+
     return cloak_list
+
 
 # List out all user defined cloaks
 def list_cloaks():
     global cloak_list
     print("User Defined Cloaks:")
     for i in cloak_list:
-        print("{} -> {}".format(i,cloak_list[i]))
+        print("{} -> {}".format(i, cloak_list[i][0]))
+
 
 # Test user defined cloaks
 def testChosenCloak(cloak_list, num):
 
-    module_path = "cov3rt.Cloaks."
-    moduleName = cloak_list[num]
+    module_path = "cov3rt.{}".format(cloak_list[num][1])
+    moduleName = cloak_list[num][0]
     module_path = module_path + moduleName[:-3]
+    print(moduleName)
 
     # Check if module is importable
     try:
@@ -86,7 +94,7 @@ def testChosenCloak(cloak_list, num):
                 # Save the class itself
                 classvar = clsName[1]
                 # Set checker var to True
-                nameCheck = True 
+                nameCheck = True
                 break
         # Class not found
         if not nameCheck:
@@ -116,7 +124,7 @@ def testChosenCloak(cloak_list, num):
         ingestBool = False
         sendBool = False
         recvBool = False
-        
+
         # Loop over the functions in the class
         # Counter should equal 3 if all required functions exist
         for func, _ in funcs:
@@ -242,7 +250,7 @@ def testChosenCloak(cloak_list, num):
         except:
             error("Ingest function failed with ascii characters! Exiting...")
             exit(0)
-        
+
         # Start thread to listen for packets
         recv = Thread(target=recthread, args=[cloakInstance.recv_packets, "~"], daemon=True)
         recv.start()
@@ -321,7 +329,7 @@ def testChosenCloak(cloak_list, num):
         print("\nStatus: Testing UTF-8 Encoded Data...")
         skipUTF8 = False
 
-        # Test if ingest function works properly for UTF-8 characters 
+        # Test if ingest function works properly for UTF-8 characters
         try:
             cloakInstance.ingest("🐭 🧀")
         except:
@@ -381,7 +389,8 @@ def print_help():
     Other Arguments:
     -h,  --help           Show this help screen
     -l,  --listCloaks     List available cloaks"""
-)        
+          )
+
 
 # Hand written parser because argparse sucks
 if ("-h" in argv or "--help" in argv or "?" in argv):
@@ -418,11 +427,10 @@ else:
         except IndexError:
             error("Missing cloak type argument!\nUse the '-l' option to view valid cloak types.")
             exit()
-        
+
         # Test the chosen cloak
         testChosenCloak(cloak_list, cloak_type)
 
     else:
         error("Please specify cloak type!")
         exit()
-
