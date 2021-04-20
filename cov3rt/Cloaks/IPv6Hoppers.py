@@ -18,7 +18,7 @@ class IPv6Hoppers(Cloak):
     name = "IPv6 Hoppers"
     description = "A covert channel using the hop limit in IPv6 \npackets to transmit messages."
 
-    def __init__(self, EOT_hl=69, ip_dst="ff02::1:ffad:317"):
+    def __init__(self, EOT_hl=64, ip_dst="ff02::1:ffad:317"):
         self.ip_dst = ip_dst
         self.EOT_hl = EOT_hl
         self.read_data = []
@@ -26,7 +26,7 @@ class IPv6Hoppers(Cloak):
     def ingest(self, data):
         """Ingests and formats data as a binary stream."""
         if isinstance(data, str):
-            self.data = [ord(i) for i in data]
+            self.data = [ord(i) if ord(i) < 255 else "@" for i in data]
             debug(self.data)
 
     def send_EOT(self, iface=None):
@@ -143,7 +143,7 @@ class IPv6Hoppers(Cloak):
     @EOT_hl.setter
     def EOT_hl(self, EOT_hl):
         if isinstance(EOT_hl, int):
-            if EOT_hl > 64 and EOT_hl < 127:
+            if EOT_hl >= 64 and EOT_hl <= 127:
                 self._EOT_hl = EOT_hl
             else:
                 raise ValueError("'EOT_hl' must be between 64 and 127")
