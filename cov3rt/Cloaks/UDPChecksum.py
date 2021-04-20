@@ -30,7 +30,15 @@ class UDPChecksum(Cloak):
     def ingest(self, data):
         '''Ingests and formats data as a binary stream.'''
         if isinstance(data, str):
-            self.data = [ord(i) for i in data]
+            self.data = []
+            for i in data:
+                ordval = ord(i)
+                # If the value is within acceptable range (checksum 0x9999, dec 39321)
+                if ordval < 39321:
+                    self.data.append(ordval)
+                # Otherwise, replace the invalid with an @ (chr 64)
+                else:
+                    self.data.append('64')
             debug(self.data)
         else:
             raise TypeError("'data' must be of type 'str'")
