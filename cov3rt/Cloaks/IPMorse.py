@@ -23,7 +23,7 @@ morse_code = { 'A':'.-', 'B':'-...',
                     '7':'--...', '8':'---..', '9':'----.', 
                     '0':'-----', ', ':'--..--', '.':'.-.-.-', 
                     '?':'..--..', '/':'-..-.', '-':'-....-', 
-                    '(':'-.--.', ')':'-.--.-', ' ': ' ', '!': '!'}
+                    '(':'-.--.', ')':'-.--.-', ' ': ' ', '@': '@'}
 reverse_morse = {'.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
                     '..-.': 'F', '--.': 'G', '....': 'H',
                     '..': 'I', '.---': 'J', '-.-': 'K',
@@ -37,7 +37,7 @@ reverse_morse = {'.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
                     '--...': '7', '---..': '8', '----.': '9',
                     '-----': '0', '--..--': ', ', '.-.-.-': '.',
                     '..--..': '?', '-..-.': '/', '-....-': '-',
-                    '-.--.': '(', '-.--.-': ')', ' ': ' ', '!': '!'}
+                    '-.--.': '(', '-.--.-': ')', ' ': ' ', '@': '@'}
 
 class IPMorse(Cloak):
 
@@ -64,7 +64,7 @@ class IPMorse(Cloak):
                 if character in morse_code:
                     self.data.append(morse_code[character])
                 else:
-                    self.data.append('!')
+                    self.data.append('@')
             debug(self.data)
 
     def send_EOT(self, iface=None):
@@ -113,8 +113,8 @@ class IPMorse(Cloak):
             else:
                 send(pkt, verbose=False, iface=iface)
 
-        elif dotdashorspace == "!":
-            # If the character is an undefined character (!), an arbitrary payload length will be chosen
+        elif dotdashorspace == "@":
+            # If the character is an undefined character (@), an arbitrary payload length will be chosen
             packet_string = urandom(404)
             pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
 
@@ -160,7 +160,7 @@ class IPMorse(Cloak):
                         elif length == 1337:
                             self.read_data += " "
                         elif length == 404:
-                            self.read_data += "!"
+                            self.read_data += "@"
                     else:
                         if pkt["IP"].flags == 0x00:
                             self.read_data += "."
