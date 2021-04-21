@@ -351,14 +351,17 @@ These cloak examples are meant to showcase the functionality of the cov3rt Frame
 ***
 #### DNS Case Modulation (DNSCaseModulation.py)
 **Classification**: Case Modulation
+
 | Argument | Type | Description | 
 | ----- | ----- | ------ |
 | ip_dst | str | Destination IP Address |
 | domain | str | Domain for sending modulated message |
+
 **Description**: This cloak sends data based on the modulation of the case of a specified domain, _self.domain_. This cloak takes an input string (ASCII) and converts it to a binary string, and then sends the data via case modulation. This is accomplished by sending a lowercase domain (ie google.com) for '0' and an uppercase domain (ie GOOGLE.COM) for '1'.
 ***
 #### DNS Timing (DNSTiming.py)
 **Classification**: Inter-Packet Timing
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
@@ -366,101 +369,125 @@ These cloak examples are meant to showcase the functionality of the cov3rt Frame
 | domaincont | str | Domain for sending timing message |
 | zerotiming | int / float | Delay between packets corresponding to '0' |
 | onetiming | int / float | Delay between packets corresponding to '1' |
+
 **Description**: This cloak sends data based on the delay between DNS Requests to a specified domain, _domaincont_. This cloak takes an input string (ASCII) and converts it to a binary string, and then sends the data by sending packets with corresponding delays between (_zerotiming_ / _onetiming_.)
 ***
 #### ICMP Echo Full Payload (ICMPEchoFullPayload.py)
 **Classification**: User Data Value Modulation (Reserved/Unused)
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
+
 **Description**: This cloak sends data within the payload of an ICMP Echo packet. The entire contents of the covert message are dumped directly into the payload and sent in plaintext.
 ***
 #### ICMP Echo Multi Payload (ICMPEchoMultiPayload.py)
 **Classification**: User Data Value Modulation (Reserved/Unused)
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
+
 **Description**: This cloak sends data within the payload of ICMP Echo packets. Each packet contains a single character of the covert message in plaintext within the payload of the packet.
 ***
 #### IP Identification (IPID.py)
 **Classification**: Random Value
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | EOT_ID | int | Identification Number designated as an EOT flag |
 | ip_dst | str | Destination IP Address |
+
 **Description**: This cloak sends data by modifying the ID field of IP packets. The ID of each packet sent is overridden to correspond to a single ASCII character from the covert message.
 ***
 #### IP Morse Code (IPMorse.py)
 **Classification**: Reserved/Unused
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
 | send_port | int | Outbound port of covert channel on sender's machine |
 | dest_port | int | Destination port of covert channel |
+
 **Description**: This cloak converts a message into Morse Code and modifies the Reserved Bit field of IP packets to send the message covertly. This channel sends a single dot or dash per packet in the Reserved Bit field. After each full character is transmitted, a delimiter packet with a payload length of 42 is sent. A packet with a payload length of 679 designates the end of the transmission.
 ***
 #### IP Reserved Bit (IPReservedBit.py)
 **Classification**: Reserved/Unused
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
+
 **Description**: This cloak sends data by modulation of the Reserved Bit of IP packets. This cloak takes an input string (ASCII) and converts it to a binary string and sends one binary character per packet.
 ***
 #### IPv6 "Hoppers" Hop Limit (IPv6Hoppers.py)
 **Classification**: Random Value
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | EOT_hl | int | Designated Hop Limit value for EOT packets |
 | ip_dst | str | Destination IPv6 Address |
+
 **Description**: This cloak sends data by overwriting the value of the Hop Limit field of IPv6 Packets. This cloak takes an input string (ASCII) and converts it to a binary string; A packet is sent for each character, replacing the Hop Limit field with the binary equivalent of the character. 
 > Note: In this channel, the EOT is determined by a packet with a Hop Limit matching that of _EOT_hl_. Therefore, it is important that EOT_hl not be equal to a character within the covert message, or else the communication could be cut short.
 ***
 #### TCP Patsy Four-Character Sequence Number (TCPFourCharPatsySeqNum.py)
 **Classification**: Random Value
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
 | ip_patsy | str | Middle-man IP Address for bouncing TCP packets to destination |
 | patsy_port | int | Port on _ip_patsy_ for bouncing TCP packets to destination |
-**Description**: This cloak sends data by altering the value of the Sequence Number (SEQ) field of TCP packets and sending them to a "patsy" or intermediary machine. To achieve this "middle-man" bounce, the sender IP address is spoofed as the destination IP address, _ip_dst_. The patsy receives unsolicited TCP packets and sends a SYN-RST or similar response to _ip_dst_ (thinking it was the original sender), completing our transmission. The Acknowledgement (ACK) number of of the response will be equal to our original SEQ + 1, allowing us to retrieve the covert message. Each packet sent in this method delivers four ASCII characters per packet in the SEQ field; in a case where less than four characters are left to be transmitted, the SEQ is padded with zeros. The EOT is designated by a packet with no payload (while all other packets contain a randomized payload length.)
-> Note: Any random IP address cannot work as a patsy. You must determine if the patsy address (and patsy port) will return packets when sent unsolicited TCP traffic. As a proof of concept, we tested this with a Raspberry Pi with the SSH port open. This setup was able to successfully bounce packets. Please note that in its current iteration, ==this patsy only works for SYN-ACK responses==. If a patsy returns SYN-RST packets, you will likely encounter random data instead of the desired message. This is due to SYN-RST packets changing the ACK number based on the length of the payload.
 
-> ==Important Note:== This channel is by no means perfected. This type of communication bouncing is prone to packet retransmissions and out-of-order arrival. A list of received packets is kept and matched against to prevent duplicate portions of the message. However, no order preservation has been implemented. This could be implemented somewhat easily (by including some sort of sequencing information in the packets) and is left to future developers if desired.
+**Description**: This cloak sends data by altering the value of the Sequence Number (SEQ) field of TCP packets and sending them to a "patsy" or intermediary machine. To achieve this "middle-man" bounce, the sender IP address is spoofed as the destination IP address, _ip_dst_. The patsy receives unsolicited TCP packets and sends a SYN-RST or similar response to _ip_dst_ (thinking it was the original sender), completing our transmission. The Acknowledgement (ACK) number of of the response will be equal to our original SEQ + 1, allowing us to retrieve the covert message. Each packet sent in this method delivers four ASCII characters per packet in the SEQ field; in a case where less than four characters are left to be transmitted, the SEQ is padded with zeros. The EOT is designated by a packet with no payload (while all other packets contain a randomized payload length.)
+
+> Note: Any random IP address cannot work as a patsy. You must determine if the patsy address (and patsy port) will return packets when sent unsolicited TCP traffic. As a proof of concept, we tested this with a Raspberry Pi with the SSH port open. This setup was able to successfully bounce packets. Please note that in its current iteration, **this patsy only works for SYN-ACK responses**. If a patsy returns SYN-RST packets, you will likely encounter random data instead of the desired message. This is due to SYN-RST packets changing the ACK number based on the length of the payload.
+
+> **Important Note:** This channel is by no means perfected. This type of communication bouncing is prone to packet retransmissions and out-of-order arrival. A list of received packets is kept and matched against to prevent duplicate portions of the message. However, no order preservation has been implemented. This could be implemented somewhat easily (by including some sort of sequencing information in the packets) and is left to future developers if desired.
 ***
 #### TCP One-Character Sequence Number (TCPOneCharSeqNum.py)
 **Classification**: Random Value
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
 | send_port | int | Outbound port of covert channel on sender's machine |
 | dest_port | int | Destination port of covert channel |
+
 **Description**: This cloak sends data by altering the value of the Sequence Number (SEQ) field of TCP packets. This cloak takes an input string (ASCII) and sends one packet per character, overwriting the SEQ number with the binary equivalent of the character. The EOT is designated as a packet with the IP Flags set to 0x06.
 ***
 #### UDP Checksum (UDPChecksum.py)
 **Classification**: Value Influencing
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
 | send_port | int | Outbound port of covert channel on sender's machine |
 | dest_port | int | Destination port of covert channel |
+
 **Description**: This cloak sends data by overwriting the checksum value of UDP packets. This cloak takes an input string (ASCII) and iterates over the string; For each character in the string, a UDP packet is sent with its checksum value set to the binary equivalent of the character. The payload of each packet contains fluff data, with the EOT packet also containing a checksum of 0x0000 rather than a character's value (ie 0x00D3.)
 ***
 #### UDP Flood
 **Classification**: Number of Elements
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
 | send_port | int | Outbound port of covert channel on sender's machine |
 | dest_port | int | Destination port of covert channel |
+
 **Description**: This cloak sends data by 'flooding' a destination with a number of packets corresponding to ASCII character values. Each packet sent has a randomized payload with a length of 1024. The receiver keeps count of the number of packets sent between delimiters in order to determine the character sent. A delimiter is designated as a packet with a payload length of 512. The EOT is designated as a packet with a payload length of 4.
 ***
 #### UDP Size Modulation
 **Classification**: User Data Value Modulation (Reserved/Unused)
+
 | Argument | Type | Description |
 | ----- | ----- | ----- |
 | ip_dst | str | Destination IP Address |
 | send_port | int | Outbound port of covert channel on sender's machine |
 | dest_port | int | Destination port of covert channel |
+
 **Description**: This cloak sends data by modulating the size of the payload of UDP packets. This cloak takes an input string (ASCII) and iterates over the data, sending packets whose payload lengths match the decimal ASCII values of each character of the data (ie payload length of 65 for 'A'.)
 ***
 ***
