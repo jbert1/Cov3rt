@@ -1,7 +1,7 @@
 from importlib import import_module
 from inspect import getmembers, isclass
 from os import listdir
-import cov3rt.Cloaks as CloakLocation
+from cov3rt import Cloaks as CloakLocation
 
 # Loop over the filenames within the Cloaks folder
 for filename in listdir('/'.join(CloakLocation.__file__.replace("\\", "/").split('/')[:-1])):

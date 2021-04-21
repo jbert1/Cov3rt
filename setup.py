@@ -20,7 +20,6 @@ setup(
     entry_points={
         'console_scripts': ['cov3rt=cov3rt.command_line:runApplication']
     },
-    python_requires='>=3.7',
     install_requires=['psutil',
         'scapy>=2.4.3',
         'npyscreen>=4.10.0',

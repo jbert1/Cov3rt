@@ -1,7 +1,7 @@
 from importlib import import_module
 from inspect import getmembers, isclass
 from os import listdir
-import cov3rt.UserCloaks as CloakLocation
+from cov3rt import UserCloaks as CloakLocation
 
 # Initially set module name
 module_name = ""
