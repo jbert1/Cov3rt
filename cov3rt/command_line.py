@@ -364,7 +364,7 @@ def runApplication():
                     value=""
                 )
                 # After selection, clear the screen
-                self.inputtext.when_value_edited = self.clearscreen
+                self.filename.when_value_edited = self.clearscreen
                 # Hide both of the elements
                 self.filename.hidden = True
                 self.inputtext.hidden = True
