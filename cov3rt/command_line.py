@@ -581,7 +581,7 @@ def runApplication():
                     # Set the default value
                     self.outfile = None
                 # Ensure the output file is not blank
-                elif (self.out_captout_fileure.value == ""):
+                elif (self.out_file.value == ""):
                     npyscreen.notify_wait("Output Capture must not be empty.", title="Output Filename Value Error")
                     editing = True
                 else:
@@ -623,7 +623,11 @@ def runApplication():
                     # Notify the user before the message is about to send
                     npyscreen.notify_wait("Listening for the message...", title="Message Status")
                     if (self.outfile):
-                        self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
+                        # Save the message
+                        m = self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
+                        f = open(self.outfile, "w")
+                        f.write(m)
+                        f.close()
                         # Notify the user the message has been received
                         if self.outcapfile:
                             npyscreen.notify_wait("Your message has been saved to {} and your capture has been saved to {}. Thank you for using cov3rt!".format(self.outfile, self.outcapfile), title="Message Received Successfully")
