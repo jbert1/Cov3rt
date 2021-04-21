@@ -40,8 +40,8 @@ class TCPOneCharSeqNum(Cloak):
         # Generate random  string to go into packet payload
         packet_string = urandom(randint(25, 50))
 
-        # Create packet with fluff payload and the IP flags set to 0x06 (TO BE UPDATED********************)
-        pkt = IP(dst=self.ip_dst, flags=0x06) / TCP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
+        # Create packet with fluff payload and the IP flags set to 0x04
+        pkt = IP(dst=self.ip_dst, flags=0x04) / TCP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:
@@ -80,7 +80,7 @@ class TCPOneCharSeqNum(Cloak):
     def packet_handler(self, pkt):
         """Specifies the packet handler for receiving information via the TCP Sequence Number Cloak."""
         if pkt.haslayer(TCP):
-            if pkt["IP"].dst == self.ip_dst and pkt["TCP"].sport == self.send_port and pkt["TCP"].dport == self.dest_port and pkt["IP"].flags != 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["TCP"].sport == self.send_port and pkt["TCP"].dport == self.dest_port and pkt["IP"].flags != 0x04:
                 self.read_data += chr(pkt["TCP"].seq)
                 debug("Received a '{}'".format(chr(pkt["TCP"].seq)))
                 info("String: {}".format(self.read_data))
@@ -88,7 +88,7 @@ class TCPOneCharSeqNum(Cloak):
     def recv_EOT(self, pkt):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
         if pkt.haslayer(TCP):
-            if pkt["IP"].dst == self.ip_dst and pkt["TCP"].sport == self.send_port and pkt["TCP"].dport == self.dest_port and pkt["IP"].flags == 0x06:
+            if pkt["IP"].dst == self.ip_dst and pkt["TCP"].sport == self.send_port and pkt["TCP"].dport == self.dest_port and pkt["IP"].flags == 0x04:
                 info("Received EOT")
                 return True
         return False

@@ -40,7 +40,7 @@ class UDPFlood(Cloak):
         # Create short random string of four characters for final packet
         packet_string = urandom(4)
         # Create packet and send
-        pkt = IP(dst=self.ip_dst, flags=0x04) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
+        pkt = IP(dst=self.ip_dst) / UDP(sport=self.send_port, dport=self.dest_port) / Raw(packet_string)
         if self.LOGLEVEL == DEBUG:
             send(pkt, verbose=True, iface=iface)
         else:

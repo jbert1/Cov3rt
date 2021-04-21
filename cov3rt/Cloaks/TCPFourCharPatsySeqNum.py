@@ -85,7 +85,7 @@ class TCPFourCharPatsySeqNum(Cloak):
     def packet_handler(self, pkt):
         """Specifies the packet handler for receiving information via the TCP Patsy Cloak."""
         if pkt.haslayer(TCP):
-            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_patsy and pkt["IP"].flags != 0x06 and pkt["TCP"].ack != 1:
+            if pkt["IP"].dst == self.ip_dst and pkt["IP"].src == self.ip_patsy and pkt["TCP"].ack != 1:
                 # If we've already received this packet, it is a retransmit and we should ignore it
                 if pkt in self.packets_recv:
                     return
