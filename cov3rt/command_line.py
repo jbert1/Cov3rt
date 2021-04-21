@@ -362,7 +362,9 @@ def runApplication():
                 self.inputtext = self.add(npyscreen.TitleText, relx=5, begin_entry_at=18, 
                     name="Text Input:",
                     value=""
-                )   
+                )
+                # After selection, clear the screen
+                self.inputtext.when_value_edited = self.clearscreen
                 # Hide both of the elements
                 self.filename.hidden = True
                 self.inputtext.hidden = True
@@ -690,8 +692,7 @@ def runApplication():
 
     # Prints a typical help screen for usage information
     def print_help():
-        print(
-              """Usage: cov3rt.py [-h] [-l] [-i] (-s | -r) -c cloak_id [Options]
+        print("""Usage: cov3rt.py [-h] [-l] [-i] (-s | -r) -c cloak_id [Options]
     Primary Arguments:
     -c,  --cloak          Selected covert channel implementation
     -s,  --send           Send information via the selected cloak
