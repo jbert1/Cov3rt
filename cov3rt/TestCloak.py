@@ -29,6 +29,9 @@ def recthread(recv_packets, checkdata):
         print("Data was not properly received. Received: '{}' instead of '{}'!".format(
             ''.join([i if i.isprintable() else "?" for i in data]), checkdata))
         return False
+    # Success
+    else:
+        print("Success!")
 
 
 # Create a dictionary with all User Defined Cloaks
