@@ -20,10 +20,11 @@ setup(
     entry_points={
         'console_scripts': ['cov3rt=cov3rt.command_line:runApplication']
     },
-    install_requires=['psutil',
-        'scapy>=2.4.3',
-        'npyscreen>=4.10.0',
-        'windows-curses>=2.2.0; platform_system == "Windows"'
+    python_requires='>=3.6.0',
+    install_requires=['psutil>=5.6.0',
+        'scapy>=2.4.0',
+        'npyscreen>=4.9',
+        'windows-curses>=1.0; platform_system == "Windows"'
     ],
     project_urls={
         'Documentation': 'https://github.com/jbert1/Cov3rt/blob/main/cov3rt-documentation.md',
