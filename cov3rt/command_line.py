@@ -630,18 +630,26 @@ def runApplication():
                         f.close()
                         # Notify the user the message has been received
                         if self.outcapfile:
-                            npyscreen.notify_wait("Your message has been saved to {} and your capture has been saved to {}. Thank you for using cov3rt!".format(self.outfile, self.outcapfile), title="Message Received Successfully")
+                            npyscreen.notify_confirm("Your message has been saved to {} and your capture has been saved to {}. Thank you for using cov3rt!".format(self.outfile, self.outcapfile), title="Message Received Successfully")
                         else:
-                            npyscreen.notify_wait("Your message has been saved to {}. Thank you for using cov3rt!".format(self.outfile), title="Message Received Successfully")
+                            npyscreen.notify_confirm("Your message has been saved to {}. Thank you for using cov3rt!".format(self.outfile), title="Message Received Successfully")
                     else:
                         self.decoded = self.cloak.recv_packets(self.timeoutval, self.maxcountval, self.ifaceval, self.infileval, self.outcapfile)
                         # Notify the user the message has been received
                         if self.outcapfile:
-                            npyscreen.notify_wait("Your capture has been saved to {}. Your secret message is '{}'. Thank you for using cov3rt!".format(self.outcapfile, 
-                                ''.join([i if i.isprintable() else "?" for i in self.decoded])), title="Message Received Successfully")
+                            npyscreen.notify_confirm("Your capture has been saved to {}. Your secret message is '{}'. Thank you for using cov3rt!".format(self.outcapfile, 
+                                ''.join([i 
+                                    if i.isprintable() else '\n'
+                                    if i == '\n' else '\t'
+                                    if i == '\t' else '?'
+                                    for i in self.decoded])), title="Message Received Successfully")
                         else:
-                            npyscreen.notify_wait("Your secret message is '{}'. Thank you for using cov3rt!".format(
-                                ''.join([i if i.isprintable() else "?" for i in self.decoded])), title="Message Received Successfully")
+                            npyscreen.notify_confirm("Your secret message is '{}'. Thank you for using cov3rt!".format(
+                                ''.join([i 
+                                    if i.isprintable() else '\n'
+                                    if i == '\n' else '\t'
+                                    if i == '\t' else '?'
+                                    for i in self.decoded])), title="Message Received Successfully")
                     self.parentApp.setNextForm(None)
             else:
                 npyscreen.notify_wait("You messed up somewhere. Try again.", title="What did you even do?")
@@ -1114,4 +1122,8 @@ def runApplication():
                         f.close()
                     # Simply print message
                     else:
-                        print(''.join([i if i.isprintable() else "?" for i in m]))
+                        print(''.join([i 
+                            if i.isprintable() else '\n'
+                            if i == '\n' else '\t'
+                            if i == '\t' else '?'
+                            for i in m]))
