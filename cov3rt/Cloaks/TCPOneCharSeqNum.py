@@ -87,7 +87,7 @@ class TCPOneCharSeqNum(Cloak):
 
     def recv_EOT(self, pkt):
         """Specifies the end-of-transmission packet that signals the end of transmission."""
-        if pkt.haslayer(IP):
+        if pkt.haslayer(TCP):
             if pkt["IP"].dst == self.ip_dst and pkt["TCP"].sport == self.send_port and pkt["TCP"].dport == self.dest_port and pkt["IP"].flags == 0x06:
                 info("Received EOT")
                 return True
