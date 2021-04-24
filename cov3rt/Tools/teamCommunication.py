@@ -18,10 +18,15 @@
 from threading import Thread
 import curses
 from cov3rt.UserCloaks import ICMPEchoFullPayload
+from sys import argv
+from re import search
 
-cloak = ICMPEchoFullPayload()
-
-
+# Cloaks
+recvcloak = ICMPEchoFullPayload()
+sendcloak = ICMPEchoFullPayload()
+# Regular expression to verify IP
+IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
+    
 # Field class
 class Field(object):
 
@@ -1455,142 +1460,152 @@ def createbox(screen, x1, x2, y1, y2):
     screen.refresh()
 
 # Receiving function for our thread
-
-
 def recthread():
-    global board, cloak, selected_field, screen
+    global board, recvcloak, selected_field, screen
     # Loop til you die
     while True:
         # Limit responses to 95 characters
-        resp = cloak.recv_packets()[:95]
+        resp = recvcloak.recv_packets()[:95]
         # Put the message on the board
         board.updateboard(resp)
         # Re-select the normally selected field
         selected_field.select()
         screen.refresh()
 
+# Two argument given
+if len(argv) == 3:
+    # Check receiver IP
+    if search(IP_REGEX, argv[1]) and search(IP_REGEX, argv[2]):
+        recvcloak.ip_dst = argv[1]
+        sendcloak.ip_dst = argv[2]
 
-# Initialize a curses window
-screen = curses.initscr()
-screen.keypad(True)
-curses.start_color()
-curses.echo(False)
+        # Initialize a curses window
+        screen = curses.initscr()
+        screen.keypad(True)
+        curses.start_color()
+        curses.echo(False)
 
-# Create the foundation of the message window
-createbox(screen, 0, 100, 0, 21)
-createbox(screen, 1, 99, 1, 15)
-sendatcoor(screen, 3, 17, "   Name: ")
-sendatcoor(screen, 3, 19, "Message: ")
+        # Create the foundation of the message window
+        createbox(screen, 0, 100, 0, 21)
+        createbox(screen, 1, 99, 1, 15)
+        sendatcoor(screen, 3, 17, "   Name: ")
+        sendatcoor(screen, 3, 19, "Message: ")
 
-# Initialize our fields
-board = Field(screen, 2, 97, 2, 14, 2)
-handle = Field(screen, 12, 30, 17, 17, 1)
-msg = Field(screen, 12, 84, 19, 19, 1)
+        # Initialize our fields
+        board = Field(screen, 2, 97, 2, 14, 2)
+        handle = Field(screen, 12, 30, 17, 17, 1)
+        msg = Field(screen, 12, 84, 19, 19, 1)
 
-# Set our connections for key input
-handle.Down.setfield(handle, msg)
-handle.Up.setfield(handle, msg)
-handle.Tab.setfield(handle, msg)
-handle.Backtab.setfield(handle, msg)
-msg.Down.setfield(msg, handle)
-msg.Up.setfield(msg, handle)
-msg.Tab.setfield(msg, handle)
-msg.Backtab.setfield(msg, handle)
-# Set the function for 'on-enter' key input
-handle.Enter.setfunction(handle, handle.returntext)
-msg.Enter.setfunction(msg, msg.returntext)
+        # Set our connections for key input
+        handle.Down.setfield(handle, msg)
+        handle.Up.setfield(handle, msg)
+        handle.Tab.setfield(handle, msg)
+        handle.Backtab.setfield(handle, msg)
+        msg.Down.setfield(msg, handle)
+        msg.Up.setfield(msg, handle)
+        msg.Tab.setfield(msg, handle)
+        msg.Backtab.setfield(msg, handle)
+        # Set the function for 'on-enter' key input
+        handle.Enter.setfunction(handle, handle.returntext)
+        msg.Enter.setfunction(msg, msg.returntext)
 
-# Initially select the handle
-selected_field = handle
-selected_field.select()
+        # Initially select the handle
+        selected_field = handle
+        selected_field.select()
 
-# Start up our thread as a daemon
-x = Thread(target=recthread, daemon=True)
-x.start()
+        # Start up our thread as a daemon
+        x = Thread(target=recthread, daemon=True)
+        x.start()
 
-keynum = 0
-# Exit on CTRL+C or ESC
-while (keynum != 27 and keynum != 3):
-    # Get the key that was pressed
-    keynum = screen.getch()
-    keyname = returnkeyname(keynum)
-    # Move up to the next field
-    if keyname == "UP":
-        selected_field = selected_field.Up.execute(selected_field)
-    # Move down to the next field
-    elif keyname == "DOWN":
-        selected_field = selected_field.Down.execute(selected_field)
-    # Tab to the next field
-    elif keyname == "TAB":
-        selected_field = selected_field.Tab.execute(selected_field)
-    # Backtab to the previous field
-    elif keyname == "BACKTAB":
-        selected_field = selected_field.Backtab.execute(selected_field)
-    # Printable characters
-    elif keyname == "PRINT":
-        # Add text to field
-        selected_field.addtext(chr(keynum))
-    # Space bar input
-    elif keyname == "SPACE":
-        # Add text to field
-        selected_field.addtext(" ")
-    # Backspace input
-    elif keyname == "BACKSPACE":
-        # Remove one character behind the cursor
-        selected_field.backspacetext(False)
-    # CTRL Backspace input
-    elif keyname == "CTRL_BACKSPACE":
-        # Remove line behind the cursor
-        selected_field.backspacetext(True)
-    # Delete input
-    elif keyname == "DELETE":
-        # Remove one character at the cursor
-        selected_field.deletetext(False)
-    # CTRL Delete input
-    elif keyname == "CTRL_DELETE":
-        # Remove all characters after the cursor
-        selected_field.deletetext(True)
-    # Move the cursor to the left one character
-    elif keyname == "LEFT":
-        # Check if at last character
-        if selected_field.cursor_x == selected_field.x1:
-            selected_field.moveinputcursor(100)
-        else:
-            selected_field.moveinputcursor(-1)
-    # Move the cursor to the leftmost character
-    elif (keyname == "CTRL_LEFT" or keyname == "HOME"):
-        selected_field.moveinputcursor(-100)
-    # Move the cursor to the right one character
-    elif keyname == "RIGHT":
-        # Check if at last character
-        if selected_field.cursor_x == selected_field.x2:
-            selected_field.moveinputcursor(-100)
-        else:
-            selected_field.moveinputcursor(1)
-    # Move the cursor to the rightmost character
-    elif (keyname == "CTRL_RIGHT" or keyname == "END"):
-        selected_field.moveinputcursor(100)
-    # Ingest and send the handle and message
-    elif keyname == "ENTER":
-        # Tell the user we are sending
-        sendatcoor(screen, 50, 17, "Sending...")
-        # Get the text values of the handle and message
-        strhandle = handle.Enter.execute(handle)
-        strmsg = msg.Enter.execute(msg)
-        # Format and ingest the data
-        cloak.ingest("{} > {}".format(strhandle, strmsg))
-        # Send the packets and EOT
-        cloak.send_packets()
-        cloak.send_EOT()
-        sendatcoor(screen, 50, 17, "          ")
-        # Clear the message field and move the cursor back
-        msg.cleartext()
-        msg.moveinputcursor(-100)
-    # Keep the screen refreshed
-    screen.refresh()
+        keynum = 0
+        # Exit on CTRL+C or ESC
+        while (keynum != 27 and keynum != 3):
+            # Get the key that was pressed
+            keynum = screen.getch()
+            keyname = returnkeyname(keynum)
+            # Move up to the next field
+            if keyname == "UP":
+                selected_field = selected_field.Up.execute(selected_field)
+            # Move down to the next field
+            elif keyname == "DOWN":
+                selected_field = selected_field.Down.execute(selected_field)
+            # Tab to the next field
+            elif keyname == "TAB":
+                selected_field = selected_field.Tab.execute(selected_field)
+            # Backtab to the previous field
+            elif keyname == "BACKTAB":
+                selected_field = selected_field.Backtab.execute(selected_field)
+            # Printable characters
+            elif keyname == "PRINT":
+                # Add text to field
+                selected_field.addtext(chr(keynum))
+            # Space bar input
+            elif keyname == "SPACE":
+                # Add text to field
+                selected_field.addtext(" ")
+            # Backspace input
+            elif keyname == "BACKSPACE":
+                # Remove one character behind the cursor
+                selected_field.backspacetext(False)
+            # CTRL Backspace input
+            elif keyname == "CTRL_BACKSPACE":
+                # Remove line behind the cursor
+                selected_field.backspacetext(True)
+            # Delete input
+            elif keyname == "DELETE":
+                # Remove one character at the cursor
+                selected_field.deletetext(False)
+            # CTRL Delete input
+            elif keyname == "CTRL_DELETE":
+                # Remove all characters after the cursor
+                selected_field.deletetext(True)
+            # Move the cursor to the left one character
+            elif keyname == "LEFT":
+                # Check if at last character
+                if selected_field.cursor_x == selected_field.x1:
+                    selected_field.moveinputcursor(100)
+                else:
+                    selected_field.moveinputcursor(-1)
+            # Move the cursor to the leftmost character
+            elif (keyname == "CTRL_LEFT" or keyname == "HOME"):
+                selected_field.moveinputcursor(-100)
+            # Move the cursor to the right one character
+            elif keyname == "RIGHT":
+                # Check if at last character
+                if selected_field.cursor_x == selected_field.x2:
+                    selected_field.moveinputcursor(-100)
+                else:
+                    selected_field.moveinputcursor(1)
+            # Move the cursor to the rightmost character
+            elif (keyname == "CTRL_RIGHT" or keyname == "END"):
+                selected_field.moveinputcursor(100)
+            # Ingest and send the handle and message
+            elif keyname == "ENTER":
+                # Tell the user we are sending
+                sendatcoor(screen, 50, 17, "Sending...")
+                # Get the text values of the handle and message
+                strhandle = handle.Enter.execute(handle)
+                strmsg = msg.Enter.execute(msg)
+                # Format and ingest the data
+                sendcloak.ingest("{} > {}".format(strhandle, strmsg))
+                # Send the packets and EOT
+                sendcloak.send_packets()
+                sendcloak.send_EOT()
+                sendatcoor(screen, 50, 17, "          ")
+                # Clear the message field and move the cursor back
+                msg.cleartext()
+                msg.moveinputcursor(-100)
+            # Keep the screen refreshed
+            screen.refresh()
 
-# Clean up on exit
-screen.keypad(False)
-curses.endwin()
-curses.echo(True)
-curses.nocbreak()
+        # Clean up on exit
+        screen.keypad(False)
+        curses.endwin()
+        curses.echo(True)
+        curses.nocbreak()
+    # IP didn't match
+    else:
+        print("Usage: 'python teamCommunication.py <src_ip> <dst_ip>'")
+else:
+    # Wrong arguments
+    print("Usage: 'python teamCommunication.py <src_ip> <dst_ip>'")
