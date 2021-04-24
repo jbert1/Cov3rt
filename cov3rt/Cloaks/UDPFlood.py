@@ -18,7 +18,7 @@ class UDPFlood(Cloak):
     # Classification, name, and description
     classification = Cloak.NUMBER_OF_ELEMENTS
     name = "UDP Number of Elements"
-    description = "A very simple cloak based on a packet per ASCII\ncharacter."
+    description = "A cloak that sends a number of packets equal to the\nASCII integer value of the selected character."
 
     def __init__(self, ip_dst="192.168.1.101", send_port=25565, dest_port=25577):
         self.ip_dst = ip_dst
