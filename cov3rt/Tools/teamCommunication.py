@@ -1592,7 +1592,7 @@ if len(argv) == 4:
                 # Send the packets and EOT
                 sendcloak.send_packets(iface=INTERFACE)
                 # Put the message on the board
-                board.updateboard(resp)
+                board.updateboard("{} > {}".format(strhandle, strmsg))
                 sendatcoor(screen, 50, 17, "          ")
                 # Clear the message field and move the cursor back
                 msg.cleartext()
