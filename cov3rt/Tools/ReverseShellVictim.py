@@ -1,10 +1,10 @@
 from subprocess import run
-from cov3rt.Cloaks.ICMPEchoFullPayload import ICMPEchoFullPayload
+from cov3rt.UserCloaks import ICMPEchoFullPayload
 from time import sleep
 from os import name as OS_NAME
 
-SENDER_IP = "10.0.1.1"
-RECEIVER_IP = "10.0.1.2"
+SENDER_IP = "138.47.135.235"
+RECEIVER_IP = "138.47.135.235"
 sender = ICMPEchoFullPayload(ip_dst=SENDER_IP)
 receiver = ICMPEchoFullPayload(ip_dst=RECEIVER_IP)
 

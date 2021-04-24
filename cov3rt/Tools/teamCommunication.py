@@ -17,7 +17,7 @@
 
 from threading import Thread
 import curses
-from cov3rt.Cloaks import ICMPEchoFullPayload
+from cov3rt.UserCloaks import ICMPEchoFullPayload
 
 cloak = ICMPEchoFullPayload()
 

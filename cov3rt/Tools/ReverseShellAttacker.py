@@ -1,8 +1,8 @@
-from cov3rt.Cloaks.ICMPEchoFullPayload import ICMPEchoFullPayload
+from cov3rt.UserCloaks import ICMPEchoFullPayload
 
 TIMEOUT = 5
-SENDER_IP = "10.0.1.2"
-RECEIVER_IP = "10.0.1.1"
+SENDER_IP = "138.47.135.235"
+RECEIVER_IP = "138.47.135.235"
 sender = ICMPEchoFullPayload(ip_dst=SENDER_IP)
 receiver = ICMPEchoFullPayload(ip_dst=RECEIVER_IP)
 
