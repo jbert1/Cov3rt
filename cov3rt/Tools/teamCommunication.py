@@ -17,14 +17,14 @@
 
 from threading import Thread
 import curses
-from cov3rt.UserCloaks import ICMPEchoFullPayload
+from cov3rt.Cloaks import UDPSizeModulation
 from sys import argv
 from re import search
 from psutil import net_if_stats
 
 # Cloaks
-recvcloak = ICMPEchoFullPayload()
-sendcloak = ICMPEchoFullPayload()
+recvcloak = UDPSizeModulation()
+sendcloak = UDPSizeModulation()
 # Regular expression to verify IP
 IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$"
     
@@ -1478,6 +1478,8 @@ if len(argv) == 4:
     # Check receiver IP
     if search(IP_REGEX, argv[1]) and search(IP_REGEX, argv[2]) and argv[3] in net_if_stats():
         recvcloak.ip_dst = argv[1]
+        recvcloak.send_port = sendcloak.dest_port
+        recvcloak.dest_port = sendcloak.send_port
         sendcloak.ip_dst = argv[2]
         INTERFACE = argv[3]
         # Initialize a curses window
@@ -1591,11 +1593,6 @@ if len(argv) == 4:
                 sendcloak.ingest("{} > {}".format(strhandle, strmsg))
                 # Send the packets and EOT
                 sendcloak.send_packets(iface=INTERFACE)
-                # Put the message on the board
-                board.updateboard(strmsg)
-                # Re-select the normally selected field
-                selected_field.select()
-                screen.refresh()
                 sendatcoor(screen, 50, 17, "          ")
                 # Clear the message field and move the cursor back
                 msg.cleartext()
