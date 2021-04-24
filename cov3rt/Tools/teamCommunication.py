@@ -1614,3 +1614,4 @@ if len(argv) == 4:
 else:
     # Wrong arguments
     print("Usage: 'python teamCommunication.py <src_ip> <dst_ip> <interface>'")
+    print("Your arguments: {}".format(argv))
