@@ -1478,8 +1478,6 @@ if len(argv) == 4:
     # Check receiver IP
     if search(IP_REGEX, argv[1]) and search(IP_REGEX, argv[2]) and argv[3] in net_if_stats():
         recvcloak.ip_dst = argv[1]
-        recvcloak.send_port = sendcloak.dest_port
-        recvcloak.dest_port = sendcloak.send_port
         sendcloak.ip_dst = argv[2]
         INTERFACE = argv[3]
         # Initialize a curses window
@@ -1593,6 +1591,8 @@ if len(argv) == 4:
                 sendcloak.ingest("{} > {}".format(strhandle, strmsg))
                 # Send the packets and EOT
                 sendcloak.send_packets(iface=INTERFACE)
+                # Put the message on the board
+                board.updateboard(resp)
                 sendatcoor(screen, 50, 17, "          ")
                 # Clear the message field and move the cursor back
                 msg.cleartext()
