@@ -20,6 +20,7 @@ import curses
 from cov3rt.UserCloaks import ICMPEchoFullPayload
 from sys import argv
 from re import search
+from psutil import net_if_stats
 
 # Cloaks
 recvcloak = ICMPEchoFullPayload()
@@ -1461,24 +1462,24 @@ def createbox(screen, x1, x2, y1, y2):
 
 # Receiving function for our thread
 def recthread():
-    global board, recvcloak, selected_field, screen
+    global board, recvcloak, selected_field, screen, INTERFACE
     # Loop til you die
     while True:
         # Limit responses to 95 characters
-        resp = recvcloak.recv_packets()[:95]
+        resp = recvcloak.recv_packets(iface=INTERFACE)[:95]
         # Put the message on the board
         board.updateboard(resp)
         # Re-select the normally selected field
         selected_field.select()
         screen.refresh()
 
-# Two argument given
-if len(argv) == 3:
+# Three arguments given
+if len(argv) == 4:
     # Check receiver IP
-    if search(IP_REGEX, argv[1]) and search(IP_REGEX, argv[2]):
+    if search(IP_REGEX, argv[1]) and search(IP_REGEX, argv[2]) and argv[3] in net_if_stats():
         recvcloak.ip_dst = argv[1]
         sendcloak.ip_dst = argv[2]
-
+        INTERFACE = argv[3]
         # Initialize a curses window
         screen = curses.initscr()
         screen.keypad(True)
@@ -1589,8 +1590,12 @@ if len(argv) == 3:
                 # Format and ingest the data
                 sendcloak.ingest("{} > {}".format(strhandle, strmsg))
                 # Send the packets and EOT
-                sendcloak.send_packets()
-                sendcloak.send_EOT()
+                sendcloak.send_packets(iface=INTERFACE)
+                # Put the message on the board
+                board.updateboard(strmsg)
+                # Re-select the normally selected field
+                selected_field.select()
+                screen.refresh()
                 sendatcoor(screen, 50, 17, "          ")
                 # Clear the message field and move the cursor back
                 msg.cleartext()
@@ -1605,7 +1610,7 @@ if len(argv) == 3:
         curses.nocbreak()
     # IP didn't match
     else:
-        print("Usage: 'python teamCommunication.py <src_ip> <dst_ip>'")
+        print("Usage: 'python teamCommunication.py <src_ip> <dst_ip> <interface>'")
 else:
     # Wrong arguments
-    print("Usage: 'python teamCommunication.py <src_ip> <dst_ip>'")
+    print("Usage: 'python teamCommunication.py <src_ip> <dst_ip> <interface>'")
