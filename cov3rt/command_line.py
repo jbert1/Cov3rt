@@ -731,6 +731,7 @@ def runApplication():
     -h,  --help           Show this help screen
     -l,  --listCloaks     List available cloaks
     -i,  --interactive    Display an interactive shell for communication
+    -if, --iface          Interface for the packet handler
     -d,  --default        Use the default parameters for the cloak
     -v,  --verbose        Increase verbosity
     -vv, --veryVerbose    Further increase verbosity"""
@@ -883,6 +884,19 @@ def runApplication():
             # Send message
             if ("-s" in argv or "--send" in argv):
                 SENDING = True
+                # Interface
+                if ("-if" in argv or "--iface" in argv):
+                    try:
+                        index = argv.index("-if")
+                    except:
+                        index = argv.index("--iface")
+                    # Ensure the next positional argument is correct
+                    try:
+                        INTERFACE = argv[index + 1]
+                    # Missing following positional argument
+                    except IndexError:
+                        error("Missing interface value!")
+                        exit()
                 # Console Message
                 if ("-m" in argv or "--message" in argv):
                     try:
@@ -1109,6 +1123,7 @@ def runApplication():
                 cloak.ingest(message)
                 # Send packets
                 cloak.send_packets(INTERFACE, PACKET_DELAY, DELIMITER_DELAY, END_DELAY)
+                print(INTERFACE)
             elif RECEIVING:
                 # Receive packets
                 if OUTPUT_PCAP:
