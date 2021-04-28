@@ -1,9 +1,8 @@
 # Introduction to the cov3rt Framework
 _A capstone project created by Justin Berthelot, Samuel Dominguez, Daniel Munger, and Christopher Rice at Louisiana Tech University for the Cyber Engineering Senior Design Symposium, Spring 2021_
-(this is a temporary header, feel free to improve/change it)
 
 ## The Purpose of cov3rt
-blah blah yeah it's cool or whatever idk, someone can fill this in :)
+Despite the prevalence of covert channels in cyber attacks, no standardized tools exist for creation, management, and deployment of network covert channels. The cov3rt framework seets to provide developers, red teams, and network administrators with a python environment to integrate and deploy covert channels into their existing workflows. 
 
 ## Installation of cov3rt
 The cov3rt framework is designed for **Python 3** (v3.4.1 or newer.)
@@ -322,24 +321,58 @@ def packet_handler(...):
 ***
 
 # The cov3rt Command Line Interface
-how the CLI works and what it is, can be detailed but don't get TOO into the weeds
-look, mom, i can send covert messages from the command line!
+The command line application parses through provided arguments to quickly deploy cloaks in the field for one-liner commands. In addition to the traditional message and file input, the command line application can take input from stdin and can therefore be "piped" with other shell commands.
 
-## Options
-| Option | Explanation|
+## Command Line Options
+
+### Primary Arguments
+| Option | Description |
 | ----- | ----- |
-| -h (Help) | Shows the help screen etc |
-| -l (List) | Lists the Cloaks found in the _XYZXYZ_ folder, usable by the framework |
-| etc | etc |
+| -c | Selected covert channel implementation |
+| -s | Send data via the selected cloak |
+| -r | Receive data via the selected cloak |
+
+### Send Options
+| Option | Description |
+| ----- | ----- |
+| -m | Send a string message via the selected cloak |
+| -f | Send file contents via the selected cloak |
+
+### Receive Options
+| Option | Description |
+| ----- | ----- |
+| -t | Timeout (in seconds) for the packet handler |
+| -mc | Max number of packets for the packet handler |
+| -in | Static analysis of a capture file |
+| -of | Output the received message to a file |
+| -op | Output the received packets to a capture file |
+
+### Delay Options
+| Option | Description |
+| ----- | ----- |
+| -pd | Delay between packets |
+| -dd | Delay before each data delimeter |
+| -ed | Delay before the end-of-transmission |
+
+### Other Options
+| Option | Description |
+| ----- | ----- |
+| -h | Display the help screen |
+| -l | List the available cloaks in the current environment |
+| -i | Launch the interactive TUI |
+| -if | Select the network interface for cloak communication |
+| -d | Use the default parameters for the selected cloak |
+| -v | Increase verbosity of cloak communication |
+| -vv | Further increase verbosity of cloak communication |
 
 ***
 ***
 ***
 
 # The cov3rt Terminal User Interface
-how the TUI works and what it can do
-just give a short walkthrough of how it works and how it is accomplished with npyscreen, can stay mostly high level, but give some technical details
-something about CTRL+X and exec() /s
+The cov3rt application includes a Terminal User Interface (TUI) which provides a more robust user experience. This TUI serves the purpose of providing the user with a simpler interface for those that are not as comfortable with a command-line interface.
+
+The interactive TUI contains all the functionality of the command-line interface with the exception of receiving stdin. The interactive TUI includes extra functionality to list available network interfaces when the user plans to send or receive information with a selected cloak.
 
 ***
 ***
@@ -493,5 +526,4 @@ These cloak examples are meant to showcase the functionality of the cov3rt Frame
 ***
 ***
 # Example Use Case for the cov3rt Framework: Teamserver Communication Application Proof-of-Concept
-The cov3rt framework goes beyond sending and receiving messages and files directly with the CLI / TUI. The framework itself can be imported and called upon to perform actions for programs, such as a covert channel based team communication server.
-etc etc lorem ipsum idk
+The cov3rt framework goes beyond sending and receiving messages and files directly with the CLI / TUI. The framework itself can be imported and called upon to perform actions for programs, such as a covert channel based team communication server. We have created a proof-of-concept implementation of a two-way teamserver for continuous communication over a selected cloak. The user can find, use, and inspect this tool in the "Tools" section of our file structure.
