@@ -2,7 +2,7 @@
 _A capstone project created by Justin Berthelot, Samuel Dominguez, Daniel Munger, and Christopher Rice at Louisiana Tech University for the Cyber Engineering Senior Design Symposium, Spring 2021_
 
 ## The Purpose of cov3rt
-Despite the prevalence of covert channels in cyber attacks, no standardized tools exist for creation, management, and deployment of network covert channels. The cov3rt framework seets to provide developers, red teams, and network administrators with a python environment to integrate and deploy covert channels into their existing workflows. 
+Despite the prevalence of covert channels in cyber attacks, no standardized tools exist for creation, management, and deployment of network covert channels. The cov3rt framework seeks to provide developers, red teams, and network administrators with a Python environment to integrate and deploy covert channels into their existing workflows. 
 
 ## Installation of cov3rt
 The cov3rt framework is designed for **Python 3** (v3.4.1 or newer.)
@@ -90,12 +90,12 @@ class ExampleCloak(Cloak):
 ***
 ## Required Functions within Cloak.py
 These functions are the **minimum** requirements for a Cloak to be compatible with the cov3rt framework. These functions provide base functionality for the framework to use a cloak, such as the ability to ingest data and send/receive packets. Additional optional functions exist as well for ease-of-use improvements such as End-of-Transmission functionalities and delimiters.
-***
+
 #### Ingest (ingest)
 ```
 ingest(self, data)
-    self : required argument
-    data : can be any type as desired, this is the data to be sent by the Cloak
+    self | no type          | required argument
+    data | any type desired | can be any type as desired, this is the data to be sent by the Cloak
 ```
 This function takes in a _data_ argument and formats said data to be used in a meaningful way within the cloak. Data can be of any type desired, as it is up to the developer to determine how to format and ingest their data. When data (ie input text, a string, etc.) is passed to a cloak through the cov3rt framework CLI/TUI, the _ingest_ function is called to accomplish this (hence why it is required.) Ingested data is recommended to be written to an instance variable such as _self.data_.
 ```py
@@ -109,15 +109,15 @@ def ingest(self, data):
     else:
         raise TypeError("'data' must be of type 'str'") # we recommend errors like this
 ```
-***
+
 #### Send Packets (send_packets)
 ```
 send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay=None)
-    self : required argument
-    iface : 'str', a valid network interface on the machine to send packets on
-    packetDelay : 'int' or 'float', delay between each packet sent
-    delimitDelay : 'int' or 'float', delay before sending delimiter
-    endDelay : 'int' or 'float', delay before sending EOT
+    self         | no type      | required argument
+    iface        | str          | a valid network interface on the machine to send packets on
+    packetDelay  | int or float | delay between each packet sent
+    delimitDelay | int or float | delay before sending delimiter
+    endDelay     | int or float | delay before sending EOT
 ```
 This function performs the sending functionality of the cloak by calling the _send_packet_ function as desired by the developer. For example, if a cloak sends a character per packet, _send_packets_ may iterate over _self.data_, calling _send_packet_ for each iteration. This function should return _True_ once completed.
 ```py
@@ -147,9 +147,9 @@ def send_packets(self, iface=None, packetDelay=None, delimitDelay=None, endDelay
 #### Send Packet (send_packet)
 ```
 send_packet(self, data, iface=None)
-    self : required argument
-    data : can be of any type as desired, this is the data being sent in a packet
-    iface : 'str', a valid network interface on the machine to send packets on
+    self  | no type  | required argument
+    data  | any type | the data being sent in a packet
+    iface | str      | a valid network interface on the machine to send packets on
 ```
 This function should be defined to take in a portion (or all) of _self.data_ and then craft and send a singular packet as part of the cloak. This can be accomplished by crafting a packet with Scapy and calling Scapy's _send_ function. _send_packet_ should be called within _send_packets_ in order to create and send network traffic.
 ```py
@@ -170,8 +170,8 @@ def send_packet(self, databit, iface=None):
 #### Packet Handler for Sniff Function (packet_handler)
 ```
 packet_handler(self, pkt)
-    self : required argument
-    pkt : Packet object, fed into the packet_handler as part of the sniff in recv_packets
+    self | no type       | required argument
+    pkt  | Packet object | fed into the packet_handler as part of the sniff in recv_packets
 ```
 This function specifies the packet handler used to filter packets as they are received. The _packet_handler_ function is passed to the _sniff_ function of Scapy in order to receive and process network traffic as part of the _recv_packets_ function. The packet handler's purpose is to analyze each packet to determine if it is part of the covert channel; if a packet is determined to be part of the channel, the packet handler will extract the hidden data from the packet, writing it to a variable (ie _self.read_data_.)
 ```py
@@ -198,12 +198,12 @@ def recv_packets(...):
 #### Receive Packets (recv_packets)
 ```
 recv_packets(self, timeout=None, max_count=None, iface=None, in_file=None, out_file=None)
-    self : required argument
-    timeout : 'int' or 'float', time before exiting
-    max_count : 'int', maximum number of packets received before exiting
-    iface : 'str', a valid network interface on the machine to receive packets on
-    in_file : 'str', path to a .pcap input file for static analysis purposes
-    out_file : 'str', path to a desired output file for saving a .pcap of received traffic
+    self      | no type      | required argument
+    timeout   | int or float | time before exiting
+    max_count | int          | maximum number of packets received before exiting
+    iface     | str          | a valid network interface on the machine to receive packets on
+    in_file   | str          | path to a .pcap input file for static analysis purposes
+    out_file  | str          | path to a desired output file for saving a .pcap of received traffic
 ```
 This function receives packets in the cloak and then decodes the covert message. Scapy's _sniff_ function should be called within _recv_packets_, with _self.packet_handler_ being passed as the packet handler argument. Once the _sniff_ function returns, the extracted information can be decoded or returned as-is (depending on your implementation.) If the data decode step occurred on-the-fly in the _packet_handler_, you may only need to return _self.read_data_ without any extra steps.
 ```py
@@ -237,8 +237,8 @@ These functions are provided to give additional flexibility to Cloak implementat
 #### Send End-of-Transmission Packet (send_EOT)
 ```
 send_EOT(self, iface=None)
-    self : required argument
-    iface : 'str', a valid network interface on the machine to send packets on
+    self  | no type | required argument
+    iface | str     | a valid network interface on the machine to send packets on
 ```
 This function sends an End-of-Transmission packet to signal the end of a covert message stream to a receiver. The _recv_EOT_ function should also be implemented if this function is used. This function should be called at the end of the _send_packets_ function.
 ```py
@@ -255,8 +255,8 @@ def send_EOT(self, iface=None):
 #### Receive End-of-Transmission Packet (recv_EOT)
 ```
 recv_EOT(self, pkt)
-    self : required argument
-    pkt: Packet object, fed into the recv_EOT as part of the sniff in recv_packets
+    self | no type       | required argument
+    pkt  | Packet object | fed into the recv_EOT as part of the sniff in recv_packets
 ```
 This function works alongside the _packet_handler_ in the _sniff_ function to receive an End-of-Transmission packet. The _send_EOT_ function should also be implemented if this function is used. To use this function, it should be called in the _sniff_ function as the _stop_filter_ argument (example shown below.) This function should return _True_ if the EOT packet is received, and _False_ in any other case.
 ```py
@@ -280,8 +280,8 @@ def recv_packets(...):
 #### Send Delimiter (send_delimiter)
 ```
 send_delimiter(self, iface=None)
-    self : required argument
-    iface : 'str', a valid network interface on the machine to send packets on
+    self  | no type | required argument
+    iface | str     | a valid network interface on the machine to send packets on
 ```
 This function sends a delimiter packet of choice to signal the end of a data stream to a receiver (for example, if you wanted to delimit per line or per character.) There is no corresponding _recv_delimiter_ function built in to Cloak.py -- we found it easier for delimiters to be extracted as part of the _packet_handler_ rather than trying to force in another method of detection. However, if desired, you could create a _recv_delimiter_ function and call it within the _packet_handler_.
 An example of sending and receiving delimiters is shown below.
@@ -321,7 +321,7 @@ def packet_handler(...):
 ***
 
 # The cov3rt Command Line Interface
-The command line application parses through provided arguments to quickly deploy cloaks in the field for one-liner commands. In addition to the traditional message and file input, the command line application can take input from stdin and can therefore be "piped" with other shell commands.
+The command line application parses through provided arguments to quickly deploy cloaks in the field as one-liner commands. In addition to the traditional message and file input, the command line application can take input from stdin and can therefore be "piped" with other shell commands.
 
 ## Command Line Options
 
@@ -343,9 +343,9 @@ The command line application parses through provided arguments to quickly deploy
 | ----- | ----- |
 | -t | Timeout (in seconds) for the packet handler |
 | -mc | Max number of packets for the packet handler |
-| -in | Static analysis of a capture file |
+| -in | Static analysis of a capture file (pcap) |
 | -of | Output the received message to a file |
-| -op | Output the received packets to a capture file |
+| -op | Output the received packets to a capture file (pcap) |
 
 ### Delay Options
 | Option | Description |
