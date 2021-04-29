@@ -527,3 +527,50 @@ These cloak examples are meant to showcase the functionality of the cov3rt Frame
 ***
 # Example Use Case for the cov3rt Framework: Teamserver Communication Application Proof-of-Concept
 The cov3rt framework goes beyond sending and receiving messages and files directly with the CLI / TUI. The framework itself can be imported and called upon to perform actions for programs, such as a covert channel based team communication server. We have created a proof-of-concept implementation of a two-way teamserver for continuous communication over a selected cloak. The user can find, use, and inspect this tool in the "Tools" section of our file structure.
+
+## Importing Cloaks in User-Created Tools
+Cloaks can be imported directly from the cov3rt module. An example of importing and setting up a sender in the 'UDP Payload' cloak from the 'teamCommunication.py' tool is shown below.
+```py
+from sys import argv
+from cov3rt.Cloaks import UDPSizeModulation
+...
+# Instantiate sender
+sendcloak = UDPSizeModulation()
+...
+# Set the sender destination IP addresses
+sendcloak.ip_dst = argv[2]
+# Grab the network interface
+INTERFACE = argv[3]
+...
+# Format and ingest the user's handle (name) and message
+sendcloak.ingest("{} > {}".format(strhandle, strmsg))
+# Send the packets
+sendcloak.send_packets(iface=INTERFACE)
+```
+
+Similarly, we setup and implement a receiver in the code, but we require threading to constantly listen for packets as we send messages.
+
+```py
+from sys import argv
+from cov3rt.Cloaks import UDPSizeModulation
+...
+# Receiving function for our thread
+def recthread():
+    global board, recvcloak, selected_field, screen, INTERFACE
+    # Loop until the the program exits
+    while True:
+        # Limit responses to 95 characters
+        resp = recvcloak.recv_packets(iface=INTERFACE)[:95]
+...
+# Instantiate receiver
+recvcloak = UDPSizeModulation()
+...
+# Set the receiver destination IP addresses
+recvcloak.ip_dst = argv[1]
+...
+# Start up our thread as a daemon
+x = Thread(target=recthread, daemon=True)
+x.start()
+```
+```
+
