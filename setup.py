@@ -34,7 +34,7 @@ setup(
     name='cov3rt',
     packages=setuptools.find_packages(),
     url='https://github.com/jbert1/Cov3rt/',
-    version='1.0.1',
+    version='1.0',
     zip_safe=False,
     long_description_content_type='text/markdown',
     long_description=return_description()
