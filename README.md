@@ -1,5 +1,7 @@
 # Cov3rt
 > Simplified covert channel creation, management, and deployment
+> 
+> *A capstone project created at Louisiana Tech University for the Cyber Engineering Senior Design Symposium, Spring 2021*
 
 ## Authors
 
