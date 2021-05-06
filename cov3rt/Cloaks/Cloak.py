@@ -18,7 +18,7 @@
 from abc import ABC, abstractmethod
 from logging import warning
 
-# Check priviliges based on OS
+# Check privileges based on OS
 try:
     from os import geteuid
     if geteuid() != 0:
